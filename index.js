@@ -1,15 +1,11 @@
-const http = require('http');
-const hostname = '127.0.0.1';
-const port = 3000;
+// index.js
+import http from 'http';
 
-// Create a server object and pass an arrow function
 const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello World');
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Hello World!');
 });
 
-// Let the server listen on 127.0.0.1:3000
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
+server.listen(3000, () => {
+  console.log('Server running at http://localhost:3000/');
 });
