@@ -1,10 +1,7 @@
-import { useState } from 'react'
 import '../App.css'
-import Button from '../components/button'
+import Button from '../components/Button'
 
 export default function Login() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
         <div className="background">
