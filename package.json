@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview --host 0.0.0.0 --port $PORT",
-    "start": "node index.js"
+    "start": "npm run build && node index.js"
   },
   "dependencies": {
     "express": "^4.21.1",
