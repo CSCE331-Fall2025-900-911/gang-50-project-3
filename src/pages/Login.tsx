@@ -7,7 +7,7 @@ export default function Login() {
         <div className="background">
             <div className="backgroundBox">
                 <div>
-                    <img src="../../public/sharetealogo.png" className="logo" alt="ShareTea logo" />
+                    <img src="/sharetealogo.png" className="logo" alt="ShareTea logo" />
                     <h2>Login with Employee ID</h2>
                 </div>
                 <div>
