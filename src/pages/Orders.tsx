@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
 export default function Orders() {
@@ -7,7 +7,8 @@ export default function Orders() {
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [employeeId] = useState(1); // Replace later with logged-in user
+  // note: employeeId is hardcoded for now, will be set after login
+  const [_employeeId] = useState(1); // Replace later with logged-in user 
 
   const API_URL = 'http://localhost:3000/api';
 
@@ -43,6 +44,21 @@ export default function Orders() {
     };
     loadItems();
   }, []);
+
+   if (error) {
+    return (
+      <div className="error-screen">
+        <CashierNavbar />
+        <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
+          <h2>Something went wrong </h2>
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()} className="btn">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // filter/selecting items based on category
   const filteredItems = selectedCategory
