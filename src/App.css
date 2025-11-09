@@ -29,6 +29,7 @@
 
 .button {
   margin-top: 2em; 
+  margin-bottom: 2em;
   background-color: #CF152D; 
   border-radius: 20px; 
   border: 1px solid transparent;
@@ -53,4 +54,8 @@
   width: 80%;
   height: 2em;
   font-size: 1em;
+}
+
+.google-login {
+  width: 40%;
 }
