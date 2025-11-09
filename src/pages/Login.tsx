@@ -22,7 +22,6 @@ export default function Login() {
             <div className="backgroundBox">
                 <div>
                     <img src="/sharetealogo.png" className="logo" alt="ShareTea logo" />
-                    <GoogleLogin onSuccess={handleLoginSuccess} onError={handleLoginError}/>
                     <h2>Login with Employee ID</h2>
                 </div>
                 <div>
@@ -34,6 +33,7 @@ export default function Login() {
                 <div>
                      <Button label="Login" onClick={() => {}}/>
                 </div>
+                <GoogleLogin onSuccess={handleLoginSuccess} onError={handleLoginError}/>
             </div>
       </div>
     </>
