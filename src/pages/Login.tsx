@@ -1,4 +1,5 @@
 import '../App.css'
+import Button from '../components/Button'
 import { GoogleLogin } from '@react-oauth/google'
 import type { CredentialResponse } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
