@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import CashierNavbar from '../components/CashierNavbar';
+//import CashierNavbar from '../components/CashierNavbar';
 
 export default function UpdateMenu() {
   const [viewItemId, setViewItemId] = useState("");
