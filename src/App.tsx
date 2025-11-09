@@ -1,6 +1,7 @@
 import './App.css'
 import Login from './pages/Login'
 import Orders from './pages/Orders'
+import UpdateMenu from './pages/update_menu'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/update_menu" element={<update_menu />} />
       </Routes>
     </Router>
   )
