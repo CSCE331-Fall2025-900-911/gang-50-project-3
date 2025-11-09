@@ -17,6 +17,13 @@ export default function Login() {
 
   return (
     <>
+      <div className="background">
+            <div className="backgroundBox">
+                <div>
+                    <img src="/sharetealogo.png" className="logo" alt="ShareTea logo" />
+                </div>
+            </div>
+      </div>
       <GoogleLogin
         onSuccess={handleLoginSuccess}
         onError={handleLoginError}
