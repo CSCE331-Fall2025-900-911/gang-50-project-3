@@ -31,10 +31,12 @@ export default function Login() {
                     <input type="text" placeholder="Last Name" className="input" />
                 </div> 
                 <Button label="Login" onClick={() => {}} />
-                <GoogleLogin
-                  onSuccess={handleLoginSuccess}
-                  onError={handleLoginError}
-                />
+                <div className="GoogleLogin">
+                  <GoogleLogin
+                    onSuccess={handleLoginSuccess}
+                    onError={handleLoginError}
+                  />
+                </div>
             </div> 
       </div>
     </>
