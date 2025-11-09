@@ -54,3 +54,14 @@
   height: 2em;
   font-size: 1em;
 }
+
+.google-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
