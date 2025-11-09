@@ -31,7 +31,7 @@ export default function Login() {
                     <input type="text" placeholder="Last Name" className="input" />
                 </div> 
                 <Button label="Login" onClick={() => {}} />
-                <div className="GoogleLogin">
+                <div className="googleLogin">
                   <GoogleLogin
                     onSuccess={handleLoginSuccess}
                     onError={handleLoginError}
