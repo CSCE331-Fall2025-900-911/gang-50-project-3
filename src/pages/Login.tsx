@@ -24,10 +24,6 @@ export default function Login() {
                     <img src="/sharetealogo.png" className="logo" alt="ShareTea logo" />
                     <h2>Login with Employee ID</h2>
                 </div>
-                <GoogleLogin
-                  onSuccess={handleLoginSuccess}
-                  onError={handleLoginError}
-                />
                 <div>
                     <h3>Employee ID</h3>
                     <input type="text" placeholder="Employee ID" className="input" />
@@ -35,6 +31,10 @@ export default function Login() {
                     <input type="text" placeholder="Last Name" className="input" />
                 </div> 
                 <Button label="Login" onClick={() => {}} />
+                <GoogleLogin
+                  onSuccess={handleLoginSuccess}
+                  onError={handleLoginError}
+                />
             </div> 
       </div>
     </>
