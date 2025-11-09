@@ -35,7 +35,9 @@ export default function Login() {
                 </div>
             </div>
       </div>
-      <GoogleLogin onSuccess={handleLoginSuccess} onError={handleLoginError}/>
+      <div className="googleButton">
+         <GoogleLogin onSuccess={handleLoginSuccess} onError={handleLoginError}/>
+      </div>
     </>
   )
 }
