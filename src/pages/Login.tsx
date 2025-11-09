@@ -1,6 +1,7 @@
 import '../App.css'
 import { GoogleLogin } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
+import { CredentialResponse } from '@react-oauth/google'
 
 
 export default function Login() {
