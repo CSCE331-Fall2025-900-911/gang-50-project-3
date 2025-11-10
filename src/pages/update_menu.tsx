@@ -67,7 +67,7 @@ export default function UpdateMenu() {
                   onChange={(e) => setViewItemId(e.target.value)}
                 />
                 <div className="mt-auto pt-2">
-                  <button id="viewDataSubmitButton" type="submit" className="btn-checkout">
+                  <button id="viewDataSubmitButton" type="submit" className="btn-updateMenu">
                     Submit
                   </button>
                 </div>
@@ -100,7 +100,7 @@ export default function UpdateMenu() {
                   />
                 </div>
                 <div className="mt-auto pt-2">
-                  <button type="submit" className="button">Update</button>
+                  <button type="submit" className="btn-updateMenu">Update</button>
                 </div>
               </form>
             </section>
@@ -151,7 +151,7 @@ export default function UpdateMenu() {
                   <label htmlFor="isAvailable" className={labelCl}>Available</label>
                 </div>
                 <div className="mt-auto flex items-center gap-2 pt-2">
-                  <button type="submit" className="button">Add</button>
+                  <button type="submit" className="btn-updateMenu">Add</button>
                 </div>
               </form>
             </section>
