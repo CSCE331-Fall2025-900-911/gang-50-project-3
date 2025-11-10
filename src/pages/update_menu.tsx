@@ -27,9 +27,6 @@ export default function UpdateMenu() {
     };
   }, []);
 
-  const buttonBase =
-    "rounded-2xl px-4 py-2 shadow hover:shadow-md transition font-medium";
-  const primaryBtn = `${buttonBase} bg-blue-600 text-white`;
   const inputBase =
     "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
   const labelCl = "text-sm font-semibold text-gray-700";
@@ -70,7 +67,7 @@ export default function UpdateMenu() {
                   onChange={(e) => setViewItemId(e.target.value)}
                 />
                 <div className="mt-auto pt-2">
-                  <button id="viewDataSubmitButton" type="submit" className={primaryBtn} style={{ color: "#CF152D" }}>
+                  <button id="viewDataSubmitButton" type="submit" className={button} style={{ color: "#CF152D" }}>
                     Submit
                   </button>
                 </div>
@@ -103,7 +100,7 @@ export default function UpdateMenu() {
                   />
                 </div>
                 <div className="mt-auto pt-2">
-                  <button type="submit" className={primaryBtn} style={{ color: "#CF152D" }}>Update</button>
+                  <button type="submit" className={button} style={{ color: "#CF152D" }}>Update</button>
                 </div>
               </form>
             </section>
@@ -154,7 +151,7 @@ export default function UpdateMenu() {
                   <label htmlFor="isAvailable" className={labelCl}>Available</label>
                 </div>
                 <div className="mt-auto flex items-center gap-2 pt-2">
-                  <button type="submit" className={primaryBtn} style={{ color: "#CF152D" }}>Add</button>
+                  <button type="submit" className={button} style={{ color: "#CF152D" }}>Add</button>
                 </div>
               </form>
             </section>
