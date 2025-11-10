@@ -65,7 +65,7 @@ export default function UpdateMenu() {
       </div>
 
       {/* Content area approximating the Pane absolute layout in a responsive grid */}
-      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 p-6 md:grid-cols-2 pt-8">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 p-6 md:grid-cols-2 pt-20">
         {/* View Item Data */}
         <section className="rounded-2xl border p-4 shadow-sm">
           <h2 className="mb-3 text-lg font-bold">View Item Data</h2>
