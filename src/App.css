@@ -54,3 +54,10 @@
   height: 2em;
   font-size: 1em;
 }
+
+.googleButton {
+  position: fixed;
+  bottom: 2em;
+  left: 50%;
+  transform: translateX(-50%);
+}
