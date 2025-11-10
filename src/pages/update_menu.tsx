@@ -30,7 +30,6 @@ export default function UpdateMenu() {
   const buttonBase =
     "rounded-2xl px-4 py-2 shadow hover:shadow-md transition font-medium";
   const primaryBtn = `${buttonBase} bg-blue-600 text-white`;
-  const secondaryBtn = `${buttonBase} bg-gray-100`;
   const inputBase =
     "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
   const labelCl = "text-sm font-semibold text-gray-700";
