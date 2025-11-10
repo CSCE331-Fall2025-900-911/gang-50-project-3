@@ -1,35 +1,38 @@
 import React, { useState } from "react";
 
+
 export const Customization: React.FC = () => {
   const customizationGroups = [
     {
-      label: "Size",
+      label: "Cup Sizes",
       options: ["Cup (S)", "Cup (M)", "Cup (L)"],
+     multiple: false
+
     },
     {
-      label: "Milk",
+      label: "Milk Options",
       options: ["Milk", "Non-Dairy Milk"],
+      multiple: false
     },
     {
-      label: "Extras",
+      label: "Add-ons",
       options: ["Bag", "Straw", "Napkin", "To-go Box", "Ice", "Lid"],
+      multiple: true
     },
   ];
 
-  // Optional: track selections
-  const [selections, setSelections] = useState<Record<string, string[]>>({});
+const [selections, setSelections] = useState<Record<string, string[]>>({});
 
-  const handleSelect = (group: string, option: string) => {
+  const handleSelect = (groupLabel: string, option: string, multiple: boolean) => {
     setSelections((prev) => {
-      const groupSelections = prev[group] || [];
-      const alreadySelected = groupSelections.includes(option);
-
-      return {
-        ...prev,
-        [group]: alreadySelected
-          ? groupSelections.filter((o) => o !== option) // deselect
-          : [...groupSelections, option], // select
-      };
+      const groupSelections = prev[groupLabel] || [];
+      if (groupSelections.includes(option)) {
+        // deselect
+        return { ...prev, [groupLabel]: groupSelections.filter((o) => o !== option) };
+      } else {
+        // select
+        return { ...prev, [groupLabel]: multiple ? [...groupSelections, option] : [option] };
+      }
     });
   };
 
@@ -37,10 +40,7 @@ export const Customization: React.FC = () => {
     <div className="p-4 w-[600px] h-[594px] relative bg-white text-gray-800 font-calibri">
       <h2 className="text-sm mb-2">Customize Drink</h2>
 
-      <button
-        className="absolute top-3 right-3 bg-red-500 text-white px-2 rounded"
-        aria-label="Close"
-      >
+      <button className="absolute top-3 right-3 bg-red-500 text-white px-2 rounded" aria-label="Close">
         X
       </button>
 
@@ -55,7 +55,7 @@ export const Customization: React.FC = () => {
               return (
                 <button
                   key={option}
-                  onClick={() => handleSelect(group.label, option)}
+                  onClick={() => handleSelect(group.label, option, group.multiple)}
                   className={`px-3 py-1 border rounded ${
                     isSelected ? "bg-blue-500 text-white" : "hover:bg-gray-100"
                   }`}
@@ -68,10 +68,9 @@ export const Customization: React.FC = () => {
         </div>
       ))}
 
-      <p className="mt-4 text-sm">Customizations: {JSON.stringify(selections)}</p>
-      <button className="w-full mt-2 bg-blue-600 text-white py-2 rounded">
-        Confirm
-      </button>
+      <p className="mt-4 text-sm">Selected: {JSON.stringify(selections)}</p>
+
+      <button className="w-full mt-2 bg-blue-600 text-white py-2 rounded">Confirm</button>
     </div>
   );
 };
