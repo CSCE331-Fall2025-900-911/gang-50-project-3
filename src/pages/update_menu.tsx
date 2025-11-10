@@ -52,7 +52,7 @@ export default function UpdateMenu() {
   return (
     <div id="rootPane" className="min-h-screen bg-white text-gray-900">
       {/* Top bar with logo + menu */}
-      <div className="fixed top-0 left-0 w-full flex items-center gap-4 border-b p-2 bg-white z-50">
+      <div className="fixed top-0 left-0 w-full flex items-center gap-4 border-b bg-white z-50 h-20 px-4">
         <img
           src="images/sharetealogo.png"
           alt="Logo"
@@ -65,7 +65,7 @@ export default function UpdateMenu() {
       </div>
 
       {/* Content area approximating the Pane absolute layout in a responsive grid */}
-      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 p-6 md:grid-cols-2 pt-32">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 p-6 md:grid-cols-2 pt-24">
         {/* View Item Data */}
         <section className="rounded-2xl border p-4 shadow-sm">
           <h2 className="mb-3 text-lg font-bold">View Item Data</h2>
