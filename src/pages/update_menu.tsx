@@ -40,14 +40,10 @@ export default function UpdateMenu() {
     return (
         <div id="rootPane" className="min-h-screen bg-white text-gray-900">
             {/* Fixed top bar */}
-            <div className="fixed top-0 left-0 w-full flex items-center gap-4 border-b bg-white z-50 h-20 px-4">
+            <div className="fixed top-0 left-0 w-full flex items-center gap-4 border-b bg-white z-50 h-45 px-4">
                 <img src="/images/sharetealogo.png" alt="Logo" className="h-6 w-auto" />
                 <CashierNavbar />
             </div>
-
-            {/* Content wrapper:
-        pt-20 = header height
-        pb-64 = reserve room so the fixed bottom box doesn't overlap content */}
             <div className="mx-auto max-w-6xl p-6 pt-24 pb-64">
                 {/* Three equal-sized groups, side-by-side on md+; stacked on small screens */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
