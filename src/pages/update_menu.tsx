@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, {useLayoutEffect, useRef, useState, useEffect} from "react";
 import CashierNavbar from "../components/CashierNavbar";
 
 export default function UpdateMenu() {
@@ -25,7 +25,7 @@ export default function UpdateMenu() {
       ro.disconnect();
       window.removeEventListener("resize", update);
     };
-  }, 
+  }, []);
                   
   useEffect(() => {
     const prev = document.body.style.overflowY;
