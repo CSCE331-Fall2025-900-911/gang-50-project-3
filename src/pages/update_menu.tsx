@@ -100,7 +100,7 @@ export default function UpdateMenu() {
                   />
                 </div>
                 <div className="mt-auto pt-2">
-                  <button type="submit" className="btn-checkout">Update</button>
+                  <button type="submit" className="button">Update</button>
                 </div>
               </form>
             </section>
@@ -151,7 +151,7 @@ export default function UpdateMenu() {
                   <label htmlFor="isAvailable" className={labelCl}>Available</label>
                 </div>
                 <div className="mt-auto flex items-center gap-2 pt-2">
-                  <button type="submit" className="btn-checkout">Add</button>
+                  <button type="submit" className="button">Add</button>
                 </div>
               </form>
             </section>
