@@ -56,7 +56,7 @@ export default function UpdateMenu() {
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
               <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>View Item Data</h2>
               <form onSubmit={handleViewSubmit} className="space-y-3 flex-1">
-                <label htmlFor="viewItemDataField" className="labelCl" style={{ color: "#000000" }}>Item ID: </label>
+                <label htmlFor="viewItemDataField" className="label-updateMenu" style={{ color: "#000000" }}>Item ID: </label>
                 <input
                   id="viewItemDataField"
                   className={inputBase}
@@ -76,7 +76,7 @@ export default function UpdateMenu() {
               <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>Update Price</h2>
               <form onSubmit={handleUpdatePrice} className="space-y-3 flex-1">
                 <div>
-                  <label htmlFor="updateItemId" className="labelCl" style={{ color: "#000000" }}>Item ID: </label>
+                  <label htmlFor="updateItemId" className="label-updateMenu" style={{ color: "#000000" }}>Item ID: </label>
                   <input
                     id="updateItemId"
                     className={inputBase}
@@ -86,7 +86,7 @@ export default function UpdateMenu() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="updatePrice" className="labelCl" style={{ color: "#000000" }}>New Price: </label>
+                  <label htmlFor="updatePrice" className="label-updateMenu" style={{ color: "#000000" }}>New Price: </label>
                   <input
                     id="updatePrice"
                     type="number"
@@ -107,7 +107,7 @@ export default function UpdateMenu() {
               <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>Add Item</h2>
               <form onSubmit={handleAddItem} className="grid grid-cols-1 gap-4 flex-1">
                 <div>
-                  <label htmlFor="addName" className="labelCl" style={{ color: "#000000" }}>Name: </label>
+                  <label htmlFor="addName" className="label-updateMenu" style={{ color: "#000000" }}>Name: </label>
                   <input
                     id="addName"
                     className={inputBase}
@@ -117,7 +117,7 @@ export default function UpdateMenu() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="addPrice" className="labelCl" style={{ color: "#000000" }}>Price: </label>
+                  <label htmlFor="addPrice" className="label-updateMenu" style={{ color: "#000000" }}>Price: </label>
                   <input
                     id="addPrice"
                     type="number"
@@ -129,7 +129,7 @@ export default function UpdateMenu() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="addCategory" className="labelCl" style={{ color: "#000000" }}>Category: </label>
+                  <label htmlFor="addCategory" className="label-updateMenu" style={{ color: "#000000" }}>Category: </label>
                   <input
                     id="addCategory"
                     className={inputBase}
@@ -146,7 +146,7 @@ export default function UpdateMenu() {
                     onChange={(e) => setIsAvailable(e.target.checked)}
                     className="h-4 w-4"
                   />
-                  <label htmlFor="isAvailable" className="labelCl" style={{ color: "#000000" }}>Available</label>
+                  <label htmlFor="isAvailable" className="label-updateMenu" style={{ color: "#000000" }}>Available</label>
                 </div>
                 <div className="mt-auto flex items-center gap-2 pt-2">
                   <button type="submit" className="btn-updateMenu">Add</button>
