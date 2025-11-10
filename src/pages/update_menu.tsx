@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, {useState} from "react";
 import CashierNavbar from '../components/CashierNavbar';
 
 export default function UpdateMenu() {
@@ -198,14 +198,7 @@ export default function UpdateMenu() {
   );
 }
 
-// Simple menu component
-function Menu({
-  label,
-  entries,
-}: {
-  label: string;
-  entries: { label: string; onClick: () => void }[];
-}) {
+// Simple menu component {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative select-none">
