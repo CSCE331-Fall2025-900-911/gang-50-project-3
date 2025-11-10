@@ -27,9 +27,7 @@ export default function UpdateMenu() {
     };
   }, []);
 
-  const inputBase =
-    "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
-  const labelCl = "text-sm font-semibold text-gray-700";
+  const inputBase = "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
   const handleViewSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
