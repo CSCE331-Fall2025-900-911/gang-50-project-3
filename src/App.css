@@ -57,6 +57,9 @@
 }
 
 .googleButton {
-  margin-top: 20em;
+  position: fixed;
+  bottom: 2em;            /* distance from bottom edge of screen */
+  left: 50%;              /* horizontally center */
+  transform: translateX(-50%); /* adjust centering */
 }
 
