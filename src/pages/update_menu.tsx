@@ -13,18 +13,6 @@ export default function UpdateMenu() {
   const [addCategory, setAddCategory] = useState("");
   const [isAvailable, setIsAvailable] = useState(true);
 
-  const menuItems = useMemo(
-    () => ({
-      file: [
-        { label: "New", onClick: () => console.log("New clicked") },
-        { label: "Open", onClick: () => console.log("Open clicked") },
-        { label: "Save", onClick: () => console.log("Save clicked") },
-      ],
-      help: [{ label: "About", onClick: () => alert("Update Menu") }],
-    }),
-    []
-  );
-
   const handleViewSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     setViewData((prev) => `Queried item ${viewItemId || "(none)"}.\n` + prev);
@@ -58,10 +46,6 @@ export default function UpdateMenu() {
           alt="Logo"
           className="h-6 w-auto"
         />
-        <nav className="flex items-center gap-6">
-          <Menu label="File" entries={menuItems.file} />
-          <Menu label="Help" entries={menuItems.help} />
-        </nav>
       </div>
 
       {/* Content area approximating the Pane absolute layout in a responsive grid */}
