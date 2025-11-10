@@ -67,7 +67,7 @@ export default function UpdateMenu() {
                   onChange={(e) => setViewItemId(e.target.value)}
                 />
                 <div className="mt-auto pt-2">
-                  <button id="viewDataSubmitButton" type="submit" className={button} style={{ color: "#CF152D" }}>
+                  <button id="viewDataSubmitButton" type="submit" className="btn" style={{ color: "#CF152D" }}>
                     Submit
                   </button>
                 </div>
@@ -100,7 +100,7 @@ export default function UpdateMenu() {
                   />
                 </div>
                 <div className="mt-auto pt-2">
-                  <button type="submit" className={button} style={{ color: "#CF152D" }}>Update</button>
+                  <button type="submit" className="btn" style={{ color: "#CF152D" }}>Update</button>
                 </div>
               </form>
             </section>
@@ -151,7 +151,7 @@ export default function UpdateMenu() {
                   <label htmlFor="isAvailable" className={labelCl}>Available</label>
                 </div>
                 <div className="mt-auto flex items-center gap-2 pt-2">
-                  <button type="submit" className={button} style={{ color: "#CF152D" }}>Add</button>
+                  <button type="submit" className="btn" style={{ color: "#CF152D" }}>Add</button>
                 </div>
               </form>
             </section>
