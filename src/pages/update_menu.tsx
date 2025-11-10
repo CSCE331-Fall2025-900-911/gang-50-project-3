@@ -39,9 +39,11 @@ export default function UpdateMenu() {
 
     return (
         <div id="rootPane" className="min-h-screen bg-white text-gray-900">
-            <div className="fixed top-0 left-0 w-full flex items-center gap-4 border-b bg-white z-50 h-44 px-4">
-                <img src="/images/sharetealogo.png" alt="Logo" className="h-6 w-auto" />
-                <CashierNavbar />
+            <div className="border-b bg-white">
+                <div className="mx-auto flex items-center gap-4 px-4">
+                    <img src="/images/sharetealogo.png" alt="Logo" className="h-6 w-auto" />
+                    <CashierNavbar />
+                </div>
             </div>
             <div className="mx-auto max-w-6xl p-6 pt-44 pb-64">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
