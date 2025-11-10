@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-//import CashierNavbar from '../components/CashierNavbar';
+import CashierNavbar from '../components/CashierNavbar';
 
 export default function UpdateMenu() {
   const [viewItemId, setViewItemId] = useState("");
@@ -46,6 +46,8 @@ export default function UpdateMenu() {
           alt="Logo"
           className="h-6 w-auto"
         />
+
+        <CashierNavbar />
       </div>
 
       {/* Content area approximating the Pane absolute layout in a responsive grid */}
