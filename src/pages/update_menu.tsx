@@ -10,10 +10,8 @@ export default function UpdateMenu() {
   const [addPrice, setAddPrice] = useState("");
   const [addCategory, setAddCategory] = useState("");
   const [isAvailable, setIsAvailable] = useState(true);
-
-  // Measure the fixed header so content never slides underneath
   const headerRef = useRef<HTMLElement | null>(null);
-  const [headerH, setHeaderH] = useState(64); // default guess = 64px
+  const [headerH, setHeaderH] = useState(64);
 
   useLayoutEffect(() => {
     const el = headerRef.current;
@@ -62,7 +60,7 @@ export default function UpdateMenu() {
         <div className="mx-auto max-w-6xl p-6 pb-64">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-              <h2 className="mb-3 text-lg font-bold text-center text-black">View Item Data</h2>
+              <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>View Item Data</h2>
               <form onSubmit={handleViewSubmit} className="space-y-3 flex-1">
                 <label htmlFor="viewItemDataField" className={labelCl}>Item ID</label>
                 <input
@@ -73,7 +71,7 @@ export default function UpdateMenu() {
                   onChange={(e) => setViewItemId(e.target.value)}
                 />
                 <div className="mt-auto pt-2">
-                  <button id="viewDataSubmitButton" type="submit" className={primaryBtn}>
+                  <button id="viewDataSubmitButton" type="submit" className={primaryBtn} style={{ color: "#CF152D" }}>
                     Submit
                   </button>
                 </div>
@@ -81,7 +79,7 @@ export default function UpdateMenu() {
             </section>
 
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-              <h2 className="mb-3 text-lg font-bold text-center text-black">Update Price</h2>
+              <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>Update Price</h2>
               <form onSubmit={handleUpdatePrice} className="space-y-3 flex-1">
                 <div>
                   <label htmlFor="updateItemId" className={labelCl}>Item ID</label>
@@ -106,13 +104,13 @@ export default function UpdateMenu() {
                   />
                 </div>
                 <div className="mt-auto pt-2">
-                  <button type="submit" className={primaryBtn}>Update</button>
+                  <button type="submit" className={primaryBtn} style={{ color: "#CF152D" }}>Update</button>
                 </div>
               </form>
             </section>
 
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-              <h2 className="mb-3 text-lg font-bold text-center text-black">Add Item</h2>
+              <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>Add Item</h2>
               <form onSubmit={handleAddItem} className="grid grid-cols-1 gap-4 flex-1">
                 <div>
                   <label htmlFor="addName" className={labelCl}>Name</label>
@@ -157,16 +155,7 @@ export default function UpdateMenu() {
                   <label htmlFor="isAvailable" className={labelCl}>Available</label>
                 </div>
                 <div className="mt-auto flex items-center gap-2 pt-2">
-                  <button type="submit" className={primaryBtn}>Add</button>
-                  <button
-                    type="button"
-                    className={secondaryBtn}
-                    onClick={() => {
-                      setAddName(""); setAddPrice(""); setAddCategory(""); setIsAvailable(true);
-                    }}
-                  >
-                    Clear
-                  </button>
+                  <button type="submit" className={primaryBtn} style={{ color: "#CF152D" }}>Add</button>
                 </div>
               </form>
             </section>
@@ -176,7 +165,7 @@ export default function UpdateMenu() {
 
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[min(56rem,92vw)]">
         <section className="rounded-2xl border p-4 shadow-lg bg-white">
-          <h2 className="mb-2 text-base font-semibold text-center text-black">Data Output</h2>
+          <h2 className="mb-2 text-base font-semibold text-center text-black" style={{ color: "#000000" }}>Data Output</h2>
           <textarea
             id="viewDataTextArea"
             className="h-40 w-full rounded-xl border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
