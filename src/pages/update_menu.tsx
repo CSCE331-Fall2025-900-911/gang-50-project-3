@@ -25,6 +25,12 @@ export default function UpdateMenu() {
       ro.disconnect();
       window.removeEventListener("resize", update);
     };
+  }, 
+                  
+  useEffect(() => {
+    const prev = document.body.style.overflowY;
+    document.body.style.overflowY = "auto";     // allow scroll on this page
+    return () => { document.body.style.overflowY = prev || "hidden"; }; // restore for others
   }, []);
 
   const inputBase = "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
