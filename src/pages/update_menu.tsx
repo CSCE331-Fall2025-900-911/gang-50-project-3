@@ -197,34 +197,3 @@ export default function UpdateMenu() {
     </div>
   );
 }
-
-// Simple menu component {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="relative select-none">
-      <button
-        className="rounded-xl px-3 py-1 hover:bg-gray-100"
-        onClick={() => setOpen((o) => !o)}
-        onBlur={() => setTimeout(() => setOpen(false), 120)}
-        type="button"
-      >
-        {label}
-      </button>
-      {open && (
-        <div className="absolute left-0 z-10 mt-1 w-40 overflow-hidden rounded-xl border bg-white shadow-lg">
-          {entries.map((e, i) => (
-            <button
-              key={i}
-              className="block w-full px-3 py-2 text-left hover:bg-gray-50"
-              onMouseDown={(evt) => evt.preventDefault()}
-              onClick={e.onClick}
-              type="button"
-            >
-              {e.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
