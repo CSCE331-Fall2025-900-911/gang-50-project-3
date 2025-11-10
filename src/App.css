@@ -339,7 +339,7 @@ html, body {
 }
 
 .btn-updateMenu{
-  width: 100%;
+  width: auto;
   padding: 14px 16px;
   font-size: 18px;
   font-weight: 700;
