@@ -39,14 +39,14 @@ export default function UpdateMenu() {
 
     return (
         <div id="rootPane" className="min-h-screen bg-white text-gray-900">
-            <div className="fixed top-0 left-0 w-full flex items-center gap-4 border-b bg-white z-50 h-45 px-4">
+            <div className="fixed top-0 left-0 w-full flex items-center gap-4 border-b bg-white z-50 h-44 px-4">
                 <img src="/images/sharetealogo.png" alt="Logo" className="h-6 w-auto" />
                 <CashierNavbar />
             </div>
             <div className="mx-auto max-w-6xl p-6 pt-24 pb-64">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                     <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-                        <h2 className="mb-3 text-lg font-bold text-center" style="color:#000000">View Item Data</h2>
+                        <h2 className="mb-3 text-lg font-bold text-center text-black">View Item Data</h2>
                         <form onSubmit={handleViewSubmit} className="space-y-3 flex-1">
                             <label htmlFor="viewItemDataField" className={labelCl}>Item ID</label>
                             <input
@@ -65,7 +65,7 @@ export default function UpdateMenu() {
                     </section>
 
                     <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-                        <h2 className="mb-3 text-lg font-bold text-center" style="color:#000000">Update Price</h2>
+                        <h2 className="mb-3 text-lg font-bold text-center text-black">Update Price</h2>
                         <form onSubmit={handleUpdatePrice} className="space-y-3 flex-1">
                             <div>
                                 <label htmlFor="updateItemId" className={labelCl}>Item ID</label>
@@ -96,7 +96,7 @@ export default function UpdateMenu() {
                     </section>
 
                     <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-                        <h2 className="mb-3 text-lg font-bold text-center" style="color:#000000">Add Item</h2>
+                        <h2 className="mb-3 text-lg font-bold text-center text-black">Add Item</h2>
                         <form onSubmit={handleAddItem} className="grid grid-cols-1 gap-4 flex-1">
                             <div>
                                 <label htmlFor="addName" className={labelCl}>Name</label>
@@ -160,7 +160,7 @@ export default function UpdateMenu() {
 
             <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[min(56rem,92vw)]">
                 <section className="rounded-2xl border p-4 shadow-lg bg-white">
-                    <h2 className="mb-2 text-base font-semibold text-center" style="color:#000000">Data Output</h2>
+                    <h2 className="mb-2 text-base font-semibold text-center text-black">Data Output</h2>
                     <textarea
                         id="viewDataTextArea"
                         className="h-40 w-full rounded-xl border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
