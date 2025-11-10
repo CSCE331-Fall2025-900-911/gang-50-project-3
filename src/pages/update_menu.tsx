@@ -50,7 +50,7 @@ export default function UpdateMenu() {
   const labelCl = "text-sm font-semibold text-gray-700";
 
   return (
-    <div id="rootPane" className="min-h-screen bg-white text-gray-900">
+    <div id="rootPane" className="min-h-screen bg-white text-gray-900 pt-32">
       {/* Top bar with logo + menu */}
       <div className="flex items-center gap-4 border-b p-2">
         <img
