@@ -58,7 +58,7 @@ export default function UpdateMenu() {
 
       <div style={{ paddingTop: headerH }}>
         <div className="mx-auto max-w-6xl p-6 pb-64">
-          <div className="grid grid-cols-3 gap-6 items-stretch">
+          <div className="grid grid-cols-3 gap-6">
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
               <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>View Item Data</h2>
               <form onSubmit={handleViewSubmit} className="space-y-3 flex-1">
