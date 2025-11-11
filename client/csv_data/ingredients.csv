@@ -1,0 +1,37 @@
+ingredient_id,ingredient_name,ingredient_count,expiration_date,per_unit_cost,vendor_name,ingredient_category_id
+1,Regular Ice,405,2025-12-14,1.3,Vendor_2,7
+2,Less Ice,2732,2026-07-23,1.95,Vendor_2,7
+3,No Ice,3342,2026-02-25,0.91,Vendor_8,7
+4,100% Sugar,1377,2026-10-28,1.66,Vendor_7,8
+5,75% Sugar,2235,2026-07-06,1.71,Vendor_7,8
+6,50% Sugar,3125,2026-04-02,0.79,Vendor_1,8
+7,25% Sugar,3982,2026-06-02,0.25,Vendor_8,8
+8,0% Sugar,3214,2026-02-07,1.22,Vendor_2,8
+9,Tapioca Pearls,4509,2026-03-21,0.06,Vendor_7,2
+10,Lychee Jelly,2849,2026-09-19,0.99,Vendor_3,2
+11,Coffee Jelly,2165,2026-04-24,0.86,Vendor_3,2
+12,Honey Jelly,1196,2026-03-05,0.77,Vendor_2,2
+13,Pudding,1742,2026-07-04,1.32,Vendor_4,2
+14,Black Tea,3860,2026-07-11,1.01,Vendor_7,5
+15,Green Tea,3642,2026-04-26,1.84,Vendor_1,5
+16,Oolong Tea,1713,2026-11-08,1.43,Vendor_2,5
+17,2% Milk,3201,2026-07-22,0.03,Vendor_1,3
+18,Whole Milk,3980,2026-09-13,1.64,Vendor_2,3
+19,Non-Dairy Milk,4442,2026-07-24,0.87,Vendor_3,3
+20,Taro Powder,542,2026-01-20,0.34,Vendor_3,4
+21,Brown Sugar,3794,2026-09-24,0.88,Vendor_6,4
+22,Chocolate Syrup,3574,2026-05-24,1.67,Vendor_7,4
+23,Vanilla Syrup,4799,2026-09-13,0.98,Vendor_6,4
+24,Caramel,3673,2026-01-17,0.37,Vendor_4,4
+25,Strawberry Puree,4205,2026-08-11,1.47,Vendor_2,4
+26,Mango Puree,2972,2026-04-24,1.09,Vendor_8,4
+27,Matcha Powder,3038,2026-09-16,1.6,Vendor_6,4
+28,Coffee,1690,2026-05-30,0.16,Vendor_8,4
+29,Small Cup,3752,2026-07-31,1.58,Vendor_8,1
+30,Medium Cup,4905,2026-03-22,0.86,Vendor_4,1
+31,Large Cup,3093,2026-07-31,0.65,Vendor_7,1
+32,Lid,4502,2026-01-26,1.58,Vendor_6,6
+33,Straw,3786,2025-12-19,1.94,Vendor_4,6
+34,Napkin,508,2026-02-19,0.75,Vendor_1,6
+35,To-go Box,1799,2025-12-21,0.59,Vendor_7,6
+36,Bag,4306,2026-11-04,0.37,Vendor_6,6

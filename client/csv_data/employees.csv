@@ -1,0 +1,11 @@
+employee_id,first_name,last_name,hours_worked,items_sold,total_sales,isManager
+1,Alex,Lee,1190,2238,17319,True
+2,Alex,Garcia,2033,3255,24510,False
+3,Casey,Hernandez,1893,1959,16149,False
+4,Olivia,Kim,1063,3805,32541,False
+5,Casey,Davis,1396,1367,9410,False
+6,Reese,Martinez,1462,1858,12054,False
+7,Parker,Robinson,1216,3431,21945,False
+8,Alex,Wilson,1193,1549,9928,False
+9,Liam,Kim,1618,2957,19985,False
+10,Emma,Brown,1341,509,3844,False
