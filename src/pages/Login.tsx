@@ -28,6 +28,7 @@ export default function Login() {
                         <h3>Last Name</h3>
                         <input type="text" placeholder="Last Name" className="input" />
                     </div> 
+                    <h2 className="orDivider">───────────────────── OR ─────────────────────</h2> 
                     <div className = "googleButton"> <GoogleLogin onSuccess={handleLoginSuccess} onError={handleLoginError}/> </div>
                 </div>
             </div>
