@@ -1,82 +1,78 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function UpdateMenu() {
   const [viewItemId, setViewItemId] = useState("");
-  const [viewData, setViewData] = useState<any>(null);
+  const [viewData, setViewData] = useState("");
 
   const [updateItemId, setUpdateItemId] = useState("");
   const [updatePrice, setUpdatePrice] = useState("");
-  const [updateStock, setUpdateStock] = useState(true);
 
   const [addName, setAddName] = useState("");
   const [addPrice, setAddPrice] = useState("");
-  const [addStock, setAddStock] = useState(true);
 
-  // View item by ID
-  const handleView = async () => {
-    if (!viewItemId) return alert("Enter an item ID.");
-    const res = await fetch(`http://localhost:5000/api/items/${viewItemId}`);
-    const data = await res.json();
-    setViewData(data);
+  // Example: function to handle view item
+  const handleViewItem = async () => {
+    if (!viewItemId) return;
+    try {
+      const response = await fetch(`/api/items/${viewItemId}`);
+      const data = await response.json();
+      setViewData(JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.error(error);
+      setViewData("Error fetching item");
+    }
   };
 
-  // Update item
-  const handleUpdate = async () => {
-    if (!updateItemId || !updatePrice) return alert("Enter ID and new price.");
-    const res = await fetch(`http://localhost:5000/api/items/${updateItemId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        item_cost: parseFloat(updatePrice),
-        in_stock: updateStock,
-      }),
-    });
-    const data = await res.json();
-    alert(data.message);
+  // Example: function to handle update
+  const handleUpdateItem = async () => {
+    if (!updateItemId || !updatePrice) return;
+    try {
+      await fetch(`/api/items/${updateItemId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ price: updatePrice }),
+      });
+      alert("Item updated!");
+    } catch (error) {
+      console.error(error);
+      alert("Update failed");
+    }
   };
 
-  // Add new item
-  const handleAdd = async () => {
-    if (!addName || !addPrice) return alert("Enter name and price.");
-    const res = await fetch(`http://localhost:5000/api/items`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        item_name: addName,
-        item_cost: parseFloat(addPrice),
-        in_stock: addStock,
-      }),
-    });
-    const data = await res.json();
-    alert(data.message);
+  // Example: function to handle add
+  const handleAddItem = async () => {
+    if (!addName || !addPrice) return;
+    try {
+      await fetch(`/api/items`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: addName, price: addPrice }),
+      });
+      alert("Item added!");
+    } catch (error) {
+      console.error(error);
+      alert("Add failed");
+    }
   };
 
   return (
-    <div style={{ padding: "2em" }}>
+    <div>
       <h1>Update Menu</h1>
 
-      {/* View Section */}
-      <div style={{ marginTop: "2em" }}>
-        <h2>View Item Data</h2>
+      <section>
+        <h2>View Item</h2>
         <input
           type="text"
           placeholder="Item ID"
           value={viewItemId}
           onChange={(e) => setViewItemId(e.target.value)}
         />
-        <button onClick={handleView}>View</button>
-        {viewData && (
-          <div style={{ marginTop: "1em" }}>
-            <p><b>Name:</b> {viewData.item_name}</p>
-            <p><b>Price:</b> ${viewData.item_cost}</p>
-            <p><b>In Stock:</b> {viewData.in_stock ? "Yes" : "No"}</p>
-          </div>
-        )}
-      </div>
+        <button onClick={handleViewItem}>View</button>
+        <pre>{viewData}</pre>
+      </section>
 
-      {/* Update Section */}
-      <div style={{ marginTop: "3em" }}>
-        <h2>Update Item</h2>
+      <section>
+        <h2>Update Item Price</h2>
         <input
           type="text"
           placeholder="Item ID"
@@ -89,23 +85,14 @@ export default function UpdateMenu() {
           value={updatePrice}
           onChange={(e) => setUpdatePrice(e.target.value)}
         />
-        <label>
-          <input
-            type="checkbox"
-            checked={updateStock}
-            onChange={(e) => setUpdateStock(e.target.checked)}
-          />
-          In Stock
-        </label>
-        <button onClick={handleUpdate}>Update</button>
-      </div>
+        <button onClick={handleUpdateItem}>Update</button>
+      </section>
 
-      {/* Add Section */}
-      <div style={{ marginTop: "3em" }}>
+      <section>
         <h2>Add New Item</h2>
         <input
           type="text"
-          placeholder="Name"
+          placeholder="Item Name"
           value={addName}
           onChange={(e) => setAddName(e.target.value)}
         />
@@ -115,16 +102,8 @@ export default function UpdateMenu() {
           value={addPrice}
           onChange={(e) => setAddPrice(e.target.value)}
         />
-        <label>
-          <input
-            type="checkbox"
-            checked={addStock}
-            onChange={(e) => setAddStock(e.target.checked)}
-          />
-          In Stock
-        </label>
-        <button onClick={handleAdd}>Add Item</button>
-      </div>
+        <button onClick={handleAddItem}>Add Item</button>
+      </section>
     </div>
   );
 }
