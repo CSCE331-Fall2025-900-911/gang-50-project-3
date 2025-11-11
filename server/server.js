@@ -8,10 +8,6 @@ import { fileURLToPath } from "url";
 dotenv.config();
 const { Pool } = pkg;
 
-// Fix __dirname for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -23,7 +19,7 @@ const pool = new Pool({
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
-  ssl: { rejectUnauthorized: false }, // needed for Render
+  ssl: { rejectUnauthorized: false },
 });
 
 // --- API ROUTES ---
@@ -33,9 +29,7 @@ app.get("/api/items/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query("SELECT * FROM item WHERE item_id = $1", [id]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Item not found" });
-    }
+    if (result.rows.length === 0) return res.status(404).json({ message: "Item not found" });
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
@@ -74,10 +68,13 @@ app.post("/api/items", async (req, res) => {
   }
 });
 
-// --- SERVE REACT FRONTEND ---
+// --- SERVE FRONTEND ---
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
-app.get("/*", (req, res) => {
+app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
