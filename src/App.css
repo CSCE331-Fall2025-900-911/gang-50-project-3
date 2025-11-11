@@ -12,7 +12,7 @@ html, body {
 
 .logo {
   height: 6em;
-  margin-top: 3em;
+  justify-content: center;
 }
 
 .background {
@@ -341,3 +341,10 @@ html, body {
 /* Helpers */
 .empty{ text-align: center; padding: 24px 0; }
 .muted{ color: #6b7280; }
+
+.googleButton {
+  position: fixed;
+  bottom: 2em;
+  left: 50%;
+  transform: translateX(-50%);
+}
