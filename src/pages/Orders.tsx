@@ -7,12 +7,12 @@ export default function Orders() {
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  // note: employeeId is hardcoded for now, will be set after login
-  const [_employeeId] = useState(1); // Replace later with logged-in user 
+  const [_employeeId] = useState(1);
 
-  const API_URL = 'http://localhost:3000/api';
+  const API_URL =
+  (import.meta as any).env?.VITE_API_BASE || '/api';
 
-  // fetching categories for side bar
+
   useEffect(() => {
     const loadCategories = async () => {
       try {
