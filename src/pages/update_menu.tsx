@@ -58,7 +58,7 @@ export default function UpdateMenu() {
 
       <div style={{ paddingTop: headerH }}>
         <div className="mx-auto max-w-6xl p-6 pb-64">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+          <div className="grid grid-cols-3 gap-6 items-stretch">
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
               <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>View Item Data</h2>
               <form onSubmit={handleViewSubmit} className="space-y-3 flex-1">
@@ -67,7 +67,7 @@ export default function UpdateMenu() {
                   id="viewItemDataField"
                   className={inputBase}
                   placeholder="Item ID"
-                  style={{backgroundColor: "#fff", color: "#CF152D"}}
+                  style={{backgroundColor: "#fff", color: "#CF152D" borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                   value={viewItemId}
                   onChange={(e) => setViewItemId(e.target.value)}
                 />
@@ -88,7 +88,7 @@ export default function UpdateMenu() {
                     id="updateItemId"
                     className={inputBase}
                     placeholder="Item ID"
-                    style={{backgroundColor: "#fff", color: "#CF152D"}}
+                    style={{backgroundColor: "#fff", color: "#CF152D" borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     value={updateItemId}
                     onChange={(e) => setUpdateItemId(e.target.value)}
                   />
@@ -97,11 +97,9 @@ export default function UpdateMenu() {
                   <label htmlFor="updatePrice" className="label-updateMenu" style={{ color: "#000000" }}>New Price: </label>
                   <input
                     id="updatePrice"
-                    type="number"
-                    step="0.01"
                     className={inputBase}
                     placeholder="0.00"
-                    style={{backgroundColor: "#fff", color: "#CF152D"}}
+                    style={{backgroundColor: "#fff", color: "#CF152D" borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     value={updatePrice}
                     onChange={(e) => setUpdatePrice(e.target.value)}
                   />
@@ -121,7 +119,7 @@ export default function UpdateMenu() {
                     id="addName"
                     className={inputBase}
                     placeholder="Name"
-                    style={{backgroundColor: "#fff", color: "#CF152D"}}
+                    style={{backgroundColor: "#fff", color: "#CF152D" borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     value={addName}
                     onChange={(e) => setAddName(e.target.value)}
                   />
@@ -130,10 +128,8 @@ export default function UpdateMenu() {
                   <label htmlFor="addPrice" className="label-updateMenu" style={{ color: "#000000" }}>Price: </label>
                   <input
                     id="addPrice"
-                    type="number"
-                    step="0.01"
                     className={inputBase}
-                    style={{backgroundColor: "#fff", color: "#CF152D"}}
+                    style={{backgroundColor: "#fff", color: "#CF152D" borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     placeholder="0.00"
                     value={addPrice}
                     onChange={(e) => setAddPrice(e.target.value)}
@@ -145,7 +141,7 @@ export default function UpdateMenu() {
                     id="addCategory"
                     className={inputBase}
                     placeholder="e.g., Drinks"
-                    style={{backgroundColor: "#fff", color: "#CF152D"}}
+                    style={{backgroundColor: "#fff", color: "#CF152D" borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     value={addCategory}
                     onChange={(e) => setAddCategory(e.target.value)}
                   />
@@ -155,7 +151,7 @@ export default function UpdateMenu() {
                     id="isAvailable"
                     type="checkbox"
                     checked={isAvailable}
-                    style={{backgroundColor: "#fff", color: "#CF152D"}}
+                    style={{backgroundColor: "#fff", color: "#CF152D" borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     onChange={(e) => setIsAvailable(e.target.checked)}
                     className="h-4 w-4"
                   />
@@ -177,7 +173,7 @@ export default function UpdateMenu() {
             id="viewDataTextArea"
             className="h-40 w-full rounded-xl border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={viewData}
-            style={{backgroundColor: "#fff", color: "#CF152D"}}
+            style={{backgroundColor: "#fff", color: "#CF152D" borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
             onChange={(e) => setViewData(e.target.value)}
             placeholder="Results appear here..."
           />
