@@ -67,6 +67,7 @@ export default function UpdateMenu() {
                   id="viewItemDataField"
                   className={inputBase}
                   placeholder="Item ID"
+                  style={{backgroundColor: "#fff", color: "#CF152D"}}
                   value={viewItemId}
                   onChange={(e) => setViewItemId(e.target.value)}
                 />
@@ -87,6 +88,7 @@ export default function UpdateMenu() {
                     id="updateItemId"
                     className={inputBase}
                     placeholder="Item ID"
+                    style={{backgroundColor: "#fff", color: "#CF152D"}}
                     value={updateItemId}
                     onChange={(e) => setUpdateItemId(e.target.value)}
                   />
@@ -99,6 +101,7 @@ export default function UpdateMenu() {
                     step="0.01"
                     className={inputBase}
                     placeholder="0.00"
+                    style={{backgroundColor: "#fff", color: "#CF152D"}}
                     value={updatePrice}
                     onChange={(e) => setUpdatePrice(e.target.value)}
                   />
@@ -118,6 +121,7 @@ export default function UpdateMenu() {
                     id="addName"
                     className={inputBase}
                     placeholder="Name"
+                    style={{backgroundColor: "#fff", color: "#CF152D"}}
                     value={addName}
                     onChange={(e) => setAddName(e.target.value)}
                   />
@@ -140,6 +144,7 @@ export default function UpdateMenu() {
                     id="addCategory"
                     className={inputBase}
                     placeholder="e.g., Drinks"
+                    style={{backgroundColor: "#fff", color: "#CF152D"}}
                     value={addCategory}
                     onChange={(e) => setAddCategory(e.target.value)}
                   />
@@ -149,6 +154,7 @@ export default function UpdateMenu() {
                     id="isAvailable"
                     type="checkbox"
                     checked={isAvailable}
+                    style={{backgroundColor: "#fff", color: "#CF152D"}}
                     onChange={(e) => setIsAvailable(e.target.checked)}
                     className="h-4 w-4"
                   />
