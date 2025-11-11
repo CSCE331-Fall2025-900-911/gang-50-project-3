@@ -9,9 +9,9 @@ export default function Orders() {
   const [error, setError] = useState<string | null>(null);
   const [_employeeId] = useState(1);
 
-  const API_URL =
-  (import.meta as any).env?.VITE_API_BASE || '/api';
+  const API_URL = '/api';
 
+  console.log('API_URL =', API_URL);
 
   useEffect(() => {
     const loadCategories = async () => {

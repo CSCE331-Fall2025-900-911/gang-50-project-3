@@ -34,6 +34,10 @@
   app.use(express.json());
   app.use(express.static(path.join(__dirname, 'dist'))); 
 
+  app.get(/^\/(?!api).*/, (_req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
+
   // API Routes
   app.get('/api/categories', async (req, res) => {
     try {
@@ -143,7 +147,6 @@
   });
 
 
-  app.listen(port, () => {
-    console.log(`pool connected to database: ${process.env.PSQL_DATABASE}`);
-    console.log(`Server running on http://localhost:${port}`);
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running on http://0.0.0.0:${port}`);
   });
