@@ -3,22 +3,30 @@ import pkg from "pg";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 const { Pool } = pkg;
+
+// Fix __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// PostgreSQL pool
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
-  ssl: { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: false }, // needed for Render
 });
+
+// --- API ROUTES ---
 
 // GET item by ID
 app.get("/api/items/:id", async (req, res) => {
@@ -66,18 +74,13 @@ app.post("/api/items", async (req, res) => {
   }
 });
 
-// ------------------------------
-// Serve React frontend
-// ------------------------------
-const __dirname = path.resolve();
-
-// Serve all static files from React build
+// --- SERVE REACT FRONTEND ---
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
-// Catch-all route to serve index.html for React Router
-app.get("*", (req, res) => {
+app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
+// --- START SERVER ---
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
