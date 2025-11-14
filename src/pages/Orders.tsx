@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
+import { Customization } from './Customization';
 
 export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -8,6 +9,9 @@ export default function Orders() {
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [_employeeId] = useState(1);
+  const [showCustomization, setShowCustomization] = useState(false);
+  const [customizingCartId, setCustomizingCartId] = useState<number | null>(null);
+  const [customizationInitial, setCustomizationInitial] = useState<Record<string, string[]>>({});
 
   const API_URL = '/api';
 
@@ -154,6 +158,20 @@ export default function Orders() {
                   <span className="order-line-total">
                     ${(item.item_cost * item.quantity).toFixed(2)}
                   </span>
+
+                  <button
+                    onClick={() => {
+                      // prepare initial selections if item.customization encodes something
+                      // here we just open modal with no initial selections
+                      setCustomizingCartId(item.cart_id);
+                      setCustomizationInitial({}); 
+                      setShowCustomization(true);
+                    }}
+                    className="btn btn-small mr-2"
+                  >
+                    Customize
+                  </button>
+
                   <button
                     onClick={() => removeFromCart(item.cart_id)}
                     className="order-line-remove"
@@ -188,6 +206,32 @@ export default function Orders() {
           Checkout
         </button>
       </div>
+
+      {/* Customization modal overlay */}
+      {showCustomization && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <Customization
+            initial={customizationInitial}
+            onClose={() => {
+              setShowCustomization(false);
+              setCustomizingCartId(null);
+            }}
+            onConfirm={(selections) => {
+              // convert selections to a readable string, or store the object on the cart item
+              const summary = Object.entries(selections)
+                .map(([k, v]) => `${k}: ${v.join(', ')}`)
+                .join(' | ');
+              setCart((prev) =>
+                prev.map((c) =>
+                  c.cart_id === customizingCartId ? { ...c, customization: summary } : c
+                )
+              );
+              setShowCustomization(false);
+              setCustomizingCartId(null);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
