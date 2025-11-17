@@ -146,7 +146,7 @@
 
   app.get('/api/updatemenu/viewitemdata/:itemId', async (req, res) => {
     try {
-      const { itemID } = req.params;
+      const { itemId } = req.params;
       const result = await pool.query(`SELECT * FROM Item WHERE item_ID = $1;`, [itemID]);
       res.json(result.rows);
     } catch (err) {
