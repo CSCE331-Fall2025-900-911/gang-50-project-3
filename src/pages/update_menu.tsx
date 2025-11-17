@@ -39,7 +39,8 @@ export default function UpdateMenu() {
   }, []);
 
   const inputBase = "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
-
+  const API_URL = 'http://localhost:3000/api';
+  
   const handleViewSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     const trimmed = viewItemId.trim();
@@ -49,7 +50,8 @@ export default function UpdateMenu() {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/api/updatemenu/viewitemdata/${encodeURIComponent(trimmed)}`);
+        const res = await fetch(`${API_URL}/categories`);
+       //const res = await fetch(`http://localhost:3000/api/updatemenu/viewitemdata/${encodeURIComponent(trimmed)}`);
        const raw = await res.text(); // always get the raw body
 
     if (!res.ok) {
