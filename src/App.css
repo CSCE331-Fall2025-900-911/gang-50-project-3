@@ -368,6 +368,12 @@ html, body {
   display: block;
 }
 
+.update-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
 /* Helpers */
 .empty{ text-align: center; padding: 24px 0; }
 .muted{ color: #6b7280; }
