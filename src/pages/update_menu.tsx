@@ -6,10 +6,14 @@ export default function UpdateMenu() {
   const [viewData, setViewData] = useState("");
   const [updateItemId, setUpdateItemId] = useState("");
   const [updatePrice, setUpdatePrice] = useState("");
-  const [addName, setAddName] = useState("");
-  const [addPrice, setAddPrice] = useState("");
-  const [addCategory, setAddCategory] = useState("");
-  const [isAvailable, setIsAvailable] = useState(true);
+  const [itemNewName, setItemNewName] = useState("");
+  const [itemNewPrice, setAddPrice] = useState("");
+  const [itemIsAvailable, setItemIsAvailable] = useState(false);
+  const [itemSizes, setItemSizes] = useState("");
+  const [itemPhotoPath, setItemPhotoPath] = useState("");
+  const [itemIsSeasonal, setItemIsSeasonal] = useState(false);
+  const [itemIsSeasonalTimeBegin, setItemIsSeasonalTimeBegin] = useState("");
+  const [itemIsSeasonalTimeEnd, setItemIsSeasonalTimeEnd] = useState("");
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerH, setHeaderH] = useState(64);
 
@@ -120,7 +124,7 @@ export default function UpdateMenu() {
                     className={inputBase}
                     placeholder="Name"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
-                    value={addName}
+                    value={handleAddItem}
                     onChange={(e) => setAddName(e.target.value)}
                   />
                 </div>
@@ -131,7 +135,7 @@ export default function UpdateMenu() {
                     className={inputBase}
                     placeholder="ID"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
-                    value={addID}
+                    value={itemNewID}
                     onChange={(e) => setAddName(e.target.value)}
                   />
                 </div>
@@ -142,7 +146,7 @@ export default function UpdateMenu() {
                     className={inputBase}
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     placeholder="0.00"
-                    value={addPrice}
+                    value={itemNewPrice}
                     onChange={(e) => setAddPrice(e.target.value)}
                   />
                 </div>
@@ -164,7 +168,7 @@ export default function UpdateMenu() {
                     className={inputBase}
                     placeholder="S/M/L"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
-                    value={addName}
+                    value={itemSizes}
                     onChange={(e) => setAddName(e.target.value)}
                   />
                 </div>
@@ -175,7 +179,7 @@ export default function UpdateMenu() {
                     className={inputBase}
                     placeholder="/tmp/photo"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
-                    value={addName}
+                    value={itemPhotoPath}
                     onChange={(e) => setAddName(e.target.value)}
                   />
                 </div>
@@ -197,7 +201,7 @@ export default function UpdateMenu() {
                     className={inputBase}
                     placeholder="YR-M-D"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
-                    value={addName}
+                    value={itemSeasonalTimeBegin}
                     onChange={(e) => setAddName(e.target.value)}
                   />
                 </div>
@@ -208,7 +212,7 @@ export default function UpdateMenu() {
                     className={inputBase}
                     placeholder="YR-M-D"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
-                    value={addName}
+                    value={itemSeasonalTimeEnd}
                     onChange={(e) => setAddName(e.target.value)}
                   />
                 </div>
