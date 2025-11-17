@@ -99,7 +99,7 @@ export default function UpdateMenu() {
     }
 
     try {
-       const res = await fetch(`${API_URL}/updatemenu/viewitemdata/${encodeURIComponent(idNum)}/${encodeURIComponent(priceNum)}`);
+       const res = await fetch(`${API_URL}/updatemenu/updateitemprice/${encodeURIComponent(idNum)}/${encodeURIComponent(priceNum)}`);
        const raw = await res.text();
 
     if (!res.ok) {
