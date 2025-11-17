@@ -43,7 +43,7 @@ export default function UpdateMenu() {
   const handleViewSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     const trimmed = viewItemId.trim();
-    if (!trimmed && !isNaN(trimmed) && !isNaN(parseFloat(trimmed))) {
+    if (!trimmed) {
       setViewData("Please enter a valid item ID.");
       return;
     }
