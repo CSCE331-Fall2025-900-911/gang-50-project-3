@@ -72,7 +72,7 @@ export default function UpdateMenu() {
   }
   };
   
-  const handleUpdatePrice = (e?: React.FormEvent) => {
+  const handleUpdatePrice = async (e?: React.FormEvent) => {
     e?.preventDefault();
     const targetID = updateItemId.trim();
     const targetPrice = updatePrice.trim();
@@ -120,7 +120,7 @@ export default function UpdateMenu() {
     setViewData(`Something happend!! -> : ${message}`);
   }
   };
-  const handleAddItem = (e?: React.FormEvent) => {
+  const handleAddItem = async (e?: React.FormEvent) => {
     e?.preventDefault();
     alert(
       `Add item:\n name=${itemNewName}\n price=${itemNewPrice}\n available=${itemIsAvailable}`
