@@ -155,6 +155,15 @@
     }
   });
 
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    // No API route matched; return JSON 404 instead of HTML
+    return res.status(404).json({ error: 'API route not found' });
+  }
+
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 
   app.listen(port, () => {
     console.log(`pool connected to database: ${process.env.PSQL_DATABASE}`);
