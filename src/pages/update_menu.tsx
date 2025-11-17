@@ -231,7 +231,7 @@ export default function UpdateMenu() {
             readOnly
             style={{height: "300px", width: "300px", resize: "none", backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
             onChange={(e) => setViewData(e.target.value)}
-            placeholder="Results appear here..."
+            placeholder="Waiting..."
           />
         </section>
       </footer>
