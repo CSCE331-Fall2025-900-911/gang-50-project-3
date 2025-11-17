@@ -40,7 +40,7 @@ export default function UpdateMenu() {
 
   const inputBase = "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
-  /*const handleViewSubmit = (e?: React.FormEvent) => {
+  const handleViewSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     setViewData((prev) => `Queried item ${viewItemId || "(none)"}.\n` + prev);
   };
@@ -51,9 +51,9 @@ export default function UpdateMenu() {
   const handleAddItem = (e?: React.FormEvent) => {
     e?.preventDefault();
     alert(
-      `Add item:\n name=${addName}\n price=${addPrice}\n category=${addCategory}\n available=${isAvailable}`
+      `Add item:\n name=${itemNewName}\n price=${itemNewPrice}\n available=${itemIsAvailable}`
     );
-  };*/
+  };
 
   return (
     <div id="rootPane" className="min-h-screen flex flex-col bg-white text-gray-900">
