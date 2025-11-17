@@ -155,12 +155,10 @@
     }
   });
 
-app.get('/*', (req, res) => {
+app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
-    // No API route matched; return JSON 404 instead of HTML
     return res.status(404).json({ error: 'API route not found' });
   }
-
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
