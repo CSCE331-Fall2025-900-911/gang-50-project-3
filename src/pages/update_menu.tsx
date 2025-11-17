@@ -51,8 +51,8 @@ export default function UpdateMenu() {
     }
 
     try {
-      //const res = await fetch(`${API_URL}/categories`);
-       const res = await fetch(`http://localhost:10000/api/updatemenu/viewitemdata/${encodeURIComponent(trimmed)}`);
+       const res = await fetch(`${API_URL}/updatemenu/viewitemdata/${encodeURIComponent(trimmed)}`);
+       //const res = await fetch(`http://localhost:10000/api/updatemenu/viewitemdata/${encodeURIComponent(trimmed)}`);
        const raw = await res.text(); // always get the raw body
 
     if (!res.ok) {
