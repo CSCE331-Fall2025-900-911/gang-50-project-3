@@ -171,7 +171,7 @@ export default function UpdateMenu() {
           <h2 className="mb-2 text-base font-semibold text-center text-black" style={{ color: "#000000" }}>Data Output</h2>
           <textarea
             id="viewDataTextArea"
-            className="h-40 w-full rounded-xl border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="h-40 w-[500px] resize-none rounded-xl border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={viewData}
             style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
             onChange={(e) => setViewData(e.target.value)}
