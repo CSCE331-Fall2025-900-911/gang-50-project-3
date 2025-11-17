@@ -13,8 +13,8 @@ export default function UpdateMenu() {
   const [itemSizes, setItemSizes] = useState("");
   const [itemPhotoPath, setItemPhotoPath] = useState("");
   const [itemIsSeasonal, setItemIsSeasonal] = useState(false);
-  const [itemIsSeasonalTimeBegin, setItemIsSeasonalTimeBegin] = useState("");
-  const [itemIsSeasonalTimeEnd, setItemIsSeasonalTimeEnd] = useState("");
+  const [itemSeasonalTimeBegin, setItemIsSeasonalTimeBegin] = useState("");
+  const [itemSeasonalTimeEnd, setItemIsSeasonalTimeEnd] = useState("");
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerH, setHeaderH] = useState(64);
 
@@ -40,7 +40,7 @@ export default function UpdateMenu() {
 
   const inputBase = "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
-  const handleViewSubmit = (e?: React.FormEvent) => {
+  /*const handleViewSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     setViewData((prev) => `Queried item ${viewItemId || "(none)"}.\n` + prev);
   };
@@ -53,7 +53,7 @@ export default function UpdateMenu() {
     alert(
       `Add item:\n name=${addName}\n price=${addPrice}\n category=${addCategory}\n available=${isAvailable}`
     );
-  };
+  };*/
 
   return (
     <div id="rootPane" className="min-h-screen flex flex-col bg-white text-gray-900">
@@ -155,7 +155,7 @@ export default function UpdateMenu() {
                   <input
                     id="itemIsAvailable"
                     type="checkbox"
-                    checked={isAvailable}
+                    checked={itemIsAvailable}
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     onChange={(e) => setItemIsAvailable(e.target.checked)}
                     className="h-4 w-4"
@@ -186,9 +186,9 @@ export default function UpdateMenu() {
                 </div>
                 <div className="flex items-center gap-2">
                   <input
-                    id="isSeasonal"
+                    id="itemIsSeasonal"
                     type="checkbox"
-                    checked={isSeasonal}
+                    checked={itemIsSeasonal}
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     onChange={(e) => setItemIsSeasonal(e.target.checked)}
                     className="h-4 w-4"
