@@ -128,8 +128,8 @@ export default function UpdateMenu() {
         const targetSizes = itemSizes.trim();
         const targetPhoto = itemPhotoPath.trim();
         const targetSeasonal = itemIsSeasonal;
-        targetSeasonalStart = itemSeasonalTimeBegin.trim() + " 00:00:00";
-        targetSeasonalEnd = itemSeasonalTimeEnd.trim() + " 00:00:00";
+        var targetSeasonalStart = itemSeasonalTimeBegin.trim() + " 00:00:00";
+        var targetSeasonalEnd = itemSeasonalTimeEnd.trim() + " 00:00:00";
         if (!targetName || !targetID || !targetPrice || !targetSizes || !targetPhoto || !targetSeasonalStart || !targetSeasonalEnd) {
             setViewData("Verify all information is valid.");
             return;
