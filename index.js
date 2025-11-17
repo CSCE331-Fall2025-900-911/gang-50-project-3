@@ -144,6 +144,17 @@
     }
   });
 
+  app.get('/api/updatemenu/viewitemdata/:itemId', async (req, res) => {
+    try {
+      const { itemID } = req.params;
+      const result = await pool.query(`SELECT * FROM Item WHERE item_ID = $1;`, [itemID]);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching item data:', err);
+      res.status(500).json({ error: 'Failed to get item data' });
+    }
+  });
+
 
   app.listen(port, () => {
     console.log(`pool connected to database: ${process.env.PSQL_DATABASE}`);
