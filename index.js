@@ -158,7 +158,7 @@
   app.get('/api/updatemenu/updateitemprice/:itemId/:itemPrice', async (req, res) => {
     try {
       const { itemId, itemPrice } = req.params;
-      const result = await pool.query(`UPDATE Item SET item_cost = $1 WHERE item_ID = $2;`, [itemId, itemPrice]);
+      const result = await pool.query(`UPDATE Item SET item_cost = $1 WHERE item_ID = $2;`, [itemPrice, itemId]);
       res.json(result.rows);
     } catch (err) {
       console.error('Error fetching item data:', err);
