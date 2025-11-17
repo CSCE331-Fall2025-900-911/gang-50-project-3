@@ -58,7 +58,7 @@ export default function UpdateMenu() {
 
       <div style={{ paddingTop: headerH }} className="flex-1">
         <div className="mx-auto max-w-6xl p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-3 gap-6">
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
               <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>View Item Data</h2>
               <form onSubmit={handleViewSubmit} className="space-y-3 flex-1">
@@ -173,7 +173,7 @@ export default function UpdateMenu() {
             id="viewDataTextArea"
             className="h-40 w-full resize-none rounded-xl border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={viewData}
-            style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
+            style={{resize: "none", backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
             onChange={(e) => setViewData(e.target.value)}
             placeholder="Results appear here..."
           />
