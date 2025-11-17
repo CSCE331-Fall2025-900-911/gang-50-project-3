@@ -40,7 +40,6 @@ export default function UpdateMenu() {
 
   const inputBase = "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
   const API_URL = '/api';
-  console.log('API_URL =', API_URL);
   
   const handleViewSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -52,18 +51,15 @@ export default function UpdateMenu() {
 
     try {
        const res = await fetch(`${API_URL}/updatemenu/viewitemdata/${encodeURIComponent(trimmed)}`);
-       //const res = await fetch(`http://localhost:10000/api/updatemenu/viewitemdata/${encodeURIComponent(trimmed)}`);
-       const raw = await res.text(); // always get the raw body
+       const raw = await res.text();
 
     if (!res.ok) {
-      // Show the raw body if available
       setViewData(
         `Error ${res.status}\n${raw || "Failed to fetch item data"}`
       );
       return;
     }
 
-    // Try to parse JSON; if it fails, just show the raw text
     try {
       const data = JSON.parse(raw);
       setViewData(JSON.stringify(data, null, 2));
@@ -75,9 +71,54 @@ export default function UpdateMenu() {
     setViewData(`Something happend!! -> : ${message}`);
   }
   };
+  
   const handleUpdatePrice = (e?: React.FormEvent) => {
     e?.preventDefault();
-    alert(`Update price for item ${updateItemId || "(none)"} -> ${updatePrice || "(none)"}`);
+    const targetID = updateItemId.trim();
+    const targetPrice = updatePrice.trim();
+    if (!targetID) {
+      setViewData("Please enter a valid item ID.");
+      return;
+    }
+    if (!targetPrice)
+    {
+      setViewData("Please enter a valid item price.");
+      return;
+    }
+
+    const idNum = Number(targetID);
+    if (!Number.isInteger(idNum) || idNum <= 0) {
+      setViewData("Item ID must be a positive whole number.");
+      return;
+    }
+
+    const priceNum = Number(targetPrice);
+    if (!Number.isFinite(priceNum) || priceNum < 0) {
+      setViewData("Price must be a non-negative number.");
+      return;
+    }
+
+    try {
+       const res = await fetch(`${API_URL}/updatemenu/viewitemdata/${encodeURIComponent(idNum)}/${encodeURIComponent(priceNum)}`);
+       const raw = await res.text();
+
+    if (!res.ok) {
+      setViewData(
+        `Error ${res.status}\n${raw || "Failed to fetch item data"}`
+      );
+      return;
+    }
+
+    try {
+      const data = JSON.parse(raw);
+      setViewData(JSON.stringify(data, null, 2));
+    } catch {
+      setViewData(`Non-JSON response from server:\n${raw}`);
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    setViewData(`Something happend!! -> : ${message}`);
+  }
   };
   const handleAddItem = (e?: React.FormEvent) => {
     e?.preventDefault();
