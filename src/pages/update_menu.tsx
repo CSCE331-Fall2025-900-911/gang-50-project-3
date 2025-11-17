@@ -113,7 +113,16 @@ export default function UpdateMenu() {
                   <button type="submit" className="btn-updateMenu">Update</button>
                 </div>
               </form>
-            </section>
+          <h2 className="mb-2 text-base font-semibold text-center text-black" style={{ color: "#000000" }}>Data Output</h2>
+          <textarea
+            id="viewDataTextArea"
+            className="w-full resize-none rounded-xl border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={viewData}
+            readOnly
+            style={{height: "300px", width: "300px", resize: "none", backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
+            onChange={(e) => setViewData(e.target.value)}
+            placeholder="Waiting..."/>
+        </section>
 
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
               <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>Add Item</h2>
@@ -225,21 +234,6 @@ export default function UpdateMenu() {
           </div>
         </div>
       </div>
-
-      <footer className="border-t bg-white">
-        <section className="mx-auto max-w-6xl p-4">
-          <h2 className="mb-2 text-base font-semibold text-center text-black" style={{ color: "#000000" }}>Data Output</h2>
-          <textarea
-            id="viewDataTextArea"
-            className="w-full resize-none rounded-xl border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={viewData}
-            readOnly
-            style={{height: "300px", width: "300px", resize: "none", backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
-            onChange={(e) => setViewData(e.target.value)}
-            placeholder="Waiting..."
-          />
-        </section>
-      </footer>
     </div>
   );
 }
