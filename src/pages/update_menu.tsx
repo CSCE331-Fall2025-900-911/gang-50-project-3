@@ -39,7 +39,8 @@ export default function UpdateMenu() {
   }, []);
 
   const inputBase = "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
-  const API_URL = 'http://localhost:3000/api';
+  const API_URL = '/api';
+  console.log('API_URL =', API_URL);
   
   const handleViewSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
