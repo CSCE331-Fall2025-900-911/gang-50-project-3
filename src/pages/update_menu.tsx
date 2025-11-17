@@ -114,9 +114,9 @@ export default function UpdateMenu() {
               <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>Add Item</h2>
               <form onSubmit={handleAddItem} className="grid grid-cols-1 gap-4 flex-1">
                 <div>
-                  <label htmlFor="addName" className="label-updateMenu" style={{ color: "#000000" }}>Name: </label>
+                  <label htmlFor="itemNewName" className="label-updateMenu" style={{ color: "#000000" }}>Name: </label>
                   <input
-                    id="addName"
+                    id="itemNewName"
                     className={inputBase}
                     placeholder="Name"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
@@ -125,9 +125,20 @@ export default function UpdateMenu() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="addPrice" className="label-updateMenu" style={{ color: "#000000" }}>Price: </label>
+                  <label htmlFor="itemNewID" className="label-updateMenu" style={{ color: "#000000" }}>Item ID: </label>
                   <input
-                    id="addPrice"
+                    id="itemNewID"
+                    className={inputBase}
+                    placeholder="ID"
+                    style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
+                    value={addID}
+                    onChange={(e) => setAddName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="itemNewPrice" className="label-updateMenu" style={{ color: "#000000" }}>Price: </label>
+                  <input
+                    id="itemNewPrice"
                     className={inputBase}
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     placeholder="0.00"
@@ -135,27 +146,71 @@ export default function UpdateMenu() {
                     onChange={(e) => setAddPrice(e.target.value)}
                   />
                 </div>
-                <div>
-                  <label htmlFor="addCategory" className="label-updateMenu" style={{ color: "#000000" }}>Category: </label>
-                  <input
-                    id="addCategory"
-                    className={inputBase}
-                    placeholder="e.g., Drinks"
-                    style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
-                    value={addCategory}
-                    onChange={(e) => setAddCategory(e.target.value)}
-                  />
-                </div>
                 <div className="flex items-center gap-2">
                   <input
-                    id="isAvailable"
+                    id="itemIsAvailable"
                     type="checkbox"
                     checked={isAvailable}
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     onChange={(e) => setIsAvailable(e.target.checked)}
                     className="h-4 w-4"
                   />
-                  <label htmlFor="isAvailable" className="label-updateMenu" style={{ color: "#000000" }}>Available</label>
+                  <label htmlFor="itemIsAvailable" className="label-updateMenu" style={{ color: "#000000" }}>In stock: </label>
+                </div>
+                <div>
+                  <label htmlFor="itemSizes" className="label-updateMenu" style={{ color: "#000000" }}>Sizes: </label>
+                  <input
+                    id="itemSizes"
+                    className={inputBase}
+                    placeholder="S/M/L"
+                    style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
+                    value={addName}
+                    onChange={(e) => setAddName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="itemPhotoPath" className="label-updateMenu" style={{ color: "#000000" }}>Photo: </label>
+                  <input
+                    id="itemPhotoPath"
+                    className={inputBase}
+                    placeholder="/tmp/photo"
+                    style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
+                    value={addName}
+                    onChange={(e) => setAddName(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    id="isSeasonal"
+                    type="checkbox"
+                    checked={isSeasonal}
+                    style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
+                    onChange={(e) => setIsAvailable(e.target.checked)}
+                    className="h-4 w-4"
+                  />
+                  <label htmlFor="isSeasonal" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal item: </label>
+                </div>
+                <div>
+                  <label htmlFor="itemSeasonalTimeBegin" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal time begin: </label>
+                  <input
+                    id="itemSeasonalTimeBegin"
+                    className={inputBase}
+                    placeholder="YR-M-D"
+                    style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
+                    value={addName}
+                    onChange={(e) => setAddName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="itemSeasonalTimeEnd" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal time end: </label>
+                  <input
+                    id="itemSeasonalTimeEnd"
+                    className={inputBase}
+                    placeholder="YR-M-D"
+                    style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
+                    value={addName}
+                    onChange={(e) => setAddName(e.target.value)}
+                  />
                 </div>
                 <div className="mt-auto flex items-center gap-2 pt-2">
                   <button type="submit" className="btn-updateMenu">Add</button>
