@@ -147,7 +147,7 @@
   app.get('/api/updatemenu/viewitemdata/:itemId', async (req, res) => {
     try {
       const { itemId } = req.params;
-      const result = await pool.query(`SELECT * FROM Item WHERE item_ID = $1;`, [itemID]);
+      const result = await pool.query(`SELECT * FROM Item WHERE item_ID = $1;`, [itemId]);
       res.json(result.rows);
     } catch (err) {
       console.error('Error fetching item data:', err);
