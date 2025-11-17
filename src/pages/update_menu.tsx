@@ -50,15 +50,22 @@ export default function UpdateMenu() {
 
     try {
       const res = await fetch(`/api/updatemenu/viewitemdata/${encodeURIComponent(trimmed)}`);
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        setViewData(`Error ${res.status}: ${text || "Failed to fetch item data"}`);
-        return;
-      }
-      const data = await res.json();
+       const raw = await res.text(); // always get the raw body
+
+    if (!res.ok) {
+      // Show the raw body if available
+      setViewData(
+        `Error ${res.status}\n${raw || "Failed to fetch item data"}`
+      );
+      return;
+    }
+
+    // Try to parse JSON; if it fails, just show the raw text
+    try {
+      const data = JSON.parse(raw);
       setViewData(JSON.stringify(data, null, 2));
-      } catch (err: any) {
-        setViewData(`Something happened! -> ${err?.message || String(err)}`);
+    } catch {
+      setViewData(`Non-JSON response from server:\n${raw}`);
     }
   };
   const handleUpdatePrice = (e?: React.FormEvent) => {
