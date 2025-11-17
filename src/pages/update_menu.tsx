@@ -7,7 +7,8 @@ export default function UpdateMenu() {
   const [updateItemId, setUpdateItemId] = useState("");
   const [updatePrice, setUpdatePrice] = useState("");
   const [itemNewName, setItemNewName] = useState("");
-  const [itemNewPrice, setAddPrice] = useState("");
+  const [itemNewID, setItemNewID] = useState("");
+  const [itemNewPrice, setItemNewPrice] = useState("");
   const [itemIsAvailable, setItemIsAvailable] = useState(false);
   const [itemSizes, setItemSizes] = useState("");
   const [itemPhotoPath, setItemPhotoPath] = useState("");
@@ -124,8 +125,8 @@ export default function UpdateMenu() {
                     className={inputBase}
                     placeholder="Name"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
-                    value={handleAddItem}
-                    onChange={(e) => setAddName(e.target.value)}
+                    value={itemNewName}
+                    onChange={(e) => setItemNewName(e.target.value)}
                   />
                 </div>
                 <div>
@@ -136,7 +137,7 @@ export default function UpdateMenu() {
                     placeholder="ID"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     value={itemNewID}
-                    onChange={(e) => setAddName(e.target.value)}
+                    onChange={(e) => setItemNewID(e.target.value)}
                   />
                 </div>
                 <div>
@@ -147,7 +148,7 @@ export default function UpdateMenu() {
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     placeholder="0.00"
                     value={itemNewPrice}
-                    onChange={(e) => setAddPrice(e.target.value)}
+                    onChange={(e) => setItemNewPrice(e.target.value)}
                   />
                 </div>
                 <div className="flex items-center gap-2">
@@ -156,7 +157,7 @@ export default function UpdateMenu() {
                     type="checkbox"
                     checked={isAvailable}
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
-                    onChange={(e) => setIsAvailable(e.target.checked)}
+                    onChange={(e) => setItemIsAvailable(e.target.checked)}
                     className="h-4 w-4"
                   />
                   <label htmlFor="itemIsAvailable" className="label-updateMenu" style={{ color: "#000000" }}>In stock: </label>
@@ -169,7 +170,7 @@ export default function UpdateMenu() {
                     placeholder="S/M/L"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     value={itemSizes}
-                    onChange={(e) => setAddName(e.target.value)}
+                    onChange={(e) => setItemSizes(e.target.value)}
                   />
                 </div>
                 <div>
@@ -180,7 +181,7 @@ export default function UpdateMenu() {
                     placeholder="/tmp/photo"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     value={itemPhotoPath}
-                    onChange={(e) => setAddName(e.target.value)}
+                    onChange={(e) => setItemPhotoPath(e.target.value)}
                   />
                 </div>
                 <div className="flex items-center gap-2">
@@ -189,7 +190,7 @@ export default function UpdateMenu() {
                     type="checkbox"
                     checked={isSeasonal}
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
-                    onChange={(e) => setIsAvailable(e.target.checked)}
+                    onChange={(e) => setItemIsSeasonal(e.target.checked)}
                     className="h-4 w-4"
                   />
                   <label htmlFor="isSeasonal" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal item: </label>
@@ -202,7 +203,7 @@ export default function UpdateMenu() {
                     placeholder="YR-M-D"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     value={itemSeasonalTimeBegin}
-                    onChange={(e) => setAddName(e.target.value)}
+                    onChange={(e) => setItemIsSeasonalTimeBegin(e.target.value)}
                   />
                 </div>
                 <div>
@@ -213,7 +214,7 @@ export default function UpdateMenu() {
                     placeholder="YR-M-D"
                     style={{backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
                     value={itemSeasonalTimeEnd}
-                    onChange={(e) => setAddName(e.target.value)}
+                    onChange={(e) => setItemIsSeasonalTimeEnd(e.target.value)}
                   />
                 </div>
                 <div className="mt-auto flex items-center gap-2 pt-2">
