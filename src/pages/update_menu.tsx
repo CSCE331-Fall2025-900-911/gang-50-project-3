@@ -67,6 +67,10 @@ export default function UpdateMenu() {
     } catch {
       setViewData(`Non-JSON response from server:\n${raw}`);
     }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    setViewData(`Something happend!! -> : ${message}`);
+  }
   };
   const handleUpdatePrice = (e?: React.FormEvent) => {
     e?.preventDefault();
