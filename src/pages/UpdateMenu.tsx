@@ -124,13 +124,13 @@ export default function UpdateMenu() {
         const targetName = itemNewName.trim();
         const targetID = itemNewID.trim();
         const targetPrice = itemNewPrice.trim();
-        const targetAvailability = itemIsAvailable.target.checked;
+        const targetAvailability = itemIsAvailable;
         const targetSizes = itemSizes.trim();
         const targetPhoto = itemPhotoPath.trim();
-        const targetSeasonal = itemIsSeasonal.target.checked;
+        const targetSeasonal = itemIsSeasonal;
         const targetSeasonalStart = itemSeasonalTimeBegin.trim() + " 00:00:00";
         const targetSeasonalEnd = itemSeasonalTimeEnd.trim() + " 00:00:00";
-        if (!targetName || !targetID || !targetPrice || !targetSize || !targetPhoto || !targetSeasonalStart || !targetSeasonalEnd) {
+        if (!targetName || !targetID || !targetPrice || !targetSizes || !targetPhoto || !targetSeasonalStart || !targetSeasonalEnd) {
             setViewData("Verify all information is valid.");
             return;
         }
