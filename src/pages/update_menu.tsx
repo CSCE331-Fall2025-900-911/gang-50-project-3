@@ -173,7 +173,8 @@ export default function UpdateMenu() {
             id="viewDataTextArea"
             className="w-full resize-none rounded-xl border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={viewData}
-            style={{height: "300px", resize: "none", backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
+            readOnly
+            style={{height: "300px", width: "300px", resize: "none", backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid"}}
             onChange={(e) => setViewData(e.target.value)}
             placeholder="Results appear here..."
           />
