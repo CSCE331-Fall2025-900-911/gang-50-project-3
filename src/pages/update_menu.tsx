@@ -42,7 +42,24 @@ export default function UpdateMenu() {
 
   const handleViewSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
-    setViewData((prev) => `Queried item ${viewItemId || "(none)"}.\n` + prev);
+    const trimmed = viewItemId.trim();
+    if (!trimmed && !isNaN(trimmed) && !isNaN(parseFloat(trimmed))) {
+      setViewData("Please enter a valid item ID.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/updatemenu/viewitemdata/${encodeURIComponent(trimmed)}`);
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        setViewData(`Error ${res.status}: ${text || "Failed to fetch item data"}`);
+        return;
+      }
+      const data = await res.json();
+      setViewData(JSON.stringify(data, null, 2));
+      } catch (err: any) {
+        setViewData(`Something happened! -> ${err?.message || String(err)}`);
+    }
   };
   const handleUpdatePrice = (e?: React.FormEvent) => {
     e?.preventDefault();
