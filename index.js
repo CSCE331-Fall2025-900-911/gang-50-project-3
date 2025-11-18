@@ -4,7 +4,6 @@
   import path from 'path';
   import pg from 'pg';
   import dotenv from 'dotenv';
-  import cors from 'cors';
   import { fileURLToPath } from 'url';
 
   dotenv.config();
@@ -33,9 +32,12 @@
   });
 
   // Middleware
-  app.use(cors());
   app.use(express.json());
   app.use(express.static(path.join(__dirname, 'dist'))); 
+
+  app.get(/^\/(?!api).*/, (_req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
 
   // API Routes
   app.get('/api/categories', async (req, res) => {
@@ -186,8 +188,6 @@ app.use((req, res, next) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-
-  app.listen(port, () => {
-    console.log(`pool connected to database: ${process.env.PSQL_DATABASE}`);
-    console.log(`Server running on http://localhost:${port}`);
-  });
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${port}`);
+});
