@@ -345,6 +345,42 @@ html, body {
   cursor: not-allowed;
 }
 
+.btn-updateMenu{
+  width: auto;
+  padding: 14px 16px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  background-color: #CF152D;
+  border-radius: 999px;
+  transition: background-color 0.25s, border-color 0.25s;
+}
+
+.btn-updateMenu:hover{
+  background-color: #950b1d; 
+  border: 1px solid #950b1d;
+}
+
+.btn-updateMenu:disabled{
+  background: #cbd5e1;
+  border-color: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.label-updateMenu {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.update-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
 /* Helpers */
 .empty{ text-align: center; padding: 24px 0; }
 .muted{ color: #6b7280; }
