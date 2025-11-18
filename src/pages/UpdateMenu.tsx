@@ -149,8 +149,8 @@ export default function UpdateMenu() {
 
         if(!targetSeasonal)
         {
-            targetSeasonalStart = "0000-00-00 00:00:00";
-            targetSeasonalEnd = "0000-00-00 00:00:00";
+            targetSeasonalStart = "1970-01-01 00:00:01";
+            targetSeasonalEnd = "1970-01-01 00:00:01";
         }
 
         try {
