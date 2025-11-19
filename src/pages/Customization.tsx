@@ -39,7 +39,19 @@ export default function Customization({
         const res = await fetch(`${API_URL}/ingredients?item_id=${item.item_id}`);
         if (!res.ok) throw new Error('Failed to fetch customization options');
         const data: Group[] = await res.json();
-        setGroups(data);
+
+        // Override labels to desired names
+        const labeledGroups: Group[] = data.map((group, index) => {
+          switch (index) {
+            case 0: return { ...group, label: 'Cup Sizes' };
+            case 1: return { ...group, label: 'Milk Options' };
+            case 2: return { ...group, label: 'Drink Add-ons' };
+            case 3: return { ...group, label: 'Extras' };
+            default: return group;
+          }
+        });
+
+        setGroups(labeledGroups);
       } catch (err) {
         console.error(err);
         setError('Could not load customization options.');
@@ -66,7 +78,7 @@ export default function Customization({
     ...item,
     cart_id: Date.now(),
     quantity: 1,
-    customization: selectedOptions.length ? selectedOptions.join(', ') : 'Regular',
+    customization: selectedOptions.length ? selectedOptions.join(', ') : '', // <-- default empty
   });
 
   const handleConfirm = () => {
