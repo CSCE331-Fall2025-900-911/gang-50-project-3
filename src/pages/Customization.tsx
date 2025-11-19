@@ -1,81 +1,130 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from 'react';
 
-type Selections = Record<string, string[]>;
+type Group = {
+  label: string;
+  options: string[];
+  multiple: boolean;
+};
 
-export const Customization: React.FC<{
-  initial?: Selections;
-  onConfirm?: (selections: Selections) => void;
+export type Item = {
+  item_id: number;
+  item_name: string;
+  item_cost: number;
+  photo?: string | null;
+  category_id?: number;
+  [k: string]: any;
+};
+
+const API_URL = '/api';
+
+export default function Customization({
+  item,
+  onClose,
+  onAddToCart,
+}: {
+  item: Item;
   onClose?: () => void;
-}> = ({ initial = {}, onConfirm, onClose }) => {
-  const customizationGroups = [
-    { label: "Cup Sizes", options: ["Cup (S)", "Cup (M)", "Cup (L)"], multiple: false },
-    { label: "Milk Options", options: ["Milk", "Non-Dairy Milk"], multiple: false },
-    { label: "Drink Add-ons", options: ["Ice", "Lid", "Straw"], multiple: true },
-    { label: "Packaging Options", options: ["Bag", "Napkin", "To-go Box"], multiple: true },
-  ];
+  onAddToCart?: (cartItem: any) => void;
+}) {
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const [selections, setSelections] = useState<Selections>(initial);
+  // Fetch customization groups from backend (GET request only)
+  useEffect(() => {
+    const loadGroups = async () => {
+      try {
+        const res = await fetch(`${API_URL}/ingredients?item_id=${item.item_id}`);
+        if (!res.ok) throw new Error('Failed to fetch customization options');
+        const data: Group[] = await res.json();
+        setGroups(data);
+      } catch (err) {
+        console.error(err);
+        setError('Could not load customization options.');
+      }
+    };
+    loadGroups();
+  }, [item]);
 
-  // keep selections in sync if parent supplies new initial
-  useEffect(() => setSelections(initial), [initial]);
-
-  const handleSelect = (groupLabel: string, option: string, multiple: boolean) => {
-    setSelections((prev) => {
-      const groupSelections = prev[groupLabel] || [];
-      if (groupSelections.includes(option)) {
-        return { ...prev, [groupLabel]: groupSelections.filter((o) => o !== option) };
+  const handleOptionClick = (group: Group, option: string) => {
+    setSelectedOptions(prev => {
+      if (!group.multiple) {
+        const otherOptions = group.options.filter(o => o !== option);
+        const withoutOtherGroup = prev.filter(p => !otherOptions.includes(p));
+        return withoutOtherGroup.includes(option)
+          ? withoutOtherGroup.filter(p => p !== option)
+          : [...withoutOtherGroup, option];
       } else {
-        return { ...prev, [groupLabel]: multiple ? [...groupSelections, option] : [option] };
+        return prev.includes(option) ? prev.filter(p => p !== option) : [...prev, option];
       }
     });
   };
 
-  return (
-    <div className="customization-modal p-4 w-[600px] h-[594px] relative bg-white text-gray-800 font-calibri shadow-lg">
-      <h2 className="text-sm mb-2">Customize Drink</h2>
+  const buildCartItem = () => ({
+    ...item,
+    cart_id: Date.now(),
+    quantity: 1,
+    customization: selectedOptions.length ? selectedOptions.join(', ') : 'Regular',
+  });
 
-      <button
-        className="absolute top-3 right-3 bg-red-500 text-white px-2 rounded"
-        aria-label="Close"
-        onClick={() => onClose && onClose()}
-      >
-        X
-      </button>
+  const handleConfirm = () => {
+    setBusy(true);
+    setStatusMessage(null);
+    const cartItem = buildCartItem();
 
-      <hr className="my-2 border-gray-300" />
+    try {
+      const existing = JSON.parse(localStorage.getItem('cart') || '[]');
+      localStorage.setItem('cart', JSON.stringify([...existing, cartItem]));
+      if (onAddToCart) onAddToCart(cartItem);
+      setStatusMessage('Added to cart.');
+    } catch (err) {
+      console.error(err);
+      setStatusMessage('Failed to add to cart.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
-      <div className="overflow-y-auto max-h-[420px]">
-        {customizationGroups.map((group) => (
-          <div key={group.label} className="mt-4">
-            <label className="block mb-2 font-semibold">{group.label}</label>
-            <div className="flex flex-wrap gap-2">
-              {group.options.map((option) => {
-                const isSelected = selections[group.label]?.includes(option);
-                return (
-                  <button
-                    key={option}
-                    onClick={() => handleSelect(group.label, option, group.multiple)}
-                    className={`px-3 py-2 border rounded ${
-                      isSelected ? "bg-blue-500 text-white" : "hover:bg-gray-100"
-                    }`}
-                  >
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+  if (error) {
+    return (
+      <div style={{ padding: '1rem' }}>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
       </div>
+    );
+  }
 
-      <p className="mt-4 text-sm">Customizations: {JSON.stringify(selections)}</p>
+  return (
+    <div className="content">
+      <h2>{item.item_name}</h2>
 
-      <button
-        className="w-full mt-2 bg-blue-600 text-white py-2 rounded"
-        onClick={() => onConfirm && onConfirm(selections)}
-      >
-        Confirm
+      {groups.map(group => (
+        <div key={group.label} style={{ marginBottom: '1rem' }}>
+          <h3>{group.label}</h3>
+          <div className="item-grid">
+            {group.options.map(option => {
+              const active = selectedOptions.includes(option);
+              return (
+                <button
+                  key={option}
+                  onClick={() => handleOptionClick(group, option)}
+                  className={`item-card ${active ? 'active' : ''}`}
+                >
+                  {option}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      <button onClick={handleConfirm} disabled={busy}>
+        {busy ? 'Working...' : 'Confirm'}
       </button>
+      <button onClick={onClose}>Cancel</button>
+      {statusMessage && <p>{statusMessage}</p>}
     </div>
   );
-};
+}
