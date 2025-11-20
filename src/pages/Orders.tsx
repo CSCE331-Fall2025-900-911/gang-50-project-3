@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
-import type { Item } from './Customization';
-import Customization from './Customization';
 
 export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -9,10 +7,11 @@ export default function Orders() {
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [customizingItem, setCustomizingItem] = useState<Item | null>(null);
   const [_employeeId] = useState(1);
 
   const API_URL = '/api';
+
+  console.log('API_URL =', API_URL);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -30,6 +29,7 @@ export default function Orders() {
     loadCategories();
   }, []);
 
+  // fetching menu items
   useEffect(() => {
     const loadItems = async () => {
       try {
@@ -45,7 +45,7 @@ export default function Orders() {
     loadItems();
   }, []);
 
-  if (error) {
+   if (error) {
     return (
       <div className="error-screen">
         <CashierNavbar />
@@ -60,12 +60,12 @@ export default function Orders() {
     );
   }
 
+  // filter/selecting items based on category
   const filteredItems = selectedCategory
     ? items.filter((item) => item.category_id === selectedCategory)
     : [];
 
-  // quick add to cart
-  const addToCart = (item: Item) => {
+  const addToCart = (item: any) => {
     setCart((prev) => [
       ...prev,
       { ...item, cart_id: Date.now(), quantity: 1, customization: 'Regular' },
@@ -103,9 +103,10 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* menu items */}
+      {/* menu items section */}
       <div className="content">
         <CashierNavbar />
+
         <h2 className="section-title">{selectedCategoryName}</h2>
 
         {filteredItems.length === 0 ? (
@@ -113,7 +114,11 @@ export default function Orders() {
         ) : (
           <div className="item-grid">
             {filteredItems.map((item) => (
-              <div key={item.item_id} className="item-card">
+              <button
+                key={item.item_id}
+                onClick={() => addToCart(item)}
+                className="item-card"
+              >
                 <div className="thumb">
                   {item.photo ? (
                     <img src={item.photo} alt={item.item_name} className="thumb-img" />
@@ -123,22 +128,13 @@ export default function Orders() {
                 </div>
                 <h3 className="item-name">{item.item_name}</h3>
                 <p className="item-price">${item.item_cost.toFixed(2)}</p>
-
-                <div style={{ marginTop: 8, display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => addToCart(item)} className="btn btn-add">
-                    Add to Cart
-                  </button>
-                  <button onClick={() => setCustomizingItem(item)} className="btn btn-customize">
-                    Customize
-                  </button>
-                </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* checkout sidebar */}
+      {/* checkout */}
       <div className="sidebar sidebar-right">
         <div className="order-top">
           <h2 className="order-title">Current Order</h2>
@@ -185,24 +181,13 @@ export default function Orders() {
           </div>
         </div>
 
-        <button disabled={cart.length === 0} className="btn btn-checkout">
+        <button
+          disabled={cart.length === 0}
+          className="btn btn-checkout"
+        >
           Checkout
         </button>
       </div>
-
-      {/* Customization panel overlay */}
-      {customizingItem && (
-        <div className="customization-overlay">
-          <Customization
-            item={customizingItem}
-            onClose={() => setCustomizingItem(null)}
-            onAddToCart={(cartItem) => {
-              setCart((prev) => [...prev, cartItem]); // add customized item
-              setCustomizingItem(null); // close panel
-            }}
-          />
-        </div>
-      )}
     </div>
   );
 }
