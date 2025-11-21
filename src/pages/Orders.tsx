@@ -225,8 +225,6 @@
 // }
 
 
-
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 import Customization from './Customization';
@@ -238,8 +236,8 @@ export default function Orders() {
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // NEW: track active tab and misc customization
-  const [activeTab, setActiveTab] = useState('orders');
+  // track active tab and misc customization modal
+  const [activeTab] = useState('orders');
   const [showMiscCustomization, setShowMiscCustomization] = useState(false);
 
   const API_URL = '/api';
@@ -275,13 +273,9 @@ export default function Orders() {
     loadItems();
   }, []);
 
-  // When tab switches to misc → show customization page
+  // Show misc customization when tab changes to 'misc'
   useEffect(() => {
-    if (activeTab === 'misc') {
-      setShowMiscCustomization(true);
-    } else {
-      setShowMiscCustomization(false);
-    }
+    setShowMiscCustomization(activeTab === 'misc');
   }, [activeTab]);
 
   if (error) {
@@ -303,7 +297,6 @@ export default function Orders() {
     ? items.filter((item) => item.category_id === selectedCategory)
     : [];
 
-  // Original add-to-cart behavior stays exactly the same
   const addToCart = (item: any) => {
     setCart((prev) => [
       ...prev,
@@ -324,20 +317,19 @@ export default function Orders() {
 
   return (
     <div className="orders-layout">
-
-      {/* === MISC CUSTOMIZATION MODAL === */}
+      {/* MISC CUSTOMIZATION MODAL */}
       {showMiscCustomization && (
         <div className="modal-overlay">
           <div className="modal-content">
             <Customization
               item={{
                 item_id: 0,
-                item_name: "Miscellaneous Custom Item",
+                item_name: 'Miscellaneous Custom Item',
                 item_cost: 0,
               }}
               onClose={() => setShowMiscCustomization(false)}
               onAddToCart={(cartItem) => {
-                setCart(prev => [...prev, cartItem]);
+                setCart((prev) => [...prev, cartItem]);
                 setShowMiscCustomization(false);
               }}
             />
@@ -345,10 +337,9 @@ export default function Orders() {
         </div>
       )}
 
-      {/* left sidebar */}
+      {/* LEFT SIDEBAR */}
       <div className="sidebar sidebar-left">
         <h2 className="section-title">Item Categories</h2>
-
         <div className="category-list">
           {categories.map((category) => (
             <button
@@ -364,7 +355,7 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* main content */}
+      {/* MAIN CONTENT */}
       <div className="content">
         <CashierNavbar />
 
@@ -395,7 +386,7 @@ export default function Orders() {
         )}
       </div>
 
-      {/* cart */}
+      {/* CART */}
       <div className="sidebar sidebar-right">
         <div className="order-top">
           <h2 className="order-title">Current Order</h2>
@@ -442,10 +433,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <button
-          disabled={cart.length === 0}
-          className="btn btn-checkout"
-        >
+        <button disabled={cart.length === 0} className="btn btn-checkout">
           Checkout
         </button>
       </div>
