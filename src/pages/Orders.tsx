@@ -1,26 +1,17 @@
-import type { Dispatch, SetStateAction } from 'react';
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
-import Customization from '../pages/Customization';
 
-export default function Orders({
-  activeTab,
-  setActiveTab,
-}: {
-  activeTab: string;
-  setActiveTab: Dispatch<SetStateAction<string>>;
-}) {
+export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
+  const [ingredients, setIngredients] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [showMiscCustomization, setShowMiscCustomization] = useState(false);
-  const [ingredients, setIngredients] = useState<any[]>([]);
+  const [_employeeId] = useState(1);
 
   const API_URL = '/api';
 
-  // Fetch categories
   useEffect(() => {
     const loadCategories = async () => {
       try {
@@ -30,14 +21,13 @@ export default function Orders({
         setCategories(data);
         if (data.length > 0) setSelectedCategory(data[0].category_id);
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching categories:', err);
         setError('Could not load categories.');
       }
     };
     loadCategories();
   }, []);
 
-  // Fetch menu items
   useEffect(() => {
     const loadItems = async () => {
       try {
@@ -46,17 +36,15 @@ export default function Orders({
         const data = await res.json();
         setItems(data);
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching items:', err);
         setError('Could not load items.');
       }
     };
     loadItems();
   }, []);
 
-  // Fetch ingredients when Misc tab is active
+  // fetch ingredients for Misc
   useEffect(() => {
-    if (activeTab !== 'misc') return;
-
     const loadIngredients = async () => {
       try {
         const res = await fetch(`${API_URL}/ingredients`);
@@ -64,21 +52,19 @@ export default function Orders({
         const data = await res.json();
         setIngredients(data);
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching ingredients:', err);
         setError('Could not load ingredients.');
       }
     };
-
     loadIngredients();
-    setShowMiscCustomization(true);
-  }, [activeTab]);
+  }, []);
 
   if (error) {
     return (
       <div className="error-screen">
         <CashierNavbar />
-        <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-          <h2>Something went wrong</h2>
+        <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
+          <h2>Something went wrong </h2>
           <p>{error}</p>
           <button onClick={() => window.location.reload()} className="btn">
             Retry
@@ -88,18 +74,19 @@ export default function Orders({
     );
   }
 
-  // Filtered items for display
-  const filteredItems =
-    activeTab === 'misc'
-      ? ingredients // show ingredients in Misc tab
-      : selectedCategory
-      ? items.filter((i) => i.category_id === selectedCategory)
-      : [];
+  // filter items based on selected category
+  let filteredItems: any[] = [];
+  if (selectedCategory === 7) {
+    // Misc category shows ingredients
+    filteredItems = ingredients;
+  } else if (selectedCategory) {
+    filteredItems = items.filter((item) => item.category_id === selectedCategory);
+  }
 
   const addToCart = (item: any) => {
     setCart((prev) => [
       ...prev,
-      { ...item, cart_id: Date.now(), quantity: 1, customization: 'Regular' },
+      { ...item, cart_id: Date.now(), quantity: 1, customization: '' },
     ]);
   };
 
@@ -107,53 +94,24 @@ export default function Orders({
     setCart((prev) => prev.filter((i) => i.cart_id !== cartId));
   };
 
-  const subtotal = cart.reduce((sum, i) => sum + i.item_cost * i.quantity, 0);
+  const subtotal = cart.reduce((sum, i) => sum + (i.item_cost || i.per_unit_cost) * i.quantity, 0);
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
   const selectedCategoryName =
-    activeTab === 'misc'
-      ? 'Miscellaneous Items'
-      : categories.find((c) => c.category_id === selectedCategory)?.name || 'Items';
+    categories.find((c) => c.category_id === selectedCategory)?.name || 'Items';
 
   return (
     <div className="orders-layout">
-      {/* MISC CUSTOMIZATION MODAL */}
-      {showMiscCustomization && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <Customization
-              item={{
-                item_id: 0,
-                item_name: 'Miscellaneous Custom Item',
-                item_cost: 0,
-              }}
-              onClose={() => setShowMiscCustomization(false)}
-              onAddToCart={(cartItem) => {
-                setCart((prev) => [...prev, cartItem]);
-                setShowMiscCustomization(false);
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* LEFT SIDEBAR */}
+      {/* left sidebar */}
       <div className="sidebar sidebar-left">
         <h2 className="section-title">Item Categories</h2>
         <div className="category-list">
           {categories.map((category) => (
             <button
               key={category.category_id}
-              onClick={() => {
-                setActiveTab('orders');
-                setSelectedCategory(category.category_id);
-              }}
-              className={`category-btn ${
-                selectedCategory === category.category_id && activeTab === 'orders'
-                  ? 'active'
-                  : ''
-              }`}
+              onClick={() => setSelectedCategory(category.category_id)}
+              className={`category-btn ${selectedCategory === category.category_id ? 'active' : ''}`}
             >
               {category.name}
             </button>
@@ -161,9 +119,10 @@ export default function Orders({
         </div>
       </div>
 
-      {/* MAIN CONTENT */}
+      {/* menu items / ingredients section */}
       <div className="content">
         <CashierNavbar />
+
         <h2 className="section-title">{selectedCategoryName}</h2>
 
         {filteredItems.length === 0 ? (
@@ -172,26 +131,28 @@ export default function Orders({
           <div className="item-grid">
             {filteredItems.map((item) => (
               <button
-                key={item.item_id}
+                key={item.item_id || item.ingredient_id}
                 onClick={() => addToCart(item)}
                 className="item-card"
               >
                 <div className="thumb">
                   {item.photo ? (
-                    <img src={item.photo} alt={item.item_name} className="thumb-img" />
+                    <img src={item.photo} alt={item.item_name || item.ingredient_name} className="thumb-img" />
                   ) : (
                     <span className="thumb-ph">No image</span>
                   )}
                 </div>
-                <h3 className="item-name">{item.item_name}</h3>
-                <p className="item-price">${item.item_cost.toFixed(2)}</p>
+                <h3 className="item-name">{item.item_name || item.ingredient_name}</h3>
+                <p className="item-price">
+                  ${((item.item_cost || item.per_unit_cost) * 1).toFixed(2)}
+                </p>
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* CART */}
+      {/* checkout */}
       <div className="sidebar sidebar-right">
         <div className="order-top">
           <h2 className="order-title">Current Order</h2>
@@ -204,12 +165,12 @@ export default function Orders({
             cart.map((item) => (
               <div key={item.cart_id} className="order-line">
                 <div>
-                  <div className="order-line-title">{item.item_name}</div>
+                  <div className="order-line-title">{item.item_name || item.ingredient_name}</div>
                   <div className="order-line-sub">{item.customization}</div>
                 </div>
                 <div className="order-line-amt">
                   <span className="order-line-total">
-                    ${(item.item_cost * item.quantity).toFixed(2)}
+                    ${(item.item_cost || item.per_unit_cost * item.quantity).toFixed(2)}
                   </span>
                   <button
                     onClick={() => removeFromCart(item.cart_id)}
@@ -238,7 +199,10 @@ export default function Orders({
           </div>
         </div>
 
-        <button disabled={cart.length === 0} className="btn btn-checkout">
+        <button
+          disabled={cart.length === 0}
+          className="btn btn-checkout"
+        >
           Checkout
         </button>
       </div>
