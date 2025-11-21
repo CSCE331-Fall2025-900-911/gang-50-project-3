@@ -104,20 +104,45 @@ app.get('/api/items/category/:categoryId', async (req, res) => {
   }
 });
 
-// Ingredients
+// // Ingredients
+// app.get('/api/ingredients', async (_req, res) => {
+//   try {
+//     const result = await pool.query(`
+//       SELECT 
+//         ingredient_ID,
+//         ingredient_name,
+//         supply_level,
+//         expiration_date,
+//         ingredient_cost,
+//         vendor,
+//         category_id
+//       FROM Ingredient
+//       ORDER BY ingredient_name
+//     `);
+//     res.json(result.rows);
+//   } catch (err) {
+//     console.error('Error fetching ingredients:', err);
+//     res.status(500).json({ error: 'Failed to fetch ingredients' });
+//   }
+// });
+
+
+// Ingredients (with category name)
 app.get('/api/ingredients', async (_req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
-        ingredient_ID,
-        ingredient_name,
-        supply_level,
-        expiration_date,
-        ingredient_cost,
-        vendor,
-        category_id
-      FROM Ingredient
-      ORDER BY ingredient_name
+        i.ingredient_ID,
+        i.ingredient_name,
+        i.supply_level,
+        i.expiration_date,
+        i.ingredient_cost,
+        i.vendor,
+        i.category_id,
+        ic.name AS ingredient_category_name
+      FROM Ingredient i
+      LEFT JOIN Ingredient_Category ic ON i.category_id = ic.category_id
+      ORDER BY ic.name, i.ingredient_name
     `);
     res.json(result.rows);
   } catch (err) {
