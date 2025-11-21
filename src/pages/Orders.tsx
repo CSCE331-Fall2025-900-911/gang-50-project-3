@@ -223,21 +223,23 @@
 //     </div>
 //   );
 // }
-
-
-import { useState, useEffect } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import {  useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
-import Customization from './Customization';
+import Customization from '../pages/Customization';
 
-export default function Orders() {
+export default function Orders({
+  activeTab,
+  setActiveTab,
+}: {
+  activeTab: string;
+  setActiveTab: Dispatch<SetStateAction<string>>;
+}) {
   const [categories, setCategories] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-
-  // track active tab and misc customization modal
-  const [activeTab] = useState('orders');
   const [showMiscCustomization, setShowMiscCustomization] = useState(false);
 
   const API_URL = '/api';
@@ -251,7 +253,7 @@ export default function Orders() {
         setCategories(data);
         if (data.length > 0) setSelectedCategory(data[0].category_id);
       } catch (err) {
-        console.error('Error fetching categories:', err);
+        console.error(err);
         setError('Could not load categories.');
       }
     };
@@ -266,14 +268,14 @@ export default function Orders() {
         const data = await res.json();
         setItems(data);
       } catch (err) {
-        console.error('Error fetching items:', err);
+        console.error(err);
         setError('Could not load items.');
       }
     };
     loadItems();
   }, []);
 
-  // Show misc customization when tab changes to 'misc'
+  // Show Misc customization modal if activeTab is misc
   useEffect(() => {
     setShowMiscCustomization(activeTab === 'misc');
   }, [activeTab]);
@@ -282,7 +284,7 @@ export default function Orders() {
     return (
       <div className="error-screen">
         <CashierNavbar />
-        <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
+        <div style={{ textAlign: 'center', marginTop: '3rem' }}>
           <h2>Something went wrong</h2>
           <p>{error}</p>
           <button onClick={() => window.location.reload()} className="btn">
@@ -293,9 +295,13 @@ export default function Orders() {
     );
   }
 
-  const filteredItems = selectedCategory
-    ? items.filter((item) => item.category_id === selectedCategory)
-    : [];
+  // Filter items by selected category
+  const filteredItems =
+    activeTab === 'misc'
+      ? items.filter((i) => i.category_name === 'Misc') // make sure your DB has "Misc" category
+      : selectedCategory
+      ? items.filter((i) => i.category_id === selectedCategory)
+      : [];
 
   const addToCart = (item: any) => {
     setCart((prev) => [
@@ -313,10 +319,13 @@ export default function Orders() {
   const total = subtotal + tax;
 
   const selectedCategoryName =
-    categories.find((c) => c.category_id === selectedCategory)?.name || 'Items';
+    activeTab === 'misc'
+      ? 'Miscellaneous Items'
+      : categories.find((c) => c.category_id === selectedCategory)?.name || 'Items';
 
   return (
     <div className="orders-layout">
+
       {/* MISC CUSTOMIZATION MODAL */}
       {showMiscCustomization && (
         <div className="modal-overlay">
@@ -344,14 +353,27 @@ export default function Orders() {
           {categories.map((category) => (
             <button
               key={category.category_id}
-              onClick={() => setSelectedCategory(category.category_id)}
+              onClick={() => {
+                setActiveTab('orders');
+                setSelectedCategory(category.category_id);
+              }}
               className={`category-btn ${
-                selectedCategory === category.category_id ? 'active' : ''
+                selectedCategory === category.category_id && activeTab === 'orders'
+                  ? 'active'
+                  : ''
               }`}
             >
               {category.name}
             </button>
           ))}
+
+          {/* MISC TAB BUTTON */}
+          <button
+            onClick={() => setActiveTab('misc')}
+            className={`category-btn ${activeTab === 'misc' ? 'active' : ''}`}
+          >
+            Misc
+          </button>
         </div>
       </div>
 
