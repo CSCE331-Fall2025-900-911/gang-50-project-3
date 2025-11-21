@@ -104,18 +104,18 @@ app.get('/api/items/category/:categoryId', async (req, res) => {
   }
 });
 
-// Ingredients (new route for Misc)
+// Ingredients
 app.get('/api/ingredients', async (_req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
-        ingredient_id,
+        ingredient_ID,
         ingredient_name,
-        ingredient_count,
+        supply_level,
         expiration_date,
-        per_unit_cost,
-        vendor_name,
-        ingredient_category_id
+        ingredient_cost,
+        vendor,
+        category_id
       FROM Ingredient
       ORDER BY ingredient_name
     `);
