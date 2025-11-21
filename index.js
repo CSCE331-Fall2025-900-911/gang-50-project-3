@@ -151,6 +151,21 @@ app.get('/api/ingredients', async (_req, res) => {
   }
 });
 
+// Ingredient Categories (optional)
+app.get('/api/ingredient-categories', async (_req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT category_id AS ingredient_category_id, name AS ingredient_category_name
+      FROM Ingredient_Category
+      ORDER BY name
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching ingredient categories:', err);
+    res.status(500).json({ error: 'Failed to fetch ingredient categories' });
+  }
+});
+
 // Employees
 app.get('/api/employees', async (_req, res) => {
   try {
