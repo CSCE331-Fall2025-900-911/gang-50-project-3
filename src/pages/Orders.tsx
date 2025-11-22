@@ -269,6 +269,12 @@ export default function Orders() {
 
   const API_URL = '/api';
 
+  // IDs of single-selection ingredient categories
+  const singleSelectCategoryIds = [1, 3, 7, 8]; // Sizes, Milk, Ice, Sweetness
+
+  // Track selected ingredient per single-selection category
+  const [selectedSingleIngredients, setSelectedSingleIngredients] = useState<Record<number, number>>({});
+
   // Load categories
   useEffect(() => {
     const loadCategories = async () => {
@@ -325,15 +331,13 @@ export default function Orders() {
         <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
           <h2>Something went wrong</h2>
           <p>{error}</p>
-          <button onClick={() => window.location.reload()} className="btn">
-            Retry
-          </button>
+          <button onClick={() => window.location.reload()} className="btn">Retry</button>
         </div>
       </div>
     );
   }
 
-  // Group ingredients by ingredient_category_name
+  // Group ingredients by category
   const groupedIngredients: Record<string, any[]> = {};
   ingredients.forEach((ingredient) => {
     const catName = ingredient.ingredient_category_name || 'Uncategorized';
@@ -346,10 +350,8 @@ export default function Orders() {
     groupedIngredients[catName].sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name));
   });
 
-  // Define allowed Misc categories
+  // Misc allowed ingredient categories
   const miscCategoryIds = [1, 3, 6, 7, 8]; // Sizes, Milk, Packaging, Ice, Sweetness
-  const miscSingleSelection = [1, 3, 7, 8]; // Only one selectable per category
-
   const sortedCategoryNames =
     selectedCategory === 7
       ? Object.entries(groupedIngredients)
@@ -358,19 +360,20 @@ export default function Orders() {
           .sort()
       : Object.keys(groupedIngredients).sort();
 
-  // Filter items for non-Misc categories
-  const filteredItems =
-    selectedCategory && selectedCategory !== 7
-      ? items.filter((item) => item.category_id === selectedCategory)
-      : [];
+  const filteredItems = selectedCategory && selectedCategory !== 7
+    ? items.filter((item) => item.category_id === selectedCategory)
+    : [];
 
-  // Add item to cart
   const addToCart = (item: any) => {
     const catId = item.ingredient_category_id;
 
-    // Handle single-selection for Sizes, Milk, Ice, Sweetness
-    if (selectedCategory === 7 && catId && miscSingleSelection.includes(catId)) {
-      setCart((prev) => prev.filter((i) => i.ingredient_category_id !== catId));
+    if (selectedCategory === 7 && catId && singleSelectCategoryIds.includes(catId)) {
+      // Remove previously selected ingredient in this category
+      const prevId = selectedSingleIngredients[catId];
+      setCart((prev) => prev.filter((i) => i.ingredient_id !== prevId));
+
+      // Update currently selected ingredient for this category
+      setSelectedSingleIngredients((prev) => ({ ...prev, [catId]: item.ingredient_id }));
     }
 
     setCart((prev) => [
@@ -380,19 +383,24 @@ export default function Orders() {
         cart_id: Date.now(),
         quantity: 1,
         customization: '',
-        ingredient_cost: selectedCategory === 7 ? 0 : item.ingredient_cost, // Free for Misc
+        ingredient_cost: selectedCategory === 7 ? 0 : item.ingredient_cost,
       },
     ]);
   };
 
   const removeFromCart = (cartId: number) => {
+    const removedItem = cart.find((i) => i.cart_id === cartId);
+    if (removedItem && singleSelectCategoryIds.includes(removedItem.ingredient_category_id)) {
+      setSelectedSingleIngredients((prev) => {
+        const copy = { ...prev };
+        delete copy[removedItem.ingredient_category_id];
+        return copy;
+      });
+    }
     setCart((prev) => prev.filter((i) => i.cart_id !== cartId));
   };
 
-  const subtotal = cart.reduce(
-    (sum, i) => sum + (i.item_cost || i.ingredient_cost || 0) * i.quantity,
-    0
-  );
+  const subtotal = cart.reduce((sum, i) => sum + (i.item_cost || i.ingredient_cost || 0) * i.quantity, 0);
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
@@ -401,7 +409,6 @@ export default function Orders() {
 
   return (
     <div className="orders-layout">
-      {/* Left sidebar */}
       <div className="sidebar sidebar-left">
         <h2 className="section-title">Item Categories</h2>
         <div className="category-list">
@@ -417,7 +424,6 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* Menu items / ingredients section */}
       <div className="content">
         <CashierNavbar />
         <h2 className="section-title">{selectedCategoryName}</h2>
@@ -427,17 +433,24 @@ export default function Orders() {
             <div key={catName} className="ingredient-group">
               <h3 className="ingredient-category-title">{catName}</h3>
               <div className="item-grid" style={{ justifyContent: 'flex-start' }}>
-                {groupedIngredients[catName].map((item) => (
-                  <button
-                    key={item.ingredient_id}
-                    onClick={() => addToCart(item)}
-                    className="item-card"
-                  >
-                    <h3 className="item-name">{item.ingredient_name}</h3>
-                    {/* Hide $0.00 for Misc */}
-                    {selectedCategory !== 7 && <p className="item-price">${(item.ingredient_cost || 0).toFixed(2)}</p>}
-                  </button>
-                ))}
+                {groupedIngredients[catName].map((item) => {
+                  const catId = item.ingredient_category_id;
+                  const isSelected = singleSelectCategoryIds.includes(catId)
+                    ? selectedSingleIngredients[catId] === item.ingredient_id
+                    : cart.some((c) => c.ingredient_id === item.ingredient_id);
+
+                  return (
+                    <button
+                      key={item.ingredient_id}
+                      onClick={() => addToCart(item)}
+                      className={`item-card ${isSelected ? 'selected' : ''}`}
+                    >
+                      <h3 className="item-name">{item.ingredient_name}</h3>
+                      {/* Hide price for Misc ingredients */}
+                      {selectedCategory !== 7 && <p className="item-price">${(item.ingredient_cost || 0).toFixed(2)}</p>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))
@@ -459,7 +472,6 @@ export default function Orders() {
         )}
       </div>
 
-      {/* Checkout */}
       <div className="sidebar sidebar-right">
         <div className="order-top">
           <h2 className="order-title">Current Order</h2>
@@ -479,12 +491,7 @@ export default function Orders() {
                   <span className="order-line-total">
                     ${((item.item_cost || item.ingredient_cost) * item.quantity).toFixed(2)}
                   </span>
-                  <button
-                    onClick={() => removeFromCart(item.cart_id)}
-                    className="order-line-remove"
-                  >
-                    ×
-                  </button>
+                  <button onClick={() => removeFromCart(item.cart_id)} className="order-line-remove">×</button>
                 </div>
               </div>
             ))
@@ -506,9 +513,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <button disabled={cart.length === 0} className="btn btn-checkout">
-          Checkout
-        </button>
+        <button disabled={cart.length === 0} className="btn btn-checkout">Checkout</button>
       </div>
     </div>
   );
