@@ -256,11 +256,6 @@
 
 
 
-
-
-
-
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -271,7 +266,6 @@ export default function Orders() {
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [_employeeId] = useState(1);
 
   const API_URL = '/api';
 
@@ -285,7 +279,7 @@ export default function Orders() {
         setCategories(data);
         if (data.length > 0) setSelectedCategory(data[0].category_id);
       } catch (err) {
-        console.error('Error fetching categories:', err);
+        console.error(err);
         setError('Could not load categories.');
       }
     };
@@ -301,7 +295,7 @@ export default function Orders() {
         const data = await res.json();
         setItems(data);
       } catch (err) {
-        console.error('Error fetching items:', err);
+        console.error(err);
         setError('Could not load items.');
       }
     };
@@ -317,7 +311,7 @@ export default function Orders() {
         const data = await res.json();
         setIngredients(data);
       } catch (err) {
-        console.error('Error fetching ingredients:', err);
+        console.error(err);
         setError('Could not load ingredients.');
       }
     };
@@ -339,7 +333,7 @@ export default function Orders() {
     );
   }
 
-  // Group ingredients by category
+  // Group ingredients by category name
   const groupedIngredients: Record<string, any[]> = {};
   ingredients.forEach((ingredient) => {
     const catName = ingredient.ingredient_category_name || 'Uncategorized';
@@ -352,41 +346,42 @@ export default function Orders() {
     groupedIngredients[catName].sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name));
   });
 
-  // Misc allowed category IDs
-  const allowedIngredientCategoryIds = [1, 3, 6, 7, 8]; // Sizes, Milk, Packaging, Ice Level, Sweetness
-  const miscSingleSelectIds = [1, 3, 7, 8]; // Sizes, Milk, Ice Level, Sweetness
-
+  // Only show these categories in Misc (IDs: Sizes=1, Milk=3, Packaging=6, Ice Level=7, Sweetness Level=8)
+  const allowedIngredientCategoryIds = [1, 3, 6, 7, 8];
   const sortedCategoryNames =
     selectedCategory === 7
       ? Object.entries(groupedIngredients)
-          .filter(([_, ingList]) => allowedIngredientCategoryIds.includes(ingList[0].category_id))
+          .filter(([_, ingList]) => allowedIngredientCategoryIds.includes(ingList[0].ingredient_category_id))
           .map(([catName]) => catName)
+          .sort()
       : Object.keys(groupedIngredients).sort();
 
-  // Track single selections
-  const [singleSelections, setSingleSelections] = useState<Record<number, number>>({}); // category_id -> ingredient_id
+  // Filter items for non-Misc categories
+  let filteredItems: any[] = [];
+  if (selectedCategory && selectedCategory !== 7) {
+    filteredItems = items.filter((item) => item.category_id === selectedCategory);
+  }
 
-  // Add to cart
-  const addToCart = (ingredient: any) => {
-    if (selectedCategory === 7 && miscSingleSelectIds.includes(ingredient.ingredient_category_id)) {
-      // Single select: remove previous selection for this category
+  // Add to cart with single/multi selection logic
+  const addToCart = (item: any) => {
+    const isMisc = selectedCategory === 7;
+    const catId = item.ingredient_category_id;
+
+    // Single-selection categories: Ice, Milk, Sizes, Sweetness
+    const singleSelectionIds = [1, 3, 7, 8];
+
+    if (isMisc && singleSelectionIds.includes(catId)) {
+      // Remove any previously selected item in the same category
       setCart((prev) => [
-        ...prev.filter(
-          (i) =>
-            !(
-              i.ingredient_category_id === ingredient.ingredient_category_id &&
-              miscSingleSelectIds.includes(i.ingredient_category_id)
-            )
-        ),
-        { ...ingredient, cart_id: Date.now(), quantity: 1, customization: '' },
+        ...prev.filter((c) => c.ingredient_category_id !== catId),
+        { ...item, cart_id: Date.now(), quantity: 1, customization: '' },
       ]);
-      setSingleSelections((prev) => ({
-        ...prev,
-        [ingredient.ingredient_category_id]: ingredient.ingredient_id,
-      }));
     } else {
-      // Multi-select (like Packaging) or normal items
-      setCart((prev) => [...prev, { ...ingredient, cart_id: Date.now(), quantity: 1, customization: '' }]);
+      // Multi-selection (Packaging) or non-Misc
+      setCart((prev) => [
+        ...prev,
+        { ...item, cart_id: Date.now(), quantity: 1, customization: '' },
+      ]);
     }
   };
 
@@ -394,15 +389,16 @@ export default function Orders() {
     setCart((prev) => prev.filter((i) => i.cart_id !== cartId));
   };
 
+  // Calculate subtotal and total
   const subtotal = cart.reduce(
-    (sum, i) => sum + ((i.category_id === 7 ? 0 : i.item_cost) || i.ingredient_cost || 0) * i.quantity,
+    (sum, i) =>
+      sum + (i.item_cost || (i.ingredient_cost && i.ingredient_category_id !== 7 ? i.ingredient_cost : 0)) * i.quantity,
     0
   );
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
-  const selectedCategoryName =
-    categories.find((c) => c.category_id === selectedCategory)?.name || 'Items';
+  const selectedCategoryName = categories.find((c) => c.category_id === selectedCategory)?.name || 'Items';
 
   return (
     <div className="orders-layout">
@@ -430,9 +426,6 @@ export default function Orders() {
         {selectedCategory === 7 ? (
           sortedCategoryNames.map((catName) => {
             const ingList = groupedIngredients[catName];
-            const catId = ingList[0].ingredient_category_id;
-            const isSingleSelect = miscSingleSelectIds.includes(catId);
-            const currentlySelectedId = singleSelections[catId];
             return (
               <div key={catName} className="ingredient-group">
                 <h3 className="ingredient-category-title">{catName}</h3>
@@ -444,9 +437,9 @@ export default function Orders() {
                         key={item.ingredient_id}
                         onClick={() => addToCart(item)}
                         className={`item-card ${isSelected ? 'selected' : ''}`}
-                        disabled={isSingleSelect && Boolean(currentlySelectedId) && currentlySelectedId !== item.ingredient_id}
                       >
                         <h3 className="item-name">{item.ingredient_name}</h3>
+                        {/* Hide price for Misc */}
                       </button>
                     );
                   })}
@@ -454,18 +447,16 @@ export default function Orders() {
               </div>
             );
           })
-        ) : items.filter((i) => i.category_id === selectedCategory).length === 0 ? (
+        ) : filteredItems.length === 0 ? (
           <p className="empty muted">No items found.</p>
         ) : (
           <div className="item-grid">
-            {items
-              .filter((item) => item.category_id === selectedCategory)
-              .map((item) => (
-                <button key={item.item_id} onClick={() => addToCart(item)} className="item-card">
-                  <h3 className="item-name">{item.item_name}</h3>
-                  <p className="item-price">${item.item_cost.toFixed(2)}</p>
-                </button>
-              ))}
+            {filteredItems.map((item) => (
+              <button key={item.item_id} onClick={() => addToCart(item)} className="item-card">
+                <h3 className="item-name">{item.item_name}</h3>
+                <p className="item-price">${item.item_cost.toFixed(2)}</p>
+              </button>
+            ))}
           </div>
         )}
       </div>
@@ -488,7 +479,12 @@ export default function Orders() {
                 </div>
                 <div className="order-line-amt">
                   <span className="order-line-total">
-                    ${((item.item_cost || item.ingredient_cost) * item.quantity).toFixed(2)}
+                    $
+                    {item.item_cost
+                      ? (item.item_cost * item.quantity).toFixed(2)
+                      : item.ingredient_category_id !== 7
+                      ? (item.ingredient_cost * item.quantity).toFixed(2)
+                      : null}
                   </span>
                   <button onClick={() => removeFromCart(item.cart_id)} className="order-line-remove">
                     ×
