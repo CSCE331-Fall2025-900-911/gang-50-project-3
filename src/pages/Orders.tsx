@@ -236,6 +236,11 @@
 
 
 
+
+
+
+
+
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -243,82 +248,105 @@ export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
   const [ingredients, setIngredients] = useState<any[]>([]);
-  const [ingredientCategories, setIngredientCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [_employeeId] = useState(1);
 
   const API_URL = '/api';
 
-  // Allowed ingredient categories for misc (from DB)
-  const allowedMiscCatIds = [1, 3, 6, 7, 8]; 
-  // Sizes, Milk, Packaging, Ice Level, Sweetness Level
-
-  // Load main item categories
+  // Load categories
   useEffect(() => {
-    fetch(`${API_URL}/categories`)
-      .then(res => res.json())
-      .then(data => {
+    const loadCategories = async () => {
+      try {
+        const res = await fetch(`${API_URL}/categories`);
+        if (!res.ok) throw new Error('Failed to fetch categories');
+        const data = await res.json();
         setCategories(data);
         if (data.length > 0) setSelectedCategory(data[0].category_id);
-      })
-      .catch(() => setError("Could not load categories"));
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setError('Could not load categories.');
+      }
+    };
+    loadCategories();
   }, []);
 
   // Load items
   useEffect(() => {
-    fetch(`${API_URL}/items`)
-      .then(res => res.json())
-      .then(setItems)
-      .catch(() => setError("Could not load items"));
+    const loadItems = async () => {
+      try {
+        const res = await fetch(`${API_URL}/items`);
+        if (!res.ok) throw new Error('Failed to fetch items');
+        const data = await res.json();
+        setItems(data);
+      } catch (err) {
+        console.error('Error fetching items:', err);
+        setError('Could not load items.');
+      }
+    };
+    loadItems();
   }, []);
 
   // Load ingredients
   useEffect(() => {
-    fetch(`${API_URL}/ingredients`)
-      .then(res => res.json())
-      .then(setIngredients)
-      .catch(() => setError("Could not load ingredients"));
-  }, []);
-
-  // Load ingredient categories
-  useEffect(() => {
-    fetch(`${API_URL}/ingredient-categories`)
-      .then(res => res.json())
-      .then(setIngredientCategories)
-      .catch(() => setError("Could not load ingredient categories"));
+    const loadIngredients = async () => {
+      try {
+        const res = await fetch(`${API_URL}/ingredients`);
+        if (!res.ok) throw new Error('Failed to fetch ingredients');
+        const data = await res.json();
+        setIngredients(data);
+      } catch (err) {
+        console.error('Error fetching ingredients:', err);
+        setError('Could not load ingredients.');
+      }
+    };
+    loadIngredients();
   }, []);
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="error-screen">
+        <CashierNavbar />
+        <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
+          <h2>Something went wrong</h2>
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()} className="btn">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
-  // Group ingredients by category name (but only allowed ones when misc)
+  // Group ingredients by ingredient_category_name
   const groupedIngredients: Record<string, any[]> = {};
-
-  ingredients.forEach((ing) => {
-    const cat = ingredientCategories.find(c => c.category_id === ing.category_id);
-    if (!cat) return;
-
-    // If selected misc, only show allowed categories
-    if (selectedCategory === 7 && !allowedMiscCatIds.includes(cat.category_id)) {
-      return; 
-    }
-
-    const catName = cat.name;
-
+  ingredients.forEach((ingredient) => {
+    const catName = ingredient.ingredient_category_name || 'Uncategorized';
     if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
-    groupedIngredients[catName].push(ing);
+    groupedIngredients[catName].push(ingredient);
   });
 
-  // Sort category names alphabetically
-  const sortedIngredientCategoryNames = Object.keys(groupedIngredients).sort();
+  // Sort ingredients within each category alphabetically
+  Object.keys(groupedIngredients).forEach((catName) => {
+    groupedIngredients[catName].sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name));
+  });
 
-  // Filter items normally (when not misc)
-  const filteredItems =
-    selectedCategory !== 7
-      ? items.filter((i) => i.category_id === selectedCategory)
-      : [];
+  // Only show these ingredient categories in Misc (IDs: 1, 3, 6, 7, 8)
+  const allowedIngredientCategoryIds = [1, 3, 6, 7, 8];
+  const sortedCategoryNames =
+    selectedCategory === 7
+      ? Object.entries(groupedIngredients)
+          .filter(([_, ingList]) => allowedIngredientCategoryIds.includes(ingList[0].category_id))
+          .map(([catName]) => catName)
+          .sort()
+      : Object.keys(groupedIngredients).sort();
+
+  // Filter items for non-Misc categories
+  let filteredItems: any[] = [];
+  if (selectedCategory && selectedCategory !== 7) {
+    filteredItems = items.filter((item) => item.category_id === selectedCategory);
+  }
 
   const addToCart = (item: any) => {
     setCart((prev) => [
@@ -331,10 +359,7 @@ export default function Orders() {
     setCart((prev) => prev.filter((i) => i.cart_id !== cartId));
   };
 
-  const subtotal = cart.reduce(
-    (sum, i) => sum + (i.item_cost || i.ingredient_cost || 0) * i.quantity,
-    0
-  );
+  const subtotal = cart.reduce((sum, i) => sum + (i.item_cost || i.ingredient_cost || 0) * i.quantity, 0);
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
@@ -343,7 +368,7 @@ export default function Orders() {
 
   return (
     <div className="orders-layout">
-      {/* Left Sidebar */}
+      {/* Left sidebar */}
       <div className="sidebar sidebar-left">
         <h2 className="section-title">Item Categories</h2>
         <div className="category-list">
@@ -351,9 +376,7 @@ export default function Orders() {
             <button
               key={category.category_id}
               onClick={() => setSelectedCategory(category.category_id)}
-              className={`category-btn ${
-                selectedCategory === category.category_id ? 'active' : ''
-              }`}
+              className={`category-btn ${selectedCategory === category.category_id ? 'active' : ''}`}
             >
               {category.name}
             </button>
@@ -361,14 +384,13 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* Main content */}
+      {/* Menu items / ingredients section */}
       <div className="content">
         <CashierNavbar />
         <h2 className="section-title">{selectedCategoryName}</h2>
 
-        {/* Misc = ingredient categories */}
         {selectedCategory === 7 ? (
-          sortedIngredientCategoryNames.map((catName) => (
+          sortedCategoryNames.map((catName) => (
             <div key={catName} className="ingredient-group">
               <h3 className="ingredient-category-title">{catName}</h3>
               <div className="item-grid">
@@ -379,9 +401,7 @@ export default function Orders() {
                     className="item-card"
                   >
                     <h3 className="item-name">{item.ingredient_name}</h3>
-                    <p className="item-price">
-                      ${(item.ingredient_cost || 0).toFixed(2)}
-                    </p>
+                    <p className="item-price">${(item.ingredient_cost || 0).toFixed(2)}</p>
                   </button>
                 ))}
               </div>
@@ -407,7 +427,9 @@ export default function Orders() {
 
       {/* Checkout */}
       <div className="sidebar sidebar-right">
-        <h2 className="order-title">Current Order</h2>
+        <div className="order-top">
+          <h2 className="order-title">Current Order</h2>
+        </div>
 
         <div className="order-lines">
           {cart.length === 0 ? (
@@ -416,11 +438,9 @@ export default function Orders() {
             cart.map((item) => (
               <div key={item.cart_id} className="order-line">
                 <div>
-                  <div className="order-line-title">
-                    {item.item_name || item.ingredient_name}
-                  </div>
+                  <div className="order-line-title">{item.item_name || item.ingredient_name}</div>
+                  <div className="order-line-sub">{item.customization}</div>
                 </div>
-
                 <div className="order-line-amt">
                   <span className="order-line-total">
                     ${((item.item_cost || item.ingredient_cost) * item.quantity).toFixed(2)}
