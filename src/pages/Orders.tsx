@@ -15,6 +15,9 @@
 
 //   const API_URL = '/api';
 
+//   // Single-select ingredient categories
+//   const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
+
 //   // Load categories
 //   useEffect(() => {
 //     const loadCategories = async () => {
@@ -108,19 +111,27 @@
 //     filteredItems = items.filter((item) => item.category_id === selectedCategory);
 //   }
 
+//   // Add item to cart
 //   const addToCart = (item: any) => {
-//     // For Misc (category 7), set ingredient_cost to 0
 //     const isMisc = selectedCategory === 7;
-//     setCart((prev) => [
-//       ...prev,
-//       {
-//         ...item,
-//         cart_id: Date.now(),
-//         quantity: 1,
-//         customization: '',
-//         ingredient_cost: isMisc ? 0 : item.ingredient_cost,
-//       },
-//     ]);
+
+//     setCart((prev) => {
+//       // If the item belongs to a single-select category, remove any existing item from that category
+//       const newCart = singleSelectCategories.includes(item.ingredient_category_name)
+//         ? prev.filter(i => i.ingredient_category_name !== item.ingredient_category_name)
+//         : prev;
+
+//       return [
+//         ...newCart,
+//         {
+//           ...item,
+//           cart_id: Date.now(),
+//           quantity: 1,
+//           customization: '',
+//           ingredient_cost: isMisc ? 0 : item.ingredient_cost,
+//         },
+//       ];
+//     });
 //   };
 
 //   const removeFromCart = (cartId: number) => {
@@ -169,7 +180,9 @@
 //                   <button
 //                     key={item.ingredient_id}
 //                     onClick={() => addToCart(item)}
-//                     className="item-card"
+//                     className={`item-card ${
+//                       cart.some(i => i.ingredient_id === item.ingredient_id) ? 'selected' : ''
+//                     }`}
 //                   >
 //                     <h3 className="item-name">{item.ingredient_name}</h3>
 //                     {/* Hide price entirely for Misc */}
@@ -271,7 +284,7 @@ export default function Orders() {
   const API_URL = '/api';
 
   // Single-select ingredient categories
-  const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
+  const singleSelectCategories = ['Milk', 'Ice Level', 'Cup Size', 'Sweetness Level'];
 
   // Load categories
   useEffect(() => {
@@ -439,6 +452,13 @@ export default function Orders() {
                       cart.some(i => i.ingredient_id === item.ingredient_id) ? 'selected' : ''
                     }`}
                   >
+                    <div className="thumb">
+                      {item.photo ? (
+                        <img src={item.photo} alt={item.ingredient_name} className="thumb-img" />
+                      ) : (
+                        <span className="thumb-ph">No image</span>
+                      )}
+                    </div>
                     <h3 className="item-name">{item.ingredient_name}</h3>
                     {/* Hide price entirely for Misc */}
                     {selectedCategory !== 7 && (
@@ -459,6 +479,13 @@ export default function Orders() {
                 onClick={() => addToCart(item)}
                 className="item-card"
               >
+                <div className="thumb">
+                  {item.photo ? (
+                    <img src={item.photo} alt={item.item_name} className="thumb-img" />
+                  ) : (
+                    <span className="thumb-ph">No image</span>
+                  )}
+                </div>
                 <h3 className="item-name">{item.item_name}</h3>
                 <p className="item-price">${item.item_cost.toFixed(2)}</p>
               </button>
