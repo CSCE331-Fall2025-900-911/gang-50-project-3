@@ -1,5 +1,6 @@
 
 
+
 // import { useState, useEffect } from 'react';
 // import CashierNavbar from '../components/CashierNavbar';
 
@@ -86,7 +87,7 @@
 //     groupedIngredients[catName].push(ingredient);
 //   });
 
-//   // Sort ingredients within each category alphabetically
+//   // Sort ingredients alphabetically within each category
 //   Object.keys(groupedIngredients).forEach((catName) => {
 //     groupedIngredients[catName].sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name));
 //   });
@@ -98,7 +99,6 @@
 //       ? Object.entries(groupedIngredients)
 //           .filter(([_, ingList]) => allowedIngredientCategoryIds.includes(ingList[0].category_id))
 //           .map(([catName]) => catName)
-//           .sort()
 //       : Object.keys(groupedIngredients).sort();
 
 //   // Filter items for non-Misc categories
@@ -108,9 +108,16 @@
 //   }
 
 //   const addToCart = (item: any) => {
+//     const isMisc = selectedCategory === 7;
 //     setCart((prev) => [
 //       ...prev,
-//       { ...item, cart_id: Date.now(), quantity: 1, customization: '' },
+//       {
+//         ...item,
+//         cart_id: Date.now(),
+//         quantity: 1,
+//         customization: '',
+//         ingredient_cost: isMisc ? 0 : item.ingredient_cost, // free for Misc
+//       },
 //     ]);
 //   };
 
@@ -118,7 +125,10 @@
 //     setCart((prev) => prev.filter((i) => i.cart_id !== cartId));
 //   };
 
-//   const subtotal = cart.reduce((sum, i) => sum + (i.item_cost || i.ingredient_cost || 0) * i.quantity, 0);
+//   const subtotal = cart.reduce(
+//     (sum, i) => sum + (i.item_cost || i.ingredient_cost || 0) * i.quantity,
+//     0
+//   );
 //   const tax = subtotal * 0.08;
 //   const total = subtotal + tax;
 
@@ -152,7 +162,7 @@
 //           sortedCategoryNames.map((catName) => (
 //             <div key={catName} className="ingredient-group">
 //               <h3 className="ingredient-category-title">{catName}</h3>
-//               <div className="item-grid">
+//               <div className="item-grid" style={{ justifyContent: 'flex-start' }}>
 //                 {groupedIngredients[catName].map((item) => (
 //                   <button
 //                     key={item.ingredient_id}
@@ -160,7 +170,7 @@
 //                     className="item-card"
 //                   >
 //                     <h3 className="item-name">{item.ingredient_name}</h3>
-//                     <p className="item-price">${(item.ingredient_cost || 0).toFixed(2)}</p>
+//                     <p className="item-price">${(selectedCategory === 7 ? 0 : item.ingredient_cost || 0).toFixed(2)}</p>
 //                   </button>
 //                 ))}
 //               </div>
@@ -238,8 +248,6 @@
 //     </div>
 //   );
 // }
-
-
 
 
 
@@ -329,7 +337,7 @@ export default function Orders() {
     groupedIngredients[catName].push(ingredient);
   });
 
-  // Sort ingredients alphabetically within each category
+  // Sort ingredients within each category alphabetically
   Object.keys(groupedIngredients).forEach((catName) => {
     groupedIngredients[catName].sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name));
   });
@@ -341,6 +349,7 @@ export default function Orders() {
       ? Object.entries(groupedIngredients)
           .filter(([_, ingList]) => allowedIngredientCategoryIds.includes(ingList[0].category_id))
           .map(([catName]) => catName)
+          .sort()
       : Object.keys(groupedIngredients).sort();
 
   // Filter items for non-Misc categories
@@ -350,6 +359,7 @@ export default function Orders() {
   }
 
   const addToCart = (item: any) => {
+    // For Misc (category 7), set ingredient_cost to 0
     const isMisc = selectedCategory === 7;
     setCart((prev) => [
       ...prev,
@@ -358,7 +368,7 @@ export default function Orders() {
         cart_id: Date.now(),
         quantity: 1,
         customization: '',
-        ingredient_cost: isMisc ? 0 : item.ingredient_cost, // free for Misc
+        ingredient_cost: isMisc ? 0 : item.ingredient_cost,
       },
     ]);
   };
@@ -404,7 +414,7 @@ export default function Orders() {
           sortedCategoryNames.map((catName) => (
             <div key={catName} className="ingredient-group">
               <h3 className="ingredient-category-title">{catName}</h3>
-              <div className="item-grid" style={{ justifyContent: 'flex-start' }}>
+              <div className="item-grid">
                 {groupedIngredients[catName].map((item) => (
                   <button
                     key={item.ingredient_id}
@@ -412,7 +422,10 @@ export default function Orders() {
                     className="item-card"
                   >
                     <h3 className="item-name">{item.ingredient_name}</h3>
-                    <p className="item-price">${(selectedCategory === 7 ? 0 : item.ingredient_cost || 0).toFixed(2)}</p>
+                    {/* Hide price entirely for Misc */}
+                    {selectedCategory !== 7 && (
+                      <p className="item-price">${(item.ingredient_cost || 0).toFixed(2)}</p>
+                    )}
                   </button>
                 ))}
               </div>
