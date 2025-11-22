@@ -87,7 +87,7 @@
 //     groupedIngredients[catName].push(ingredient);
 //   });
 
-//   // Sort ingredients alphabetically within each category
+//   // Sort ingredients within each category alphabetically
 //   Object.keys(groupedIngredients).forEach((catName) => {
 //     groupedIngredients[catName].sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name));
 //   });
@@ -99,6 +99,7 @@
 //       ? Object.entries(groupedIngredients)
 //           .filter(([_, ingList]) => allowedIngredientCategoryIds.includes(ingList[0].category_id))
 //           .map(([catName]) => catName)
+//           .sort()
 //       : Object.keys(groupedIngredients).sort();
 
 //   // Filter items for non-Misc categories
@@ -108,6 +109,7 @@
 //   }
 
 //   const addToCart = (item: any) => {
+//     // For Misc (category 7), set ingredient_cost to 0
 //     const isMisc = selectedCategory === 7;
 //     setCart((prev) => [
 //       ...prev,
@@ -116,7 +118,7 @@
 //         cart_id: Date.now(),
 //         quantity: 1,
 //         customization: '',
-//         ingredient_cost: isMisc ? 0 : item.ingredient_cost, // free for Misc
+//         ingredient_cost: isMisc ? 0 : item.ingredient_cost,
 //       },
 //     ]);
 //   };
@@ -162,7 +164,7 @@
 //           sortedCategoryNames.map((catName) => (
 //             <div key={catName} className="ingredient-group">
 //               <h3 className="ingredient-category-title">{catName}</h3>
-//               <div className="item-grid" style={{ justifyContent: 'flex-start' }}>
+//               <div className="item-grid">
 //                 {groupedIngredients[catName].map((item) => (
 //                   <button
 //                     key={item.ingredient_id}
@@ -170,7 +172,10 @@
 //                     className="item-card"
 //                   >
 //                     <h3 className="item-name">{item.ingredient_name}</h3>
-//                     <p className="item-price">${(selectedCategory === 7 ? 0 : item.ingredient_cost || 0).toFixed(2)}</p>
+//                     {/* Hide price entirely for Misc */}
+//                     {selectedCategory !== 7 && (
+//                       <p className="item-price">${(item.ingredient_cost || 0).toFixed(2)}</p>
+//                     )}
 //                   </button>
 //                 ))}
 //               </div>
@@ -248,7 +253,6 @@
 //     </div>
 //   );
 // }
-
 
 
 import { useState, useEffect } from 'react';
@@ -337,30 +341,38 @@ export default function Orders() {
     groupedIngredients[catName].push(ingredient);
   });
 
-  // Sort ingredients within each category alphabetically
+  // Sort ingredients alphabetically within each category
   Object.keys(groupedIngredients).forEach((catName) => {
     groupedIngredients[catName].sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name));
   });
 
-  // Only show these ingredient categories in Misc (IDs: 1, 3, 6, 7, 8)
-  const allowedIngredientCategoryIds = [1, 3, 6, 7, 8];
+  // Define allowed Misc categories
+  const miscCategoryIds = [1, 3, 6, 7, 8]; // Sizes, Milk, Packaging, Ice, Sweetness
+  const miscSingleSelection = [1, 3, 7, 8]; // Only one selectable per category
+
   const sortedCategoryNames =
     selectedCategory === 7
       ? Object.entries(groupedIngredients)
-          .filter(([_, ingList]) => allowedIngredientCategoryIds.includes(ingList[0].category_id))
+          .filter(([_, ingList]) => miscCategoryIds.includes(ingList[0].category_id))
           .map(([catName]) => catName)
           .sort()
       : Object.keys(groupedIngredients).sort();
 
   // Filter items for non-Misc categories
-  let filteredItems: any[] = [];
-  if (selectedCategory && selectedCategory !== 7) {
-    filteredItems = items.filter((item) => item.category_id === selectedCategory);
-  }
+  const filteredItems =
+    selectedCategory && selectedCategory !== 7
+      ? items.filter((item) => item.category_id === selectedCategory)
+      : [];
 
+  // Add item to cart
   const addToCart = (item: any) => {
-    // For Misc (category 7), set ingredient_cost to 0
-    const isMisc = selectedCategory === 7;
+    const catId = item.ingredient_category_id;
+
+    // Handle single-selection for Sizes, Milk, Ice, Sweetness
+    if (selectedCategory === 7 && catId && miscSingleSelection.includes(catId)) {
+      setCart((prev) => prev.filter((i) => i.ingredient_category_id !== catId));
+    }
+
     setCart((prev) => [
       ...prev,
       {
@@ -368,7 +380,7 @@ export default function Orders() {
         cart_id: Date.now(),
         quantity: 1,
         customization: '',
-        ingredient_cost: isMisc ? 0 : item.ingredient_cost,
+        ingredient_cost: selectedCategory === 7 ? 0 : item.ingredient_cost, // Free for Misc
       },
     ]);
   };
@@ -414,7 +426,7 @@ export default function Orders() {
           sortedCategoryNames.map((catName) => (
             <div key={catName} className="ingredient-group">
               <h3 className="ingredient-category-title">{catName}</h3>
-              <div className="item-grid">
+              <div className="item-grid" style={{ justifyContent: 'flex-start' }}>
                 {groupedIngredients[catName].map((item) => (
                   <button
                     key={item.ingredient_id}
@@ -422,10 +434,8 @@ export default function Orders() {
                     className="item-card"
                   >
                     <h3 className="item-name">{item.ingredient_name}</h3>
-                    {/* Hide price entirely for Misc */}
-                    {selectedCategory !== 7 && (
-                      <p className="item-price">${(item.ingredient_cost || 0).toFixed(2)}</p>
-                    )}
+                    {/* Hide $0.00 for Misc */}
+                    {selectedCategory !== 7 && <p className="item-price">${(item.ingredient_cost || 0).toFixed(2)}</p>}
                   </button>
                 ))}
               </div>
