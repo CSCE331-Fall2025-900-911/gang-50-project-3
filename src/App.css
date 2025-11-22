@@ -354,3 +354,9 @@ html, body {
   left: 50%;
   transform: translateX(-50%);
 }
+
+
+.ingredient-group {
+  text-align: left; /* default might be center */
+  margin-bottom: 2rem;
+}
