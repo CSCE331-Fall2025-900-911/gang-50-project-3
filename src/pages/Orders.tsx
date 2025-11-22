@@ -271,7 +271,7 @@ export default function Orders() {
   const API_URL = '/api';
 
   // Single-select ingredient categories
-  const singleSelectCategories = ['Milk', 'Ice Level', 'Cup Size', 'Sweetness Level'];
+  const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
 
   // Load categories
   useEffect(() => {
