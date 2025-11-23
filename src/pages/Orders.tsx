@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
-import './Orders.css'; // Make sure to import your CSS file
 
 export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
