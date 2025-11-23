@@ -224,7 +224,7 @@ export default function Orders() {
                 ))}
                 {d.extras.map((e: any) => (
                   <div key={e.ingredient_ID} className="order-line">
-                    <span>{e.ingredient_name} (+${e.ingredient_cost})</span>
+                    <span>{e.ingredient_name}</span>
                     <button onClick={() => removeIngredient(d.cart_id, 'extras', e.ingredient_ID)}>×</button>
                   </div>
                 ))}
