@@ -1,3 +1,290 @@
+// import { useState, useEffect } from 'react';
+// import CashierNavbar from '../components/CashierNavbar';
+
+// export default function Orders() {
+//   const [categories, setCategories] = useState<any[]>([]);
+//   const [items, setItems] = useState<any[]>([]);
+//   const [ingredients, setIngredients] = useState<any[]>([]);
+//   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+//   const [cart, setCart] = useState<any[]>([]);
+//   const [error, setError] = useState<string | null>(null);
+//   const [_employeeId] = useState(1);
+
+//   const API_URL = '/api';
+
+//   // Single-select ingredient categories
+//   const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
+
+//   // Load categories
+//   useEffect(() => {
+//     const loadCategories = async () => {
+//       try {
+//         const res = await fetch(`${API_URL}/categories`);
+//         if (!res.ok) throw new Error('Failed to fetch categories');
+//         const data = await res.json();
+//         setCategories(data);
+//         if (data.length > 0) setSelectedCategory(data[0].category_id);
+//       } catch (err) {
+//         console.error('Error fetching categories:', err);
+//         setError('Could not load categories.');
+//       }
+//     };
+//     loadCategories();
+//   }, []);
+
+//   // Load items
+//   useEffect(() => {
+//     const loadItems = async () => {
+//       try {
+//         const res = await fetch(`${API_URL}/items`);
+//         if (!res.ok) throw new Error('Failed to fetch items');
+//         const data = await res.json();
+//         setItems(data);
+//       } catch (err) {
+//         console.error('Error fetching items:', err);
+//         setError('Could not load items.');
+//       }
+//     };
+//     loadItems();
+//   }, []);
+
+//   // Load ingredients
+//   useEffect(() => {
+//     const loadIngredients = async () => {
+//       try {
+//         const res = await fetch(`${API_URL}/ingredients`);
+//         if (!res.ok) throw new Error('Failed to fetch ingredients');
+//         const data = await res.json();
+//         setIngredients(data);
+//       } catch (err) {
+//         console.error('Error fetching ingredients:', err);
+//         setError('Could not load ingredients.');
+//       }
+//     };
+//     loadIngredients();
+//   }, []);
+
+//   if (error) {
+//     return (
+//       <div className="error-screen">
+//         <CashierNavbar />
+//         <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
+//           <h2>Something went wrong</h2>
+//           <p>{error}</p>
+//           <button onClick={() => window.location.reload()} className="btn">
+//             Retry
+//           </button>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   // Group ingredients by ingredient_category_name
+//   const groupedIngredients: Record<string, any[]> = {};
+//   ingredients.forEach((ingredient) => {
+//     const catName = ingredient.ingredient_category_name || 'Uncategorized';
+//     if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
+//     groupedIngredients[catName].push(ingredient);
+//   });
+
+//   // Sort ingredients within each category alphabetically
+//   Object.keys(groupedIngredients).forEach((catName) => {
+//     groupedIngredients[catName].sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name));
+//   });
+
+//   // Only show these ingredient categories in Misc (IDs: 1, 3, 6, 7, 8)
+//   const allowedIngredientCategoryIds = [1, 3, 6, 7, 8];
+//   const sortedCategoryNames =
+//     selectedCategory === 7
+//       ? Object.entries(groupedIngredients)
+//           .filter(([_, ingList]) => allowedIngredientCategoryIds.includes(ingList[0].category_id))
+//           .map(([catName]) => catName)
+//           .sort()
+//       : Object.keys(groupedIngredients).sort();
+
+//   // Filter items for non-Misc categories
+//   let filteredItems: any[] = [];
+//   if (selectedCategory && selectedCategory !== 7) {
+//     filteredItems = items.filter((item) => item.category_id === selectedCategory);
+//   }
+
+//   // Add item to cart
+//   const addToCart = (item: any) => {
+//     const isMisc = selectedCategory === 7;
+
+//     setCart((prev) => {
+//       // If the item belongs to a single-select category, remove any existing item from that category
+//       const newCart = singleSelectCategories.includes(item.ingredient_category_name)
+//         ? prev.filter(i => i.ingredient_category_name !== item.ingredient_category_name)
+//         : prev;
+
+//       return [
+//         ...newCart,
+//         {
+//           ...item,
+//           cart_id: Date.now(),
+//           quantity: 1,
+//           customization: '',
+//           ingredient_cost: isMisc ? 0 : item.ingredient_cost,
+//         },
+//       ];
+//     });
+//   };
+
+//   const removeFromCart = (cartId: number) => {
+//     setCart((prev) => prev.filter((i) => i.cart_id !== cartId));
+//   };
+
+//   const subtotal = cart.reduce(
+//     (sum, i) => sum + (i.item_cost || i.ingredient_cost || 0) * i.quantity,
+//     0
+//   );
+//   const tax = subtotal * 0.08;
+//   const total = subtotal + tax;
+
+//   const selectedCategoryName =
+//     categories.find((c) => c.category_id === selectedCategory)?.name || 'Items';
+
+//   return (
+//     <div className="orders-layout">
+//       {/* Left sidebar */}
+//       <div className="sidebar sidebar-left">
+//         <h2 className="section-title">Item Categories</h2>
+//         <div className="category-list">
+//           {categories.map((category) => (
+//             <button
+//               key={category.category_id}
+//               onClick={() => setSelectedCategory(category.category_id)}
+//               className={`category-btn ${selectedCategory === category.category_id ? 'active' : ''}`}
+//             >
+//               {category.name}
+//             </button>
+//           ))}
+//         </div>
+//       </div>
+
+//       {/* Menu items / ingredients section */}
+//       <div className="content">
+//         <CashierNavbar />
+//         <h2 className="section-title">{selectedCategoryName}</h2>
+
+//         {selectedCategory === 7 ? (
+//           sortedCategoryNames.map((catName) => (
+//             <div key={catName} className="ingredient-group">
+//               <h3 className="ingredient-category-title">{catName}</h3>
+//               <div className="item-grid">
+//                 {groupedIngredients[catName].map((item) => (
+//                   <button
+//                     key={item.ingredient_id}
+//                     onClick={() => addToCart(item)}
+//                     className={`item-card ${
+//                       cart.some(i => i.ingredient_id === item.ingredient_id) ? 'selected' : ''
+//                     }`}
+//                   >
+//                     <div className="thumb">
+//                       {item.photo ? (
+//                         <img src={item.photo} alt={item.ingredient_name} className="thumb-img" />
+//                       ) : (
+//                         <span className="thumb-ph">No image</span>
+//                       )}
+//                     </div>
+//                     <h3 className="item-name">{item.ingredient_name}</h3>
+//                     {/* Hide price entirely for Misc */}
+//                     {selectedCategory !== 7 && (
+//                       <p className="item-price">${(item.ingredient_cost || 0).toFixed(2)}</p>
+//                     )}
+//                   </button>
+//                 ))}
+//               </div>
+//             </div>
+//           ))
+//         ) : filteredItems.length === 0 ? (
+//           <p className="empty muted">No items found.</p>
+//         ) : (
+//           <div className="item-grid">
+//             {filteredItems.map((item) => (
+//               <button
+//                 key={item.item_id}
+//                 onClick={() => addToCart(item)}
+//                 className="item-card"
+//               >
+//                 <div className="thumb">
+//                   {item.photo ? (
+//                     <img src={item.photo} alt={item.item_name} className="thumb-img" />
+//                   ) : (
+//                     <span className="thumb-ph">No image</span>
+//                   )}
+//                 </div>
+//                 <h3 className="item-name">{item.item_name}</h3>
+//                 <p className="item-price">${item.item_cost.toFixed(2)}</p>
+//               </button>
+//             ))}
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Checkout */}
+//       <div className="sidebar sidebar-right">
+//         <div className="order-top">
+//           <h2 className="order-title">Current Order</h2>
+//         </div>
+
+//         <div className="order-lines">
+//           {cart.length === 0 ? (
+//             <p className="empty muted">No items in cart</p>
+//           ) : (
+//             cart.map((item) => (
+//               <div key={item.cart_id} className="order-line">
+//                 <div>
+//                   <div className="order-line-title">{item.item_name || item.ingredient_name}</div>
+//                   <div className="order-line-sub">{item.customization}</div>
+//                 </div>
+//                 <div className="order-line-amt">
+//                   <span className="order-line-total">
+//                     ${((item.item_cost || item.ingredient_cost) * item.quantity).toFixed(2)}
+//                   </span>
+//                   <button
+//                     onClick={() => removeFromCart(item.cart_id)}
+//                     className="order-line-remove"
+//                   >
+//                     ×
+//                   </button>
+//                 </div>
+//               </div>
+//             ))
+//           )}
+//         </div>
+
+//         <div className="totals-card">
+//           <div className="totals-row">
+//             <span>Subtotal</span>
+//             <span>${subtotal.toFixed(2)}</span>
+//           </div>
+//           <div className="totals-row">
+//             <span>Tax</span>
+//             <span>${tax.toFixed(2)}</span>
+//           </div>
+//           <div className="totals-row totals-row-total">
+//             <span>Total</span>
+//             <span>${total.toFixed(2)}</span>
+//           </div>
+//         </div>
+
+//         <button disabled={cart.length === 0} className="btn btn-checkout">
+//           Checkout
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -8,271 +295,211 @@ export default function Orders() {
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [_employeeId] = useState(1);
 
   const API_URL = '/api';
-
-  // Single-select ingredient categories
   const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
 
-  // Load categories
   useEffect(() => {
-    const loadCategories = async () => {
+    const load = async () => {
       try {
-        const res = await fetch(`${API_URL}/categories`);
-        if (!res.ok) throw new Error('Failed to fetch categories');
-        const data = await res.json();
-        setCategories(data);
-        if (data.length > 0) setSelectedCategory(data[0].category_id);
-      } catch (err) {
-        console.error('Error fetching categories:', err);
-        setError('Could not load categories.');
-      }
-    };
-    loadCategories();
-  }, []);
+        const c = await fetch(`${API_URL}/categories`).then(r => r.json());
+        const i = await fetch(`${API_URL}/items`).then(r => r.json());
+        const g = await fetch(`${API_URL}/ingredients`).then(r => r.json());
 
-  // Load items
-  useEffect(() => {
-    const loadItems = async () => {
-      try {
-        const res = await fetch(`${API_URL}/items`);
-        if (!res.ok) throw new Error('Failed to fetch items');
-        const data = await res.json();
-        setItems(data);
-      } catch (err) {
-        console.error('Error fetching items:', err);
-        setError('Could not load items.');
+        setCategories(c);
+        setItems(i);
+        setIngredients(g);
+        if (c.length) setSelectedCategory(c[0].category_id);
+      } catch (e) {
+        console.error(e);
+        setError('Failed to load data');
       }
     };
-    loadItems();
-  }, []);
-
-  // Load ingredients
-  useEffect(() => {
-    const loadIngredients = async () => {
-      try {
-        const res = await fetch(`${API_URL}/ingredients`);
-        if (!res.ok) throw new Error('Failed to fetch ingredients');
-        const data = await res.json();
-        setIngredients(data);
-      } catch (err) {
-        console.error('Error fetching ingredients:', err);
-        setError('Could not load ingredients.');
-      }
-    };
-    loadIngredients();
+    load();
   }, []);
 
   if (error) {
     return (
-      <div className="error-screen">
+      <div>
         <CashierNavbar />
-        <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
-          <h2>Something went wrong</h2>
-          <p>{error}</p>
-          <button onClick={() => window.location.reload()} className="btn">
-            Retry
-          </button>
-        </div>
+        <h2>Error</h2>
+        <p>{error}</p>
       </div>
     );
   }
 
-  // Group ingredients by ingredient_category_name
   const groupedIngredients: Record<string, any[]> = {};
-  ingredients.forEach((ingredient) => {
-    const catName = ingredient.ingredient_category_name || 'Uncategorized';
-    if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
-    groupedIngredients[catName].push(ingredient);
-  });
-
-  // Sort ingredients within each category alphabetically
-  Object.keys(groupedIngredients).forEach((catName) => {
-    groupedIngredients[catName].sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name));
-  });
-
-  // Only show these ingredient categories in Misc (IDs: 1, 3, 6, 7, 8)
-  const allowedIngredientCategoryIds = [1, 3, 6, 7, 8];
-  const sortedCategoryNames =
-    selectedCategory === 7
-      ? Object.entries(groupedIngredients)
-          .filter(([_, ingList]) => allowedIngredientCategoryIds.includes(ingList[0].category_id))
-          .map(([catName]) => catName)
-          .sort()
-      : Object.keys(groupedIngredients).sort();
-
-  // Filter items for non-Misc categories
-  let filteredItems: any[] = [];
-  if (selectedCategory && selectedCategory !== 7) {
-    filteredItems = items.filter((item) => item.category_id === selectedCategory);
+  for (const ingRaw of ingredients) {
+    const ing = ingRaw as any;
+    const group = ing.ingredient_category_name || 'Other';
+    if (!groupedIngredients[group]) groupedIngredients[group] = [];
+    groupedIngredients[group].push(ing);
   }
 
-  // Add item to cart
-  const addToCart = (item: any) => {
-    const isMisc = selectedCategory === 7;
+  const filteredItems = selectedCategory === 7
+    ? []
+    : items.filter((item: any) => item.category_id === selectedCategory);
 
-    setCart((prev) => {
-      // If the item belongs to a single-select category, remove any existing item from that category
-      const newCart = singleSelectCategories.includes(item.ingredient_category_name)
-        ? prev.filter(i => i.ingredient_category_name !== item.ingredient_category_name)
-        : prev;
-
-      return [
-        ...newCart,
-        {
-          ...item,
-          cart_id: Date.now(),
-          quantity: 1,
-          customization: '',
-          ingredient_cost: isMisc ? 0 : item.ingredient_cost,
+  const addDrink = (item: any) => {
+    setCart(prev => [
+      ...prev,
+      {
+        cart_id: Date.now(),
+        item,
+        quantity: 1,
+        ingredients: {
+          Milk: null,
+          'Ice Level': null,
+          Sizes: null,
+          'Sweetness Level': null,
         },
-      ];
-    });
+        extras: [],
+      },
+    ]);
   };
 
-  const removeFromCart = (cartId: number) => {
-    setCart((prev) => prev.filter((i) => i.cart_id !== cartId));
+  const addIngredient = (ingRaw: any) => {
+    const ing = ingRaw as any;
+    const lastDrink = [...cart].reverse().find(d => d.item);
+    if (!lastDrink) return alert('Select a drink first');
+
+    const drinkId = lastDrink.cart_id;
+
+    setCart(prev => prev.map((d: any) => {
+      if (d.cart_id !== drinkId) return d;
+
+      if (singleSelectCategories.includes(ing.ingredient_category_name)) {
+        return {
+          ...d,
+          ingredients: {
+            ...d.ingredients,
+            [ing.ingredient_category_name]: ing,
+          },
+        };
+      }
+
+      return {
+        ...d,
+        extras: [...d.extras, ing],
+      };
+    }));
   };
 
-  const subtotal = cart.reduce(
-    (sum, i) => sum + (i.item_cost || i.ingredient_cost || 0) * i.quantity,
-    0
-  );
+  const removeIngredient = (drinkId: any, catName: any, ingId: any) => {
+    setCart(prev => prev.map((d: any) => {
+      if (d.cart_id !== drinkId) return d;
+
+      if (singleSelectCategories.includes(catName)) {
+        return {
+          ...d,
+          ingredients: {
+            ...d.ingredients,
+            [catName]: null,
+          },
+        };
+      }
+
+      return {
+        ...d,
+        extras: d.extras.filter((e: any) => e.ingredient_ID !== ingId),
+      };
+    }));
+  };
+
+  const removeDrink = (drinkId: any) => {
+    setCart(prev => prev.filter((d: any) => d.cart_id !== drinkId));
+  };
+
+  const subtotal = cart.reduce((sum: number, d: any) => {
+    const ingTotal = Object.values(d.ingredients)
+      .filter((ing: any) => ing)
+      .reduce((s: number, ing: any) => s + (ing.ingredient_cost || 0), 0);
+
+    const extrasTotal = d.extras.reduce((s: number, e: any) => s + (e.ingredient_cost || 0), 0);
+
+    return sum + d.item.item_cost + ingTotal + extrasTotal;
+  }, 0);
+
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
-  const selectedCategoryName =
-    categories.find((c) => c.category_id === selectedCategory)?.name || 'Items';
-
   return (
     <div className="orders-layout">
-      {/* Left sidebar */}
       <div className="sidebar sidebar-left">
-        <h2 className="section-title">Item Categories</h2>
-        <div className="category-list">
-          {categories.map((category) => (
-            <button
-              key={category.category_id}
-              onClick={() => setSelectedCategory(category.category_id)}
-              className={`category-btn ${selectedCategory === category.category_id ? 'active' : ''}`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
+        <h2>Item Categories</h2>
+        {categories.map((c: any) => (
+          <button key={c.category_id} onClick={() => setSelectedCategory(c.category_id)} className={selectedCategory === c.category_id ? 'active' : ''}>
+            {c.name}
+          </button>
+        ))}
       </div>
 
-      {/* Menu items / ingredients section */}
       <div className="content">
         <CashierNavbar />
-        <h2 className="section-title">{selectedCategoryName}</h2>
+        <h2>{categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items'}</h2>
 
         {selectedCategory === 7 ? (
-          sortedCategoryNames.map((catName) => (
-            <div key={catName} className="ingredient-group">
-              <h3 className="ingredient-category-title">{catName}</h3>
+          Object.entries(groupedIngredients).map(([cat, list]: [string, any[]]) => (
+            <div key={cat} className="ingredient-group">
+              <h3>{cat}</h3>
               <div className="item-grid">
-                {groupedIngredients[catName].map((item) => (
-                  <button
-                    key={item.ingredient_id}
-                    onClick={() => addToCart(item)}
-                    className={`item-card ${
-                      cart.some(i => i.ingredient_id === item.ingredient_id) ? 'selected' : ''
-                    }`}
-                  >
-                    <div className="thumb">
-                      {item.photo ? (
-                        <img src={item.photo} alt={item.ingredient_name} className="thumb-img" />
-                      ) : (
-                        <span className="thumb-ph">No image</span>
-                      )}
-                    </div>
-                    <h3 className="item-name">{item.ingredient_name}</h3>
-                    {/* Hide price entirely for Misc */}
-                    {selectedCategory !== 7 && (
-                      <p className="item-price">${(item.ingredient_cost || 0).toFixed(2)}</p>
-                    )}
+                {list.map((ing: any) => (
+                  <button key={ing.ingredient_ID} onClick={() => addIngredient(ing)} className="item-card">
+                    <h3>{ing.ingredient_name}</h3>
                   </button>
                 ))}
               </div>
             </div>
           ))
-        ) : filteredItems.length === 0 ? (
-          <p className="empty muted">No items found.</p>
         ) : (
           <div className="item-grid">
-            {filteredItems.map((item) => (
-              <button
-                key={item.item_id}
-                onClick={() => addToCart(item)}
-                className="item-card"
-              >
-                <div className="thumb">
-                  {item.photo ? (
-                    <img src={item.photo} alt={item.item_name} className="thumb-img" />
-                  ) : (
-                    <span className="thumb-ph">No image</span>
-                  )}
-                </div>
-                <h3 className="item-name">{item.item_name}</h3>
-                <p className="item-price">${item.item_cost.toFixed(2)}</p>
+            {filteredItems.map((item: any) => (
+              <button key={item.item_id} onClick={() => addDrink(item)} className="item-card">
+                <h3>{item.item_name}</h3>
+                <p>${item.item_cost.toFixed(2)}</p>
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Checkout */}
       <div className="sidebar sidebar-right">
-        <div className="order-top">
-          <h2 className="order-title">Current Order</h2>
-        </div>
+        <h2>Current Order</h2>
 
-        <div className="order-lines">
-          {cart.length === 0 ? (
-            <p className="empty muted">No items in cart</p>
-          ) : (
-            cart.map((item) => (
-              <div key={item.cart_id} className="order-line">
-                <div>
-                  <div className="order-line-title">{item.item_name || item.ingredient_name}</div>
-                  <div className="order-line-sub">{item.customization}</div>
+        {cart.map((d: any) => (
+          <div key={d.cart_id} className="order-drink">
+            <div className="order-drink-header">
+              <strong>{d.item.item_name}</strong>
+              <button onClick={() => removeDrink(d.cart_id)}>×</button>
+            </div>
+
+            <div className="order-ingredients">
+              {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
+                ing ? (
+                  <div key={cat} className="order-line">
+                    <span>{cat}: {ing.ingredient_name}</span>
+                    <button onClick={() => removeIngredient(d.cart_id, cat, ing.ingredient_ID)}>×</button>
+                  </div>
+                ) : null
+              ))}
+
+              {d.extras.map((e: any) => (
+                <div key={e.ingredient_ID} className="order-line">
+                  <span>{e.ingredient_name} (+${e.ingredient_cost})</span>
+                  <button onClick={() => removeIngredient(d.cart_id, 'extras', e.ingredient_ID)}>×</button>
                 </div>
-                <div className="order-line-amt">
-                  <span className="order-line-total">
-                    ${((item.item_cost || item.ingredient_cost) * item.quantity).toFixed(2)}
-                  </span>
-                  <button
-                    onClick={() => removeFromCart(item.cart_id)}
-                    className="order-line-remove"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))}
+            </div>
+          </div>
+        ))}
 
         <div className="totals-card">
-          <div className="totals-row">
-            <span>Subtotal</span>
-            <span>${subtotal.toFixed(2)}</span>
-          </div>
-          <div className="totals-row">
-            <span>Tax</span>
-            <span>${tax.toFixed(2)}</span>
-          </div>
-          <div className="totals-row totals-row-total">
-            <span>Total</span>
-            <span>${total.toFixed(2)}</span>
-          </div>
+          <div className="totals-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+          <div className="totals-row"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
+          <div className="totals-row totals-row-total"><span>Total</span><span>${total.toFixed(2)}</span></div>
         </div>
 
-        <button disabled={cart.length === 0} className="btn btn-checkout">
-          Checkout
-        </button>
+        <button disabled={!cart.length} className="btn btn-checkout">Checkout</button>
       </div>
     </div>
   );
