@@ -8,7 +8,7 @@ export default function Login() {
 
   const handleLoginSuccess = (credentialResponse: CredentialResponse) => {
     console.log(credentialResponse)
-    navigate("/managerreport")
+    navigate("/reports")
   }
 
   const handleLoginError = () => {
