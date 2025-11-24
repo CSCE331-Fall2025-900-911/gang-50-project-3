@@ -361,20 +361,3 @@ html, body {
   margin-bottom: 2rem;
 }
 
-/* Only buttons that are selected get the black border */
-.btn.selected {
-  border: 2px solid #000; /* black border only for selected */
-  background-color: #e6f0ff; /* subtle highlight for selected */
-}
-
-/* Optional: make sure focus doesn't override */
-.btn:focus,
-.btn:active {
-  outline: none;
-}
-
-/* Unselected buttons keep normal border */
-.btn {
-  border: 1px solid #ccc; /* normal button border */
-  background-color: white;
-}
