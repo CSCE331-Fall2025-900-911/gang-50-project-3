@@ -360,3 +360,17 @@ html, body {
   text-align: left; /* default might be center */
   margin-bottom: 2rem;
 }
+
+/* Existing highlight remains */
+.btn.selected {
+  border: 2px solid #007bff; /* original highlight */
+  background-color: #e6f0ff; /* subtle blue background */
+}
+
+/* Make selected buttons more obvious */
+.btn.selected::after {
+  content: '✓'; /* checkmark */
+  margin-left: 0.25rem;
+  font-weight: bold;
+  color: #007bff;
+}
