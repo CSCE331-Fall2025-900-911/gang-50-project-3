@@ -325,7 +325,7 @@ export default function Orders() {
             </div>
 
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-              {/* ✅ Updated Confirm Button */}
+              {/* Updated Confirm Button */}
               <button
                 className="btn"
                 onClick={() => {
@@ -336,6 +336,8 @@ export default function Orders() {
                     alert("Thank you for your order! Have a nice day.");
                     setCart([]);
                     setShowCheckoutPopup(false);
+                    // Redirect to login page
+                       window.location.href = '/Login';
                   }
                 }}
                 style={{ marginRight: '1rem' }}
