@@ -384,7 +384,6 @@
 // }
 
 
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -401,7 +400,7 @@ export default function Orders() {
 
   const API_URL = '/api';
   const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
-  const miscIngredientCategoryIds = [7]; // Only Packaging
+  
 
   useEffect(() => {
     const load = async () => {
