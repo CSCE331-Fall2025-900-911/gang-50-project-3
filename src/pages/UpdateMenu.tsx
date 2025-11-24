@@ -82,8 +82,8 @@ export default function UpdateMenu() {
                 .filter(Boolean)         // drop empty lines
                 .join("\n");
             })
+          setViewData(out);
         }
-        setViewData(out);
       } catch {
         setViewData(`Non-JSON response from server:\n${raw}`);
       }
