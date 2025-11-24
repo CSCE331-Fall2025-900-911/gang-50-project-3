@@ -754,8 +754,6 @@
 //   );
 // }
 
-
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -804,16 +802,15 @@ export default function Orders() {
     );
   }
 
-  // Group ingredients by category
   const groupedIngredients: Record<string, any[]> = {};
   for (const ing of ingredients) {
-    const catName = (ing as any).ingredient_category_name || 'Other';
+    const catName = (ing as any)?.ingredient_category_name || 'Other';
     if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
     groupedIngredients[catName].push(ing);
   }
   Object.keys(groupedIngredients).forEach(catName => {
     groupedIngredients[catName].sort((a, b) =>
-      ((a as any).ingredient_name as string).localeCompare((b as any).ingredient_name as string)
+      ((a as any)?.ingredient_name as string)?.localeCompare((b as any)?.ingredient_name as string)
     );
   });
 
@@ -839,43 +836,46 @@ export default function Orders() {
     if (!lastDrink) return alert('Select a drink first');
     const drinkId = lastDrink.cart_id;
 
-    setCart(prev => prev.map(d => {
-      if (d.cart_id !== drinkId) return d;
-      if (singleSelectCategories.includes((ing as any).ingredient_category_name)) {
-        return { ...d, ingredients: { ...d.ingredients, [(ing as any).ingredient_category_name]: ing } };
-      }
-      return { ...d, extras: [...(d.extras as any[]), ing] };
-    }));
+    setCart(prev =>
+      prev.map(d => {
+        if (d.cart_id !== drinkId) return d;
+        if (singleSelectCategories.includes((ing as any)?.ingredient_category_name)) {
+          return { ...d, ingredients: { ...d.ingredients, [(ing as any)?.ingredient_category_name]: ing } };
+        }
+        return { ...d, extras: [...(d.extras || []), ing] };
+      })
+    );
   };
 
-  const removeIngredient = (drinkId: any, catName: string, ingId: any) => {
-    setCart(prev => prev.map(d => {
-      if (d.cart_id !== drinkId) return d;
-      if (singleSelectCategories.includes(catName)) {
-        return { ...d, ingredients: { ...d.ingredients, [catName]: null } };
-      }
-      return { ...d, extras: (d.extras as any[]).filter((ex: any) => (ex as any).ingredient_ID !== ingId) };
-    }));
+  const removeIngredient = (drinkId: number, catName: string, ingId: any) => {
+    setCart(prev =>
+      prev.map(d => {
+        if (d.cart_id !== drinkId) return d;
+        if (singleSelectCategories.includes(catName)) {
+          return { ...d, ingredients: { ...d.ingredients, [catName]: null } };
+        }
+        return { ...d, extras: (d.extras || []).filter((ex: any) => (ex as any)?.ingredient_ID !== ingId) };
+      })
+    );
   };
 
-  const removeDrink = (drinkId: any) => {
-    setCart(prev => prev.filter(d => d.cart_id !== drinkId));
-  };
+  const removeDrink = (drinkId: any) => setCart(prev => prev.filter(d => d.cart_id !== drinkId));
 
   const subtotal = cart.reduce((sum: number, d: any) => {
-    const drinkExtras = (d.extras as any[]).reduce((s: number, e: any) => s + (e as any).ingredient_cost, 0);
-    return sum + (d.item as any).item_cost + drinkExtras;
+    const drinkExtras = (d.extras || []).reduce((s: number, e: any) => s + ((e as any)?.ingredient_cost || 0), 0);
+    return sum + ((d.item as any)?.item_cost || 0) + drinkExtras;
   }, 0);
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
-  // Update customization for single-select categories
   const setCustomizationOption = (category: string, ing: any) => {
     if (!customizingDrinkId) return;
-    setCart(prev => prev.map(d => {
-      if (d.cart_id !== customizingDrinkId) return d;
-      return { ...d, ingredients: { ...d.ingredients, [category]: ing } };
-    }));
+    setCart(prev =>
+      prev.map(d => {
+        if (d.cart_id !== customizingDrinkId) return d;
+        return { ...d, ingredients: { ...d.ingredients, [category]: ing } };
+      })
+    );
   };
 
   const confirmCustomization = () => {
@@ -888,10 +888,9 @@ export default function Orders() {
     setShowCustomizationPopup(false);
   };
 
-  const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter(catName => {
-    const list = groupedIngredients[catName];
-    return list[0] && (list[0] as any).ingredient_category_name === 'Packaging';
-  });
+  const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter(catName =>
+    (groupedIngredients[catName][0] as any)?.ingredient_category_name === 'Packaging'
+  );
 
   const customizingDrink = customizingDrinkId ? cart.find(d => d.cart_id === customizingDrinkId) : null;
 
@@ -902,14 +901,10 @@ export default function Orders() {
         <h2 className="section-title">Item Categories</h2>
         <div className="category-list">
           {categories.map((c: any) => (
-            <button key={c.category_id} onClick={() => setSelectedCategory(c.category_id)} className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}>
-              {c.name}
-            </button>
+            <button key={c.category_id} onClick={() => setSelectedCategory(c.category_id)} className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}>{c.name}</button>
           ))}
           {!categories.some((c: any) => c.category_id === 7) && (
-            <button onClick={() => setSelectedCategory(7)} className={`category-btn ${selectedCategory === 7 ? 'active' : ''}`}>
-              Misc
-            </button>
+            <button onClick={() => setSelectedCategory(7)} className={`category-btn ${selectedCategory === 7 ? 'active' : ''}`}>Misc</button>
           )}
         </div>
       </div>
@@ -924,67 +919,50 @@ export default function Orders() {
             <div key={catName} className="ingredient-group">
               <h3 className="ingredient-category-title">{catName}</h3>
               <div className="item-grid">
-                {groupedIngredients[catName].map((item: any) => (
-                  <button key={(item as any).ingredient_ID} onClick={() => addIngredient(item)} className={`item-card ${cart.some((d: any) => (d.extras as any[]).some((ex: any) => (ex as any).ingredient_ID === (item as any).ingredient_ID)) ? 'selected' : ''}`}>
-                    <div className="thumb">
-                      {(item as any).photo ? <img src={(item as any).photo} alt={(item as any).ingredient_name} className="thumb-img" /> : <span className="thumb-ph">No image</span>}
-                    </div>
-                    <h3 className="item-name">{(item as any).ingredient_name}</h3>
+                {(groupedIngredients[catName] || []).map((item: any) => (
+                  <button key={(item as any)?.ingredient_ID} onClick={() => addIngredient(item)} className={`item-card ${cart.some((d: any) => (d.extras || []).some((ex: any) => (ex as any)?.ingredient_ID === (item as any)?.ingredient_ID)) ? 'selected' : ''}`}>
+                    <div className="thumb">{item?.photo ? <img src={item?.photo} alt={item?.ingredient_name} className="thumb-img" /> : <span className="thumb-ph">No image</span>}</div>
+                    <h3 className="item-name">{(item as any)?.ingredient_name}</h3>
                   </button>
                 ))}
               </div>
             </div>
           ))
         ) : (
-          filteredItems.length === 0 ? (
-            <p className="empty muted">No items found.</p>
-          ) : (
-            <div className="item-grid">
-              {filteredItems.map((item: any) => (
-                <button key={item.item_id} onClick={() => addDrink(item)} className="item-card">
-                  <div className="thumb">
-                    {item.photo ? <img src={item.photo} alt={item.item_name} className="thumb-img" /> : <span className="thumb-ph">No image</span>}
-                  </div>
-                  <h3 className="item-name">{item.item_name}</h3>
-                  <p className="item-price">${item.item_cost.toFixed(2)}</p>
+          <div className="item-grid">
+            {filteredItems.length === 0 ? <p className="empty muted">No items found.</p> :
+              filteredItems.map((item: any) => (
+                <button key={item?.item_id} onClick={() => addDrink(item)} className="item-card">
+                  <div className="thumb">{item?.photo ? <img src={item?.photo} alt={item?.item_name} className="thumb-img" /> : <span className="thumb-ph">No image</span>}</div>
+                  <h3 className="item-name">{item?.item_name}</h3>
+                  <p className="item-price">${item?.item_cost?.toFixed(2)}</p>
                 </button>
               ))}
-            </div>
-          )
+          </div>
         )}
       </div>
 
       {/* CART */}
       <div className="sidebar sidebar-right">
         <h2 className="order-title">Current Order</h2>
-        {cart.length === 0 ? (
-          <p className="empty muted">No items in cart</p>
-        ) : (
+        {cart.length === 0 ? <p className="empty muted">No items in cart</p> :
           cart.map((d: any) => (
             <div key={d.cart_id} className="order-drink">
               <div className="order-drink-header">
-                <strong>{(d.item as any).item_name}</strong>
+                <strong>{(d.item as any)?.item_name}</strong>
                 <button onClick={() => removeDrink(d.cart_id)}>×</button>
               </div>
               <div className="order-ingredients">
                 {Object.entries(d.ingredients).map(([cat, ing]) =>
-                  ing ? (
-                    <div key={cat} className="order-line">
-                      <span>{cat}: {(ing as any).ingredient_name}</span>
-                      <button onClick={() => removeIngredient(d.cart_id, cat, (ing as any).ingredient_ID)}>×</button>
-                    </div>
-                  ) : null
+                  ing ? <div key={cat}>{cat}: {(ing as any)?.ingredient_name}<button onClick={() => removeIngredient(d.cart_id, cat, (ing as any)?.ingredient_ID)}>×</button></div> : null
                 )}
-                {(d.extras as any[]).map((e: any) => (
-                  <div key={(e as any).ingredient_ID} className="order-line">
-                    <span>{(e as any).ingredient_name}{(e as any).ingredient_cost > 0 ? ` (+$${(e as any).ingredient_cost.toFixed(2)})` : ''}</span>
-                    <button onClick={() => removeIngredient(d.cart_id, 'extras', (e as any).ingredient_ID)}>×</button>
-                  </div>
+                {(d.extras || []).map((e: any) => (
+                  <div key={(e as any)?.ingredient_ID}>{(e as any)?.ingredient_name}{((e as any)?.ingredient_cost || 0) > 0 ? ` (+$${((e as any)?.ingredient_cost || 0).toFixed(2)})` : ''}<button onClick={() => removeIngredient(d.cart_id, 'extras', (e as any)?.ingredient_ID)}>×</button></div>
                 ))}
               </div>
             </div>
           ))
-        )}
+        }
 
         <div className="totals-card">
           <div className="totals-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
@@ -995,54 +973,45 @@ export default function Orders() {
         <button disabled={cart.length === 0} className="btn btn-checkout" onClick={() => setShowCheckoutPopup(true)}>Checkout</button>
       </div>
 
-      {/* Checkout Popup */}
-      {showCheckoutPopup && (
-        <div className="checkout-popup" style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', backgroundColor:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center', zIndex:1000 }}>
-          <div style={{ backgroundColor:'white', padding:'2rem', borderRadius:'8px', width:'500px', maxHeight:'80vh', overflowY:'auto' }}>
+      {/* CHECKOUT POPUP */}
+      {showCheckoutPopup && customizingDrinkId !== null && (
+        <div className="checkout-popup">
+          <div>
             <h3>Review Your Order</h3>
             {cart.map((d: any) => (
-              <div key={d.cart_id} style={{ borderBottom:'1px solid #ccc', paddingBottom:'0.5rem', marginBottom:'0.5rem' }}>
-                <strong>{(d.item as any).item_name}</strong> - ${(d.item as any).item_cost.toFixed(2)}
-                <div style={{ paddingLeft:'1rem', marginTop:'0.25rem' }}>
-                  {Object.entries(d.ingredients).map(([cat, ing]) => ing ? <div key={cat}>{cat}: {(ing as any).ingredient_name}</div> : null)}
-                  {(d.extras as any[]).map((e: any) => <div key={(e as any).ingredient_ID}>{(e as any).ingredient_name}{(e as any).ingredient_cost > 0 ? ` (+$${(e as any).ingredient_cost.toFixed(2)})` : ''}</div>)}
+              <div key={d.cart_id}>
+                <strong>{(d.item as any)?.item_name}</strong> - ${(d.item as any)?.item_cost?.toFixed(2)}
+                <div>
+                  {Object.entries(d.ingredients).map(([cat, ing]) => ing ? <div key={cat}>{cat}: {(ing as any)?.ingredient_name}</div> : null)}
+                  {(d.extras || []).map((e: any) => <div key={(e as any)?.ingredient_ID}>{(e as any)?.ingredient_name}{((e as any)?.ingredient_cost || 0) > 0 ? ` (+$${((e as any)?.ingredient_cost || 0).toFixed(2)})` : ''}</div>)}
                 </div>
               </div>
             ))}
-            <div style={{ borderTop:'2px solid #000', paddingTop:'0.5rem', marginTop:'0.5rem' }}>
-              <div style={{ display:'flex', justifyContent:'space-between' }}><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
-              <div style={{ display:'flex', justifyContent:'space-between' }}><span>Tax:</span><span>${tax.toFixed(2)}</span></div>
-              <div style={{ display:'flex', justifyContent:'space-between', fontWeight:'bold' }}><span>Total:</span><span>${total.toFixed(2)}</span></div>
-            </div>
-            <div style={{ marginTop:'1rem', textAlign:'center' }}>
-              <button className="btn" onClick={() => setShowCheckoutPopup(false)} style={{ marginRight:'1rem' }}>Confirm</button>
-              <button className="btn" onClick={() => setShowCheckoutPopup(false)}>Cancel</button>
-            </div>
           </div>
         </div>
       )}
 
-      {/* Customization Popup */}
+      {/* CUSTOMIZATION POPUP */}
       {showCustomizationPopup && customizingDrink && (
-        <div className="customization-popup" style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', backgroundColor:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center', zIndex:1000 }}>
-          <div style={{ backgroundColor:'white', padding:'2rem', borderRadius:'8px', width:'500px', maxHeight:'80vh', overflowY:'auto' }}>
-            <h3>Customize {(customizingDrink.item as any).item_name}</h3>
+        <div className="customization-popup">
+          <div>
+            <h3>Customize {(customizingDrink.item as any)?.item_name}</h3>
             {singleSelectCategories.map(cat => (
-              <div key={cat} style={{ marginBottom:'1rem' }}>
+              <div key={cat}>
                 <h4>{cat}</h4>
-                <div style={{ display:'flex', gap:'0.5rem', flexWrap:'wrap' }}>
-                  {groupedIngredients[cat]?.map((ing: any) => (
-                    <label key={(ing as any).ingredient_ID} style={{ display:'flex', alignItems:'center', gap:'0.25rem', cursor:'pointer' }}>
-                      <input type="radio" name={cat} checked={customizingDrink.ingredients[cat]?.ingredient_ID === (ing as any).ingredient_ID} onChange={() => setCustomizationOption(cat, ing)} />
-                      {(ing as any).ingredient_name}
+                <div>
+                  {(groupedIngredients[cat] || []).map((ing: any) => (
+                    <label key={(ing as any)?.ingredient_ID}>
+                      <input type="radio" name={cat} checked={customizingDrink.ingredients[cat]?.ingredient_ID === (ing as any)?.ingredient_ID} onChange={() => setCustomizationOption(cat, ing)} />
+                      {(ing as any)?.ingredient_name}
                     </label>
                   ))}
                 </div>
               </div>
             ))}
-            <div style={{ marginTop:'1rem', textAlign:'center' }}>
-              <button className="btn" onClick={confirmCustomization} style={{ marginRight:'1rem' }}>Confirm</button>
-              <button className="btn" onClick={cancelCustomization}>Cancel</button>
+            <div>
+              <button onClick={confirmCustomization}>Confirm</button>
+              <button onClick={cancelCustomization}>Cancel</button>
             </div>
           </div>
         </div>
@@ -1050,4 +1019,6 @@ export default function Orders() {
     </div>
   );
 }
+
+
 
