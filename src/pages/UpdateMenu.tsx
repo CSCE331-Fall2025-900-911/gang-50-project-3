@@ -62,7 +62,7 @@ export default function UpdateMenu() {
 
             try {
                 const data = JSON.parse(raw);
-                if(data == "[ ]")
+                if(data == "[]")
                     setViewData("Action successful!");
                 else
                     setViewData(JSON.stringify(data, null, 2));
@@ -113,7 +113,7 @@ export default function UpdateMenu() {
 
             try {
                 const data = JSON.parse(raw);
-                if(data == "[ ]")
+                if(data == "[]")
                     setViewData("Action successful!");
                 else
                     setViewData(JSON.stringify(data, null, 2));
@@ -172,7 +172,10 @@ export default function UpdateMenu() {
 
             try {
                 const data = JSON.parse(raw);
-                setViewData(JSON.stringify(data, null, 2));
+                if(data == "[]")
+                    setViewData("Action successful!");
+                else
+                    setViewData(JSON.stringify(data, null, 2));
             } catch {
                 setViewData(`Non-JSON response from server:\n${raw}`);
             }
