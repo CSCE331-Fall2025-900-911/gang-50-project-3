@@ -1,5 +1,5 @@
-import React, {useState, useRef, useLayoutEffect, useEffect} from "react";
-import CashierNavbar from "../components/CashierNavbar";
+import { useState, useRef, useLayoutEffect, useEffect } from 'react'
+import CashierNavbar from '../components/CashierNavbar'
 
 
 export default function Reports() {
