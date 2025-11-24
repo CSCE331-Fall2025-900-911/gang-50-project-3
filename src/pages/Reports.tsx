@@ -5,30 +5,25 @@ export default function Reports() {
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerH, setHeaderH] = useState(64);
 
-  useLayoutEffect(() => {
-    const el = headerRef.current;
-    if (!el) return;
-
-    const update = () => setHeaderH(el.getBoundingClientRect().height);
-    update();
-
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-
-    window.addEventListener("resize", update);
+   useLayoutEffect(() => {
+    const el = headerRef.current
+    if (!el) return
+    const update = () => setHeaderH(el.getBoundingClientRect().height)
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    window.addEventListener('resize', update)
     return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", update);
-    };
-  }, []);
+      ro.disconnect()
+      window.removeEventListener('resize', update)
+    }
+  }, [])
 
   useEffect(() => {
     const prev = document.body.style.overflowY;
-    document.body.style.overflowY = "auto";
-    return () => {
-      document.body.style.overflowY = prev || "hidden";
-    };
-  }, []);
+    document.body.style.overflowY = "auto";     
+    return () => { document.body.style.overflowY = prev || "hidden"; };
+}, []);
 
   return (
     <div
