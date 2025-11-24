@@ -2,10 +2,32 @@ import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
 import CashierNavbar from "../components/CashierNavbar";
 
 export default function Reports() {
+
+    useLayoutEffect(() => {
+    const el = headerRef.current
+    if (!el) return
+    const update = () => setHeaderH(el.getBoundingClientRect().height)
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    window.addEventListener('resize', update)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', update)
+    }
+    }, [])
+
+      useEffect(() => {
+        const prev = document.body.style.overflowY;
+        document.body.style.overflowY = "auto";     
+        return () => { document.body.style.overflowY = prev || "hidden"; };
+    }, []);
+
+    
     return (
         <div id="rootPane" className="min-h-screen flex flex-col bg-white text-gray-900">
             <nav ref={headerRef as any} className="cashier-nav">
-                <CashierNavbar />
+                <CashierNavbar/>
             </nav>
         </div>
     );
