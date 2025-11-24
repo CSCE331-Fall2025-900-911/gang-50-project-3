@@ -328,6 +328,7 @@ export default function Orders() {
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showCheckoutPopup, setShowCheckoutPopup] = useState(false);
+  const [customizingDrink, setCustomizingDrink] = useState<any | null>(null);
 
   const API_URL = '/api';
   const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
@@ -365,7 +366,6 @@ export default function Orders() {
     );
   }
 
-  // Group ingredients by category
   const groupedIngredients: Record<string, any[]> = {};
   for (const ingRaw of ingredients) {
     const ing = ingRaw as any;
@@ -377,27 +377,28 @@ export default function Orders() {
     groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
   });
 
-  // Filter normal items (exclude Misc category)
   const filteredItems = selectedCategory === 7
     ? []
     : items.filter((item: any) => item.category_id === selectedCategory);
 
-  const addDrink = (item: any) => {
+  // Open customization popup for drink
+  const handleDrinkClick = (item: any) => {
+    setCustomizingDrink({
+      item,
+      ingredients: { Milk: null, 'Ice Level': null, Sizes: null, 'Sweetness Level': null },
+      extras: [] as any[]
+    });
+  };
+
+  const saveCustomDrink = () => {
     setCart(prev => [
       ...prev,
       {
         cart_id: Date.now(),
-        item,
-        quantity: 1,
-        ingredients: {
-          Milk: null,
-          'Ice Level': null,
-          Sizes: null,
-          'Sweetness Level': null,
-        },
-        extras: [] as any[],
-      },
+        ...customizingDrink
+      }
     ]);
+    setCustomizingDrink(null);
   };
 
   const addIngredient = (ingRaw: any) => {
@@ -409,16 +410,6 @@ export default function Orders() {
 
     setCart(prev => prev.map((d: any) => {
       if (d.cart_id !== drinkId) return d;
-
-      if (singleSelectCategories.includes(ing.ingredient_category_name)) {
-        return {
-          ...d,
-          ingredients: {
-            ...d.ingredients,
-            [ing.ingredient_category_name]: ing,
-          },
-        };
-      }
 
       return {
         ...d,
@@ -478,7 +469,6 @@ export default function Orders() {
               {c.name}
             </button>
           ))}
-          {/* Ensure Misc category is clickable */}
           {!categories.some(c => c.category_id === 7) && (
             <button
               onClick={() => setSelectedCategory(7)}
@@ -520,7 +510,7 @@ export default function Orders() {
           ) : (
             <div className="item-grid">
               {filteredItems.map((item: any) => (
-                <button key={item.item_id} onClick={() => addDrink(item)} className="item-card">
+                <button key={item.item_id} onClick={() => handleDrinkClick(item)} className="item-card">
                   <div className="thumb">
                     {item.photo ? (
                       <img src={item.photo} alt={item.item_name} className="thumb-img" />
@@ -577,6 +567,7 @@ export default function Orders() {
         <button disabled={cart.length === 0} className="btn btn-checkout" onClick={() => setShowCheckoutPopup(true)}>Checkout</button>
       </div>
 
+      {/* Checkout Popup */}
       {showCheckoutPopup && (
         <div className="checkout-popup" style={{
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
@@ -623,8 +614,69 @@ export default function Orders() {
             </div>
 
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-              <button className="btn" onClick={() => { /* handle confirm logic */ setShowCheckoutPopup(false); }} style={{ marginRight: '1rem' }}>Confirm</button>
+              <button className="btn" onClick={() => setShowCheckoutPopup(false)} style={{ marginRight: '1rem' }}>Confirm</button>
               <button className="btn" onClick={() => setShowCheckoutPopup(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Drink Customization Popup */}
+      {customizingDrink && (
+        <div className="customization-popup" style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1001
+        }}>
+          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto' }}>
+            <h3 style={{ marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
+
+            {/* Single-select categories for drinks */}
+            {Object.keys(customizingDrink.ingredients).map((cat) => (
+              <div key={cat}>
+                <h4>{cat}</h4>
+                {groupedIngredients[cat]?.map((ing: any) => (
+                  <button
+                    key={ing.ingredient_ID}
+                    className={customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? 'selected' : ''}
+                    onClick={() =>
+                      setCustomizingDrink((prev: any) => ({
+                        ...prev,
+                        ingredients: { ...prev.ingredients, [cat]: ing }
+                      }))
+                    }
+                  >
+                    {ing.ingredient_name}
+                  </button>
+                ))}
+              </div>
+            ))}
+
+            {/* Extras / Misc */}
+            {allowedMiscCategoryNames.map((catName) => (
+              <div key={catName}>
+                <h4>{catName}</h4>
+                {groupedIngredients[catName].map((ing: any) => (
+                  <button
+                    key={ing.ingredient_ID}
+                    className={customizingDrink.extras.some((e: any) => e.ingredient_ID === ing.ingredient_ID) ? 'selected' : ''}
+                    onClick={() => {
+                      setCustomizingDrink((prev: any) => ({
+                        ...prev,
+                        extras: prev.extras.some((e: any) => e.ingredient_ID === ing.ingredient_ID)
+                          ? prev.extras.filter((e: any) => e.ingredient_ID !== ing.ingredient_ID)
+                          : [...prev.extras, ing]
+                      }));
+                    }}
+                  >
+                    {ing.ingredient_name}
+                  </button>
+                ))}
+              </div>
+            ))}
+
+            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+              <button className="btn" onClick={saveCustomDrink} style={{ marginRight: '1rem' }}>Add to Cart</button>
+              <button className="btn" onClick={() => setCustomizingDrink(null)}>Cancel</button>
             </div>
           </div>
         </div>
