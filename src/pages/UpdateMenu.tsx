@@ -64,7 +64,7 @@ export default function UpdateMenu() {
         const data = JSON.parse(raw);
         const stringVersion = JSON.stringify(data, null, 2)
         if (stringVersion == "[]")
-          setViewData("Action successful!");
+          setViewData("Result is empty!");
         else {
           const out = data.map((item: any) => {
               return [
