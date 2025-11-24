@@ -66,6 +66,11 @@ export default function UpdateMenu() {
                 if(stringVersion == "[]")
                     setViewData("Action successful!");
                 else
+                {
+                    parsedArray.forEach(item => {
+                      console.log(item.name);
+                    });
+                }
                     setViewData(stringVersion);
             } catch {
                 setViewData(`Non-JSON response from server:\n${raw}`);
