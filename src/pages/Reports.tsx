@@ -34,6 +34,9 @@ export default function Reports() {
       <nav ref={headerRef as any} className="cashier-nav">
         <CashierNavbar />
       </nav>
+      <div style={{ paddingTop: headerH }} className="flex-1">
+        {/* Reports content will go here later */}
+      </div>
     </div>
   );
 }
