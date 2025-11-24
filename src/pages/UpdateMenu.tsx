@@ -62,10 +62,11 @@ export default function UpdateMenu() {
 
             try {
                 const data = JSON.parse(raw);
-                if(data == "[]")
+                const stringVersion = JSON.stringify(data, null, 2)
+                if(stringVersion == "[]")
                     setViewData("Action successful!");
                 else
-                    setViewData(JSON.stringify(data, null, 2));
+                    setViewData(stringVersion);
             } catch {
                 setViewData(`Non-JSON response from server:\n${raw}`);
             }
@@ -113,10 +114,11 @@ export default function UpdateMenu() {
 
             try {
                 const data = JSON.parse(raw);
-                if(data == "[]")
+                const stringVersion = JSON.stringify(data, null, 2)
+                if(stringVersion == "[]")
                     setViewData("Action successful!");
                 else
-                    setViewData(JSON.stringify(data, null, 2));
+                    setViewData(stringVersion);
             } catch {
                 setViewData(`Non-JSON response from server:\n${raw}`);
             }
@@ -172,10 +174,11 @@ export default function UpdateMenu() {
 
             try {
                 const data = JSON.parse(raw);
-                if(data == "[]")
+                const stringVersion = JSON.stringify(data, null, 2)
+                if(stringVersion == "[]")
                     setViewData("Action successful!");
                 else
-                    setViewData(JSON.stringify(data, null, 2));
+                    setViewData(stringVersion);
             } catch {
                 setViewData(`Non-JSON response from server:\n${raw}`);
             }
