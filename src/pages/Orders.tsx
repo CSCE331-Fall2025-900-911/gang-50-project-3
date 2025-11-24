@@ -528,7 +528,7 @@ export default function Orders() {
         {selectedCategory === 7 ? (
           allowedMiscCategoryNames.map((catName: string) => (
             <div key={catName} className="ingredient-group">
-              <h3 className="ingredient-category-title">Misc</h3>
+              <h3 className="ingredient-category-title">{catName}</h3>
               <div className="item-grid">
                 {groupedIngredients[catName].map((item: any) => (
                   <button key={item.ingredient_ID} onClick={() => addIngredient(item)} className={`item-card ${cart.some((d: any) => d.extras.some((ex: any) => ex.ingredient_ID === item.ingredient_ID)) ? 'selected' : ''}`}>
