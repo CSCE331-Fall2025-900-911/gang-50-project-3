@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
+import ManagerNavbar from '../components/ManagerNavbar';
 
 export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -105,7 +106,7 @@ export default function Orders() {
 
       {/* menu items section */}
       <div className="content">
-        <CashierNavbar />
+        <ManagerNavbar />
 
         <h2 className="section-title">{selectedCategoryName}</h2>
 
@@ -181,10 +182,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <button
-          disabled={cart.length === 0}
-          className="btn btn-checkout"
-        >
+        <button disabled={cart.length === 0} className="btn btn-checkout">
           Checkout
         </button>
       </div>
