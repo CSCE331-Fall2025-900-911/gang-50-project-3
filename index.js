@@ -135,6 +135,7 @@
     }
   });
 
+  // Fetch employee data
   app.get('/api/employees', async (req, res) => {
     try {
       const result = await pool.query(
@@ -144,6 +145,60 @@
     } catch (err) {
       console.error('Error fetching employees:', err);
       res.status(500).json({ error: 'Failed to fetch employees' });
+    }
+  });
+
+  // Create employee
+  app.post('/api/employees', async (req, res) => {
+    try {
+      const { employee_id, first_name, last_name, ismanager } = req.body;
+
+      const result = await pool.query(
+        `INSERT INTO Employee (employee_id, first_name, last_name, ismanager)
+        VALUES ($1, $2, $3, $4)
+        RETURNING employee_id, first_name, last_name, ismanager`,
+        [employee_id, first_name, last_name, ismanager]
+      );
+
+      res.json(result.rows[0]);
+    } catch (err) {
+      console.error('Error creating employee:', err);
+      res.status(500).json({ error: 'Failed to create employee' });
+    }
+  });
+
+  // Delete employee
+  app.delete('/api/employees/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      await pool.query(`DELETE FROM Employee WHERE employee_id = $1`, [id]);
+
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Error deleting employee:', err);
+      res.status(500).json({ error: 'Failed to delete employee' });
+    }
+  });
+
+  // Update employee
+  app.patch('/api/employees/:id/manager', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { ismanager } = req.body;
+
+      const result = await pool.query(
+        `UPDATE Employee
+        SET ismanager = $1
+        WHERE employee_id = $2
+        RETURNING employee_id, first_name, last_name, ismanager`,
+        [ismanager, id]
+      );
+
+      res.json(result.rows[0]);
+    } catch (err) {
+      console.error('Error updating manager status:', err);
+      res.status(500).json({ error: 'Failed to update manager status' });
     }
   });
 
