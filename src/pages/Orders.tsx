@@ -753,6 +753,9 @@
 //     </div>
 //   );
 // }
+
+
+
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -765,7 +768,7 @@ export default function Orders() {
   const [error, setError] = useState<string | null>(null);
   const [showCheckoutPopup, setShowCheckoutPopup] = useState(false);
   const [showCustomizationPopup, setShowCustomizationPopup] = useState(false);
-  const [customizingDrink, setCustomizingDrink] = useState<any | null>(null);
+  const [customizingDrinkId, setCustomizingDrinkId] = useState<number | null>(null);
 
   const API_URL = '/api';
   const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
@@ -827,7 +830,7 @@ export default function Orders() {
       extras: []
     };
     setCart(prev => [...prev, newDrink]);
-    setCustomizingDrink(newDrink);
+    setCustomizingDrinkId(newDrink.cart_id);
     setShowCustomizationPopup(true);
   };
 
@@ -868,24 +871,20 @@ export default function Orders() {
 
   // Update customization for single-select categories
   const setCustomizationOption = (category: string, ing: any) => {
-    if (!customizingDrink) return;
-    const updatedDrink = {
-      ...customizingDrink,
-      ingredients: { ...customizingDrink.ingredients, [category]: ing }
-    };
-    setCustomizingDrink(updatedDrink);
-
-    // Immediately update cart so cart & checkout popup reflect selected option
-    setCart(prev => prev.map(d => d.cart_id === updatedDrink.cart_id ? updatedDrink : d));
+    if (!customizingDrinkId) return;
+    setCart(prev => prev.map(d => {
+      if (d.cart_id !== customizingDrinkId) return d;
+      return { ...d, ingredients: { ...d.ingredients, [category]: ing } };
+    }));
   };
 
   const confirmCustomization = () => {
-    setCustomizingDrink(null);
+    setCustomizingDrinkId(null);
     setShowCustomizationPopup(false);
   };
 
   const cancelCustomization = () => {
-    setCustomizingDrink(null);
+    setCustomizingDrinkId(null);
     setShowCustomizationPopup(false);
   };
 
@@ -893,6 +892,8 @@ export default function Orders() {
     const list = groupedIngredients[catName];
     return list[0] && (list[0] as any).ingredient_category_name === 'Packaging';
   });
+
+  const customizingDrink = customizingDrinkId ? cart.find(d => d.cart_id === customizingDrinkId) : null;
 
   return (
     <div className="orders-layout">
