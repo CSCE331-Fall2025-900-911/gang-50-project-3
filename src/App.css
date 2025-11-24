@@ -361,9 +361,20 @@ html, body {
   margin-bottom: 2rem;
 }
 
-/* Ensure selected buttons always keep their border and background */
+/* Only buttons that are selected get the black border */
 .btn.selected {
-  border: 2px solid #000; /* persistent black border */
-  background-color: #e6f0ff; /* subtle blue background to indicate selection */
-  color: #000; /* text remains readable */
+  border: 2px solid #000; /* black border only for selected */
+  background-color: #e6f0ff; /* subtle highlight for selected */
+}
+
+/* Optional: make sure focus doesn't override */
+.btn:focus,
+.btn:active {
+  outline: none;
+}
+
+/* Unselected buttons keep normal border */
+.btn {
+  border: 1px solid #ccc; /* normal button border */
+  background-color: white;
 }
