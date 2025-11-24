@@ -674,34 +674,82 @@ export default function Orders() {
         </div>
       )}
 
-      {/* --- Customization Popup --- */}
-      {showCustomizationPopup && customizingDrink && (
-        <div className="customization-popup" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
-            {singleSelectCategories.map(cat => (
-              <div key={cat} style={{ marginBottom: '1rem' }}>
-                <h4>{cat}</h4>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {groupedIngredients[cat]?.map((ing: any) => (
-                    <button
-                      key={ing.ingredient_ID}
-                      onClick={() => setCustomizationOption(cat, ing)}
-                      className={`btn ${customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? 'selected' : ''}`}
-                    >
-                      {ing.ingredient_name}
-                    </button>
-                  ))}
-                </div>
-              </div>
+     {/* --- Customization Popup --- */}
+{showCustomizationPopup && customizingDrink && (
+  <div
+    className="customization-popup"
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000
+    }}
+  >
+    <div
+      style={{
+        backgroundColor: 'white',
+        padding: '2rem',
+        borderRadius: '8px',
+        width: '500px',
+        maxHeight: '80vh',
+        overflowY: 'auto'
+      }}
+    >
+      <h3 style={{ marginBottom: '1rem' }}>
+        Customize {customizingDrink.item.item_name}
+      </h3>
+
+      {singleSelectCategories.map(cat => (
+        <div key={cat} style={{ marginBottom: '1.5rem' }}>
+          <h4 style={{ marginBottom: '0.5rem' }}>{cat}</h4>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {groupedIngredients[cat]?.map((ing: any) => (
+              <label
+                key={ing.ingredient_ID}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <input
+                  type="radio"
+                  name={cat}
+                  checked={
+                    customizingDrink.ingredients[cat]?.ingredient_ID ===
+                    ing.ingredient_ID
+                  }
+                  onChange={() => setCustomizationOption(cat, ing)}
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    accentColor: '#000' // optional, helps match your theme
+                  }}
+                />
+                <span>{ing.ingredient_name}</span>
+              </label>
             ))}
-            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-              <button className="btn" onClick={confirmCustomization} style={{ marginRight: '1rem' }}>Confirm</button>
-              <button className="btn" onClick={cancelCustomization}>Cancel</button>
-            </div>
           </div>
         </div>
-      )}
+      ))}
+
+      <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+        <button className="btn" onClick={confirmCustomization} style={{ marginRight: '1rem' }}>
+          Confirm
+        </button>
+        <button className="btn" onClick={cancelCustomization}>Cancel</button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
