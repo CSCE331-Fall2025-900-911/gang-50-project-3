@@ -805,12 +805,14 @@ export default function Orders() {
   // Group ingredients by category
   const groupedIngredients: Record<string, any[]> = {};
   for (const ing of ingredients) {
-    const catName = ing.ingredient_category_name || 'Other';
+    const catName = (ing as any).ingredient_category_name || 'Other';
     if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
     groupedIngredients[catName].push(ing);
   }
   Object.keys(groupedIngredients).forEach(catName => {
-    groupedIngredients[catName].sort((a, b) => (a as any).ingredient_name.localeCompare((b as any).ingredient_name));
+    groupedIngredients[catName].sort((a, b) =>
+      ((a as any).ingredient_name as string).localeCompare((b as any).ingredient_name as string)
+    );
   });
 
   const filteredItems = selectedCategory === 7
@@ -840,7 +842,7 @@ export default function Orders() {
       if (singleSelectCategories.includes((ing as any).ingredient_category_name)) {
         return { ...d, ingredients: { ...d.ingredients, [(ing as any).ingredient_category_name]: ing } };
       }
-      return { ...d, extras: [...d.extras, ing] };
+      return { ...d, extras: [...(d.extras as any[]), ing] };
     }));
   };
 
@@ -850,7 +852,7 @@ export default function Orders() {
       if (singleSelectCategories.includes(catName)) {
         return { ...d, ingredients: { ...d.ingredients, [catName]: null } };
       }
-      return { ...d, extras: (d.extras as any[]).filter(ex => (ex as any).ingredient_ID !== ingId) };
+      return { ...d, extras: (d.extras as any[]).filter((ex: any) => (ex as any).ingredient_ID !== ingId) };
     }));
   };
 
@@ -858,8 +860,8 @@ export default function Orders() {
     setCart(prev => prev.filter(d => d.cart_id !== drinkId));
   };
 
-  const subtotal = cart.reduce((sum: number, d) => {
-    const drinkExtras = (d.extras as any[]).reduce((s: number, e) => s + (e as any).ingredient_cost, 0);
+  const subtotal = cart.reduce((sum: number, d: any) => {
+    const drinkExtras = (d.extras as any[]).reduce((s: number, e: any) => s + (e as any).ingredient_cost, 0);
     return sum + (d.item as any).item_cost + drinkExtras;
   }, 0);
   const tax = subtotal * 0.08;
@@ -885,7 +887,7 @@ export default function Orders() {
   // Only Packaging in Misc
   const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter(catName => {
     const list = groupedIngredients[catName];
-    return list[0] && list[0].ingredient_category_name === 'Packaging';
+    return list[0] && (list[0] as any).ingredient_category_name === 'Packaging';
   });
 
   return (
@@ -894,12 +896,12 @@ export default function Orders() {
       <div className="sidebar sidebar-left">
         <h2 className="section-title">Item Categories</h2>
         <div className="category-list">
-          {categories.map(c => (
+          {categories.map((c: any) => (
             <button key={c.category_id} onClick={() => setSelectedCategory(c.category_id)} className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}>
               {c.name}
             </button>
           ))}
-          {!categories.some(c => c.category_id === 7) && (
+          {!categories.some((c: any) => c.category_id === 7) && (
             <button onClick={() => setSelectedCategory(7)} className={`category-btn ${selectedCategory === 7 ? 'active' : ''}`}>
               Misc
             </button>
@@ -910,15 +912,15 @@ export default function Orders() {
       {/* MAIN CONTENT */}
       <div className="content">
         <CashierNavbar />
-        <h2 className="section-title">{categories.find(c => c.category_id === selectedCategory)?.name || 'Items'}</h2>
+        <h2 className="section-title">{categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items'}</h2>
 
         {selectedCategory === 7 ? (
           allowedMiscCategoryNames.map(catName => (
             <div key={catName} className="ingredient-group">
               <h3 className="ingredient-category-title">{catName}</h3>
               <div className="item-grid">
-                {groupedIngredients[catName].map(item => (
-                  <button key={(item as any).ingredient_ID} onClick={() => addIngredient(item)} className={`item-card ${cart.some(d => (d.extras as any[]).some(ex => (ex as any).ingredient_ID === (item as any).ingredient_ID)) ? 'selected' : ''}`}>
+                {groupedIngredients[catName].map((item: any) => (
+                  <button key={(item as any).ingredient_ID} onClick={() => addIngredient(item)} className={`item-card ${cart.some((d: any) => (d.extras as any[]).some((ex: any) => (ex as any).ingredient_ID === (item as any).ingredient_ID)) ? 'selected' : ''}`}>
                     <div className="thumb">
                       {(item as any).photo ? <img src={(item as any).photo} alt={(item as any).ingredient_name} className="thumb-img" /> : <span className="thumb-ph">No image</span>}
                     </div>
@@ -933,7 +935,7 @@ export default function Orders() {
             <p className="empty muted">No items found.</p>
           ) : (
             <div className="item-grid">
-              {filteredItems.map(item => (
+              {filteredItems.map((item: any) => (
                 <button key={item.item_id} onClick={() => addDrink(item)} className="item-card">
                   <div className="thumb">
                     {item.photo ? <img src={item.photo} alt={item.item_name} className="thumb-img" /> : <span className="thumb-ph">No image</span>}
@@ -953,7 +955,7 @@ export default function Orders() {
         {cart.length === 0 ? (
           <p className="empty muted">No items in cart</p>
         ) : (
-          cart.map(d => (
+          cart.map((d: any) => (
             <div key={d.cart_id} className="order-drink">
               <div className="order-drink-header">
                 <strong>{(d.item as any).item_name}</strong>
@@ -961,11 +963,16 @@ export default function Orders() {
               </div>
               <div className="order-ingredients">
                 {Object.entries(d.ingredients).map(([cat, ing]) =>
-                  ing ? <div key={cat} className="order-line"><span>{cat}: {(ing as any).ingredient_name}</span><button onClick={() => removeIngredient(d.cart_id, cat, (ing as any).ingredient_ID)}>×</button></div> : null
+                  ing ? (
+                    <div key={cat} className="order-line">
+                      <span>{cat}: {(ing as any).ingredient_name}</span>
+                      <button onClick={() => removeIngredient(d.cart_id, cat, (ing as any).ingredient_ID)}>×</button>
+                    </div>
+                  ) : null
                 )}
-                {(d.extras as any[]).map(e => (
+                {(d.extras as any[]).map((e: any) => (
                   <div key={(e as any).ingredient_ID} className="order-line">
-                    <span>{(e as any).ingredient_name} (+${(e as any).ingredient_cost})</span>
+                    <span>{(e as any).ingredient_name}{(e as any).ingredient_cost > 0 ? ` (+$${(e as any).ingredient_cost.toFixed(2)})` : ''}</span>
                     <button onClick={() => removeIngredient(d.cart_id, 'extras', (e as any).ingredient_ID)}>×</button>
                   </div>
                 ))}
@@ -988,12 +995,12 @@ export default function Orders() {
         <div className="checkout-popup" style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', backgroundColor:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center', zIndex:1000 }}>
           <div style={{ backgroundColor:'white', padding:'2rem', borderRadius:'8px', width:'500px', maxHeight:'80vh', overflowY:'auto' }}>
             <h3>Review Your Order</h3>
-            {cart.map(d => (
+            {cart.map((d: any) => (
               <div key={d.cart_id} style={{ borderBottom:'1px solid #ccc', paddingBottom:'0.5rem', marginBottom:'0.5rem' }}>
                 <strong>{(d.item as any).item_name}</strong> - ${(d.item as any).item_cost.toFixed(2)}
                 <div style={{ paddingLeft:'1rem', marginTop:'0.25rem' }}>
                   {Object.entries(d.ingredients).map(([cat, ing]) => ing ? <div key={cat}>{cat}: {(ing as any).ingredient_name}</div> : null)}
-                  {(d.extras as any[]).map(e => <div key={(e as any).ingredient_ID}>{(e as any).ingredient_name} (+${(e as any).ingredient_cost.toFixed(2)})</div>)}
+                  {(d.extras as any[]).map((e: any) => <div key={(e as any).ingredient_ID}>{(e as any).ingredient_name}{(e as any).ingredient_cost > 0 ? ` (+$${(e as any).ingredient_cost.toFixed(2)})` : ''}</div>)}
                 </div>
               </div>
             ))}
@@ -1010,7 +1017,7 @@ export default function Orders() {
         </div>
       )}
 
-      {/* --- Customization Popup with bubble selections --- */}
+      {/* --- Customization Popup --- */}
       {showCustomizationPopup && customizingDrink && (
         <div className="customization-popup" style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', backgroundColor:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center', zIndex:1000 }}>
           <div style={{ backgroundColor:'white', padding:'2rem', borderRadius:'8px', width:'500px', maxHeight:'80vh', overflowY:'auto' }}>
@@ -1035,9 +1042,6 @@ export default function Orders() {
           </div>
         </div>
       )}
-
-     
     </div>
   );
 }
-
