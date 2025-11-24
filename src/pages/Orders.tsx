@@ -754,8 +754,6 @@
 //   );
 // }
 
-
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -779,7 +777,6 @@ export default function Orders() {
         const c = await fetch(`${API_URL}/categories`).then(r => r.json());
         const i = await fetch(`${API_URL}/items`).then(r => r.json());
         const g = await fetch(`${API_URL}/ingredients`).then(r => r.json());
-
         setCategories(c);
         setItems(i);
         setIngredients(g);
@@ -988,7 +985,7 @@ export default function Orders() {
 
       {/* --- Checkout Popup --- */}
       {showCheckoutPopup && (
-        <div className="checkout-popup" style={{ position: 'fixed', top:0, left:0, width:'100vw', height:'100vh', backgroundColor:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center', zIndex:1000 }}>
+        <div className="checkout-popup" style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', backgroundColor:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center', zIndex:1000 }}>
           <div style={{ backgroundColor:'white', padding:'2rem', borderRadius:'8px', width:'500px', maxHeight:'80vh', overflowY:'auto' }}>
             <h3>Review Your Order</h3>
             {cart.map(d => (
@@ -1043,3 +1040,4 @@ export default function Orders() {
     </div>
   );
 }
+
