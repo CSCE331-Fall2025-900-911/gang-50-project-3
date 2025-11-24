@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import CashierNavbar from '../components/CashierNavbar';
+import KioskNavbar from '../components/KioskNavbar';
 
-export default function Orders() {
+export default function Kiosk() {
   const [categories, setCategories] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -9,14 +9,10 @@ export default function Orders() {
   const [error, setError] = useState<string | null>(null);
   const [_employeeId] = useState(1);
 
-  const API_URL = '/api';
-
-  console.log('API_URL =', API_URL);
-
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await fetch(`${API_URL}/categories`);
+        const res = await fetch(`/api/categories`);
         if (!res.ok) throw new Error('Failed to fetch categories');
         const data = await res.json();
         setCategories(data);
@@ -33,7 +29,7 @@ export default function Orders() {
   useEffect(() => {
     const loadItems = async () => {
       try {
-        const res = await fetch(`${API_URL}/items`);
+        const res = await fetch(`/api/items`);
         if (!res.ok) throw new Error('Failed to fetch items');
         const data = await res.json();
         setItems(data);
@@ -48,7 +44,7 @@ export default function Orders() {
    if (error) {
     return (
       <div className="error-screen">
-        <CashierNavbar />
+        <KioskNavbar />
         <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
           <h2>Something went wrong </h2>
           <p>{error}</p>
@@ -105,7 +101,7 @@ export default function Orders() {
 
       {/* menu items section */}
       <div className="content">
-        <CashierNavbar />
+        <KioskNavbar />
 
         <h2 className="section-title">{selectedCategoryName}</h2>
 
