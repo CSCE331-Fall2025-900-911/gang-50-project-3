@@ -1,3 +1,5 @@
+
+
 // import { useState, useEffect } from 'react';
 // import CashierNavbar from '../components/CashierNavbar';
 
@@ -46,6 +48,7 @@
 //     );
 //   }
 
+//   // Group ingredients by category
 //   const groupedIngredients: Record<string, any[]> = {};
 //   for (const ingRaw of ingredients) {
 //     const ing = ingRaw as any;
@@ -53,11 +56,11 @@
 //     if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
 //     groupedIngredients[catName].push(ing);
 //   }
-
 //   Object.keys(groupedIngredients).forEach(catName => {
 //     groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
 //   });
 
+//   // Filter normal items (exclude Misc category)
 //   const filteredItems = selectedCategory === 7
 //     ? []
 //     : items.filter((item: any) => item.category_id === selectedCategory);
@@ -132,7 +135,10 @@
 //     setCart(prev => prev.filter((d: any) => d.cart_id !== drinkId));
 //   };
 
-//   const subtotal = cart.reduce((sum: number, d: any) => sum + d.item.item_cost, 0);
+//   const subtotal = cart.reduce((sum: number, d: any) => {
+//     const drinkExtras = d.extras.reduce((s: number, e: any) => s + e.ingredient_cost, 0);
+//     return sum + d.item.item_cost + drinkExtras;
+//   }, 0);
 //   const tax = subtotal * 0.08;
 //   const total = subtotal + tax;
 
@@ -147,10 +153,23 @@
 //         <h2 className="section-title">Item Categories</h2>
 //         <div className="category-list">
 //           {categories.map((c: any) => (
-//             <button key={c.category_id} onClick={() => setSelectedCategory(c.category_id)} className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}>
+//             <button
+//               key={c.category_id}
+//               onClick={() => setSelectedCategory(c.category_id)}
+//               className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}
+//             >
 //               {c.name}
 //             </button>
 //           ))}
+//           {/* Ensure Misc category is clickable */}
+//           {!categories.some(c => c.category_id === 7) && (
+//             <button
+//               onClick={() => setSelectedCategory(7)}
+//               className={`category-btn ${selectedCategory === 7 ? 'active' : ''}`}
+//             >
+//               Misc
+//             </button>
+//           )}
 //         </div>
 //       </div>
 
@@ -173,7 +192,6 @@
 //                       )}
 //                     </div>
 //                     <h3 className="item-name">{item.ingredient_name}</h3>
-              
 //                   </button>
 //                 ))}
 //               </div>
@@ -248,17 +266,56 @@
 //           backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
 //         }}>
 //           <div className="checkout-content" style={{
-//             backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '400px', textAlign: 'center'
+//             backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
 //           }}>
-//             <h3 style={{ marginBottom: '1rem' }}>Confirm Order</h3>
-//             <button className="btn" onClick={() => { /* handle confirm logic */ setShowCheckoutPopup(false); }} style={{ marginRight: '1rem' }}>Confirm</button>
-//             <button className="btn" onClick={() => setShowCheckoutPopup(false)}>Cancel</button>
+//             <h3 style={{ marginBottom: '1rem' }}>Review Your Order</h3>
+
+//             {cart.map((d: any) => (
+//               <div key={d.cart_id} style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
+//                 <strong>{d.item.item_name}</strong> - ${d.item.item_cost.toFixed(2)}
+//                 <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
+//                   {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
+//                     ing ? (
+//                       <div key={cat}>
+//                         {cat}: {ing.ingredient_name}
+//                       </div>
+//                     ) : null
+//                   ))}
+//                   {d.extras.map((e: any) => (
+//                     <div key={e.ingredient_ID}>
+//                       {e.ingredient_name} (+${e.ingredient_cost.toFixed(2)})
+//                     </div>
+//                   ))}
+//                 </div>
+//               </div>
+//             ))}
+
+//             <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
+//               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+//                 <span>Subtotal:</span>
+//                 <span>${subtotal.toFixed(2)}</span>
+//               </div>
+//               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+//                 <span>Tax:</span>
+//                 <span>${tax.toFixed(2)}</span>
+//               </div>
+//               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+//                 <span>Total:</span>
+//                 <span>${total.toFixed(2)}</span>
+//               </div>
+//             </div>
+
+//             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+//               <button className="btn" onClick={() => { /* handle confirm logic */ setShowCheckoutPopup(false); }} style={{ marginRight: '1rem' }}>Confirm</button>
+//               <button className="btn" onClick={() => setShowCheckoutPopup(false)}>Cancel</button>
+//             </div>
 //           </div>
 //         </div>
 //       )}
 //     </div>
 //   );
 // }
+
 
 
 
@@ -415,23 +472,10 @@ export default function Orders() {
         <h2 className="section-title">Item Categories</h2>
         <div className="category-list">
           {categories.map((c: any) => (
-            <button
-              key={c.category_id}
-              onClick={() => setSelectedCategory(c.category_id)}
-              className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}
-            >
+            <button key={c.category_id} onClick={() => setSelectedCategory(c.category_id)} className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}>
               {c.name}
             </button>
           ))}
-          {/* Ensure Misc category is clickable */}
-          {!categories.some(c => c.category_id === 7) && (
-            <button
-              onClick={() => setSelectedCategory(7)}
-              className={`category-btn ${selectedCategory === 7 ? 'active' : ''}`}
-            >
-              Misc
-            </button>
-          )}
         </div>
       </div>
 
@@ -440,6 +484,7 @@ export default function Orders() {
         <h2 className="section-title">{categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items'}</h2>
 
         {selectedCategory === 7 ? (
+          // Render Misc ingredients grouped by category
           allowedMiscCategoryNames.map((catName: string) => (
             <div key={catName} className="ingredient-group">
               <h3 className="ingredient-category-title">{catName}</h3>
@@ -460,6 +505,7 @@ export default function Orders() {
             </div>
           ))
         ) : (
+          // Render normal items
           filteredItems.length === 0 ? (
             <p className="empty muted">No items found.</p>
           ) : (
@@ -532,25 +578,29 @@ export default function Orders() {
           }}>
             <h3 style={{ marginBottom: '1rem' }}>Review Your Order</h3>
 
-            {cart.map((d: any) => (
-              <div key={d.cart_id} style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
-                <strong>{d.item.item_name}</strong> - ${d.item.item_cost.toFixed(2)}
-                <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
-                  {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
-                    ing ? (
-                      <div key={cat}>
-                        {cat}: {ing.ingredient_name}
+            {cart.map((d: any) => {
+              const drinkSubtotal = d.item.item_cost + d.extras.reduce((sum: number, e: any) => sum + e.ingredient_cost, 0);
+              return (
+                <div key={d.cart_id} style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
+                  <strong>{d.item.item_name}</strong> - ${d.item.item_cost.toFixed(2)}
+                  <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
+                    {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
+                      ing ? (
+                        <div key={cat}>
+                          {cat}: {ing.ingredient_name}
+                        </div>
+                      ) : null
+                    ))}
+                    {d.extras.map((e: any) => (
+                      <div key={e.ingredient_ID}>
+                        {e.ingredient_name} (+${e.ingredient_cost.toFixed(2)})
                       </div>
-                    ) : null
-                  ))}
-                  {d.extras.map((e: any) => (
-                    <div key={e.ingredient_ID}>
-                      {e.ingredient_name} (+${e.ingredient_cost.toFixed(2)})
-                    </div>
-                  ))}
+                    ))}
+                    <div style={{ fontWeight: 'bold', marginTop: '0.25rem' }}>Drink Subtotal: ${drinkSubtotal.toFixed(2)}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
