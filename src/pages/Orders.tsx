@@ -1,5 +1,6 @@
 
 
+
 // import { useState, useEffect } from 'react';
 // import CashierNavbar from '../components/CashierNavbar';
 
@@ -11,6 +12,8 @@
 //   const [cart, setCart] = useState<any[]>([]);
 //   const [error, setError] = useState<string | null>(null);
 //   const [showCheckoutPopup, setShowCheckoutPopup] = useState(false);
+//   const [showCustomizationPopup, setShowCustomizationPopup] = useState(false);
+//   const [customizingDrink, setCustomizingDrink] = useState<any | null>(null);
 
 //   const API_URL = '/api';
 //   const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
@@ -65,24 +68,26 @@
 //     ? []
 //     : items.filter((item: any) => item.category_id === selectedCategory);
 
+//   // Add drink and open customization popup
 //   const addDrink = (item: any) => {
-//     setCart(prev => [
-//       ...prev,
-//       {
-//         cart_id: Date.now(),
-//         item,
-//         quantity: 1,
-//         ingredients: {
-//           Milk: null,
-//           'Ice Level': null,
-//           Sizes: null,
-//           'Sweetness Level': null,
-//         },
-//         extras: [] as any[],
+//     const newDrink = {
+//       cart_id: Date.now(),
+//       item,
+//       quantity: 1,
+//       ingredients: {
+//         Milk: null,
+//         'Ice Level': null,
+//         Sizes: null,
+//         'Sweetness Level': null,
 //       },
-//     ]);
+//       extras: [] as any[],
+//     };
+//     setCart(prev => [...prev, newDrink]);
+//     setCustomizingDrink(newDrink);
+//     setShowCustomizationPopup(true);
 //   };
 
+//   // Add ingredient to last drink
 //   const addIngredient = (ingRaw: any) => {
 //     const ing = ingRaw as any;
 //     const lastDrink = [...cart].reverse().find((d: any) => d.item);
@@ -110,6 +115,7 @@
 //     }));
 //   };
 
+//   // Remove ingredient
 //   const removeIngredient = (drinkId: any, catName: any, ingId: any) => {
 //     setCart(prev => prev.map((d: any) => {
 //       if (d.cart_id !== drinkId) return d;
@@ -147,8 +153,33 @@
 //     return list[0] && miscIngredientCategoryIds.includes(list[0].category_id);
 //   });
 
+//   // --- Customization Handlers ---
+//   const setCustomizationOption = (category: string, ing: any) => {
+//     if (!customizingDrink) return;
+//     setCustomizingDrink({
+//       ...customizingDrink,
+//       ingredients: {
+//         ...customizingDrink.ingredients,
+//         [category]: ing,
+//       },
+//     });
+//   };
+
+//   const confirmCustomization = () => {
+//     if (!customizingDrink) return;
+//     setCart(prev => prev.map(d => d.cart_id === customizingDrink.cart_id ? customizingDrink : d));
+//     setCustomizingDrink(null);
+//     setShowCustomizationPopup(false);
+//   };
+
+//   const cancelCustomization = () => {
+//     setCustomizingDrink(null);
+//     setShowCustomizationPopup(false);
+//   };
+
 //   return (
 //     <div className="orders-layout">
+//       {/* LEFT SIDEBAR */}
 //       <div className="sidebar sidebar-left">
 //         <h2 className="section-title">Item Categories</h2>
 //         <div className="category-list">
@@ -161,7 +192,6 @@
 //               {c.name}
 //             </button>
 //           ))}
-//           {/* Ensure Misc category is clickable */}
 //           {!categories.some(c => c.category_id === 7) && (
 //             <button
 //               onClick={() => setSelectedCategory(7)}
@@ -173,6 +203,7 @@
 //         </div>
 //       </div>
 
+//       {/* MAIN CONTENT */}
 //       <div className="content">
 //         <CashierNavbar />
 //         <h2 className="section-title">{categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items'}</h2>
@@ -180,7 +211,7 @@
 //         {selectedCategory === 7 ? (
 //           allowedMiscCategoryNames.map((catName: string) => (
 //             <div key={catName} className="ingredient-group">
-//               <h3 className="ingredient-category-title">Misc</h3>
+//               <h3 className="ingredient-category-title">{catName}</h3>
 //               <div className="item-grid">
 //                 {groupedIngredients[catName].map((item: any) => (
 //                   <button key={item.ingredient_ID} onClick={() => addIngredient(item)} className={`item-card ${cart.some((d: any) => d.extras.some((ex: any) => ex.ingredient_ID === item.ingredient_ID)) ? 'selected' : ''}`}>
@@ -220,6 +251,7 @@
 //         )}
 //       </div>
 
+//       {/* RIGHT SIDEBAR / CART */}
 //       <div className="sidebar sidebar-right">
 //         <h2 className="order-title">Current Order</h2>
 //         {cart.length === 0 ? (
@@ -260,6 +292,7 @@
 //         <button disabled={cart.length === 0} className="btn btn-checkout" onClick={() => setShowCheckoutPopup(true)}>Checkout</button>
 //       </div>
 
+//       {/* --- Checkout Popup --- */}
 //       {showCheckoutPopup && (
 //         <div className="checkout-popup" style={{
 //           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
@@ -312,6 +345,40 @@
 //           </div>
 //         </div>
 //       )}
+
+//       {/* --- Customization Popup --- */}
+//       {showCustomizationPopup && customizingDrink && (
+//         <div className="customization-popup" style={{
+//           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+//           backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
+//         }}>
+//           <div style={{
+//             backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
+//           }}>
+//             <h3 style={{ marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
+//             {singleSelectCategories.map(cat => (
+//               <div key={cat} style={{ marginBottom: '1rem' }}>
+//                 <h4>{cat}</h4>
+//                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+//                   {groupedIngredients[cat]?.map((ing: any) => (
+//                     <button
+//                       key={ing.ingredient_ID}
+//                       onClick={() => setCustomizationOption(cat, ing)}
+//                       className={`btn ${customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? 'selected' : ''}`}
+//                     >
+//                       {ing.ingredient_name}
+//                     </button>
+//                   ))}
+//                 </div>
+//               </div>
+//             ))}
+//             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+//               <button className="btn" onClick={confirmCustomization} style={{ marginRight: '1rem' }}>Confirm</button>
+//               <button className="btn" onClick={cancelCustomization}>Cancel</button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
 //     </div>
 //   );
 // }
@@ -334,7 +401,7 @@ export default function Orders() {
 
   const API_URL = '/api';
   const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
-  const miscIngredientCategoryIds = [1, 3, 6, 7, 8];
+  const miscIngredientCategoryIds = [7]; // Only Packaging
 
   useEffect(() => {
     const load = async () => {
@@ -465,9 +532,10 @@ export default function Orders() {
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
+  // Only Packaging in Misc
   const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter((catName: string) => {
     const list = groupedIngredients[catName];
-    return list[0] && miscIngredientCategoryIds.includes(list[0].category_id);
+    return list[0] && list[0].ingredient_category_name === 'Packaging';
   });
 
   // --- Customization Handlers ---
@@ -531,7 +599,11 @@ export default function Orders() {
               <h3 className="ingredient-category-title">{catName}</h3>
               <div className="item-grid">
                 {groupedIngredients[catName].map((item: any) => (
-                  <button key={item.ingredient_ID} onClick={() => addIngredient(item)} className={`item-card ${cart.some((d: any) => d.extras.some((ex: any) => ex.ingredient_ID === item.ingredient_ID)) ? 'selected' : ''}`}>
+                  <button
+                    key={item.ingredient_ID}
+                    onClick={() => addIngredient(item)}
+                    className={`item-card ${cart.some((d: any) => d.extras.some((ex: any) => ex.ingredient_ID === item.ingredient_ID)) ? 'selected' : ''}`}
+                  >
                     <div className="thumb">
                       {item.photo ? (
                         <img src={item.photo} alt={item.ingredient_name} className="thumb-img" />
@@ -625,38 +697,23 @@ export default function Orders() {
                 <strong>{d.item.item_name}</strong> - ${d.item.item_cost.toFixed(2)}
                 <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
                   {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
-                    ing ? (
-                      <div key={cat}>
-                        {cat}: {ing.ingredient_name}
-                      </div>
-                    ) : null
+                    ing ? <div key={cat}>{cat}: {ing.ingredient_name}</div> : null
                   ))}
                   {d.extras.map((e: any) => (
-                    <div key={e.ingredient_ID}>
-                      {e.ingredient_name} (+${e.ingredient_cost.toFixed(2)})
-                    </div>
+                    <div key={e.ingredient_ID}>{e.ingredient_name} (+${e.ingredient_cost.toFixed(2)})</div>
                   ))}
                 </div>
               </div>
             ))}
 
             <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Subtotal:</span>
-                <span>${subtotal.toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Tax:</span>
-                <span>${tax.toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-                <span>Total:</span>
-                <span>${total.toFixed(2)}</span>
-              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Tax:</span><span>${tax.toFixed(2)}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}><span>Total:</span><span>${total.toFixed(2)}</span></div>
             </div>
 
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-              <button className="btn" onClick={() => { /* handle confirm logic */ setShowCheckoutPopup(false); }} style={{ marginRight: '1rem' }}>Confirm</button>
+              <button className="btn" onClick={() => { setShowCheckoutPopup(false); }} style={{ marginRight: '1rem' }}>Confirm</button>
               <button className="btn" onClick={() => setShowCheckoutPopup(false)}>Cancel</button>
             </div>
           </div>
