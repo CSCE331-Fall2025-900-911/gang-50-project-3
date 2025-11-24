@@ -287,6 +287,7 @@
 
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
+import '../App.css';
 
 export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
