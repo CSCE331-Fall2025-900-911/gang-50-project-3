@@ -67,7 +67,7 @@ export default function UpdateMenu() {
                     setViewData("Action successful!");
                 else
                 {
-                    parsedArray.forEach(item => {
+                    data.forEach(item => {
                       console.log(item.name);
                     });
                 }
