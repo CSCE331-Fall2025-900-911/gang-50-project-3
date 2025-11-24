@@ -753,7 +753,6 @@
 //     </div>
 //   );
 // }
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -867,14 +866,20 @@ export default function Orders() {
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
+  // Update customization for single-select categories
   const setCustomizationOption = (category: string, ing: any) => {
     if (!customizingDrink) return;
-    setCustomizingDrink({ ...customizingDrink, ingredients: { ...customizingDrink.ingredients, [category]: ing } });
+    const updatedDrink = {
+      ...customizingDrink,
+      ingredients: { ...customizingDrink.ingredients, [category]: ing }
+    };
+    setCustomizingDrink(updatedDrink);
+
+    // Immediately update cart so cart & checkout popup reflect selected option
+    setCart(prev => prev.map(d => d.cart_id === updatedDrink.cart_id ? updatedDrink : d));
   };
 
   const confirmCustomization = () => {
-    if (!customizingDrink) return;
-    setCart(prev => prev.map(d => d.cart_id === customizingDrink.cart_id ? customizingDrink : d));
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
   };
@@ -884,7 +889,6 @@ export default function Orders() {
     setShowCustomizationPopup(false);
   };
 
-  // Only Packaging in Misc
   const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter(catName => {
     const list = groupedIngredients[catName];
     return list[0] && (list[0] as any).ingredient_category_name === 'Packaging';
@@ -949,7 +953,7 @@ export default function Orders() {
         )}
       </div>
 
-      {/* RIGHT SIDEBAR / CART */}
+      {/* CART */}
       <div className="sidebar sidebar-right">
         <h2 className="order-title">Current Order</h2>
         {cart.length === 0 ? (
@@ -990,7 +994,7 @@ export default function Orders() {
         <button disabled={cart.length === 0} className="btn btn-checkout" onClick={() => setShowCheckoutPopup(true)}>Checkout</button>
       </div>
 
-      {/* --- Checkout Popup --- */}
+      {/* Checkout Popup */}
       {showCheckoutPopup && (
         <div className="checkout-popup" style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', backgroundColor:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center', zIndex:1000 }}>
           <div style={{ backgroundColor:'white', padding:'2rem', borderRadius:'8px', width:'500px', maxHeight:'80vh', overflowY:'auto' }}>
@@ -1017,7 +1021,7 @@ export default function Orders() {
         </div>
       )}
 
-      {/* --- Customization Popup --- */}
+      {/* Customization Popup */}
       {showCustomizationPopup && customizingDrink && (
         <div className="customization-popup" style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', backgroundColor:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center', zIndex:1000 }}>
           <div style={{ backgroundColor:'white', padding:'2rem', borderRadius:'8px', width:'500px', maxHeight:'80vh', overflowY:'auto' }}>
@@ -1045,3 +1049,4 @@ export default function Orders() {
     </div>
   );
 }
+
