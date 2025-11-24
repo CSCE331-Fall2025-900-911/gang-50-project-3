@@ -97,13 +97,14 @@ nav {
   gap: 25px;
 }
 
-.pageItem p {
+.pageItem p,a {
+  color: black; 
   font-size: 18px;
   font-weight: 500;
   transition: transform 0.2s; 
 }
 
-.pageItem p:hover {
+.pageItem p:hover, .pageItem a:hover {
   transform: scale(1.05); 
   cursor: pointer; 
   color: #CF152D;

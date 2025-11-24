@@ -1,21 +1,11 @@
-export default function ManagerNavbar() {
+export default function KioskNavbar() {
   return (
     <nav>
-      <div className="leftSideNav">
-        <div>
-          <img className="navLogo" src="/sharetealogo.png" alt="Share Tea Logo"/>
-        </div>
-        <div className="pageItem">
-          <p>Analytics</p>
-          <p>Items</p>
-          <a href="/UpdateMenu">Employees</a>
-          <p>Inventory</p>
-        </div>
+      <div className="ShareTeaLogo">
+        <img className="navLogo" src="/sharetealogo.png" alt="Share Tea Logo"/>
       </div>
 
-
       <div className="pages">
-
         <div className="navItem">
           <img className="navIcon" src="/Sun.svg" alt="Weather" />
           <p>72° F</p>
@@ -27,7 +17,7 @@ export default function ManagerNavbar() {
         </div>
 
         <div className="navItem">
-          <button className="logout">Logout</button>
+          <button className="logout">Cancel Order</button>
         </div>
       </div>
     </nav>
