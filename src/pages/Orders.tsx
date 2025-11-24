@@ -354,8 +354,16 @@ export default function Orders() {
                       key={ing.ingredient_ID}
                       onClick={() => setCustomizationOption(cat, ing)}
                       className={`btn ${customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? 'selected' : ''}`}
+                       style={{
+                  border: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '2px solid black' : '1px solid #ccc',
+                  backgroundColor: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '#f0f0f0' : '#fff',
+                  padding: '0.5rem 1rem',
+                  cursor: 'pointer',
+                  borderRadius: '4px'
+                }}
                     >
                       {ing.ingredient_name}
+                      
                     </button>
                   ))}
                 </div>
