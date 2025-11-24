@@ -331,7 +331,7 @@ export default function Orders() {
 
   const API_URL = '/api';
   const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
-  const miscIngredientCategoryIds = [ 6];
+  const miscIngredientCategoryIds = [1, 3, 6, 7, 8];
 
   useEffect(() => {
     const load = async () => {
@@ -470,10 +470,23 @@ export default function Orders() {
         <h2 className="section-title">Item Categories</h2>
         <div className="category-list">
           {categories.map((c: any) => (
-            <button key={c.category_id} onClick={() => setSelectedCategory(c.category_id)} className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}>
+            <button
+              key={c.category_id}
+              onClick={() => setSelectedCategory(c.category_id)}
+              className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}
+            >
               {c.name}
             </button>
           ))}
+          {/* Ensure Misc category is clickable */}
+          {!categories.some(c => c.category_id === 7) && (
+            <button
+              onClick={() => setSelectedCategory(7)}
+              className={`category-btn ${selectedCategory === 7 ? 'active' : ''}`}
+            >
+              Misc
+            </button>
+          )}
         </div>
       </div>
 
@@ -482,7 +495,6 @@ export default function Orders() {
         <h2 className="section-title">{categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items'}</h2>
 
         {selectedCategory === 7 ? (
-          // Render Misc ingredients grouped by category
           allowedMiscCategoryNames.map((catName: string) => (
             <div key={catName} className="ingredient-group">
               <h3 className="ingredient-category-title">{catName}</h3>
@@ -503,7 +515,6 @@ export default function Orders() {
             </div>
           ))
         ) : (
-          // Render normal items
           filteredItems.length === 0 ? (
             <p className="empty muted">No items found.</p>
           ) : (
@@ -576,29 +587,25 @@ export default function Orders() {
           }}>
             <h3 style={{ marginBottom: '1rem' }}>Review Your Order</h3>
 
-            {cart.map((d: any) => {
-              const drinkSubtotal = d.item.item_cost + d.extras.reduce((sum: number, e: any) => sum + e.ingredient_cost, 0);
-              return (
-                <div key={d.cart_id} style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
-                  <strong>{d.item.item_name}</strong> - ${d.item.item_cost.toFixed(2)}
-                  <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
-                    {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
-                      ing ? (
-                        <div key={cat}>
-                          {cat}: {ing.ingredient_name}
-                        </div>
-                      ) : null
-                    ))}
-                    {d.extras.map((e: any) => (
-                      <div key={e.ingredient_ID}>
-                        {e.ingredient_name} (+${e.ingredient_cost.toFixed(2)})
+            {cart.map((d: any) => (
+              <div key={d.cart_id} style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
+                <strong>{d.item.item_name}</strong> - ${d.item.item_cost.toFixed(2)}
+                <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
+                  {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
+                    ing ? (
+                      <div key={cat}>
+                        {cat}: {ing.ingredient_name}
                       </div>
-                    ))}
-                    <div style={{ fontWeight: 'bold', marginTop: '0.25rem' }}>Drink Subtotal: ${drinkSubtotal.toFixed(2)}</div>
-                  </div>
+                    ) : null
+                  ))}
+                  {d.extras.map((e: any) => (
+                    <div key={e.ingredient_ID}>
+                      {e.ingredient_name} (+${e.ingredient_cost.toFixed(2)})
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
+              </div>
+            ))}
 
             <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
