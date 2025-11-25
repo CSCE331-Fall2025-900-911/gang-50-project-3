@@ -1,5 +1,5 @@
 import { useState, useRef, useLayoutEffect, useEffect } from 'react'
-import CashierNavbar from '../components/CashierNavbar'
+import ManagerNavbar from '../components/ManagerNavbar'
 
 export default function Employee() {
   const [employeeId, setEmployeeId] = useState('')
@@ -132,7 +132,7 @@ export default function Employee() {
     <div className="min-h-screen bg-white text-gray-900">
 
       <nav ref={headerRef as any} className="cashier-nav fixed top-0 left-0 right-0 z-50">
-        <CashierNavbar />
+        <ManagerNavbar />
       </nav>
 
       <main style={{ paddingTop: headerH }} className="p-6 max-w-7xl mx-auto overflow-y-auto">
