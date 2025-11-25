@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
-import { useNavigate } from 'react-router-dom';
+
 
 export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -12,7 +12,7 @@ export default function Orders() {
   const [showCheckoutPopup, setShowCheckoutPopup] = useState(false);
   const [showCustomizationPopup, setShowCustomizationPopup] = useState(false);
   const [customizingDrink, setCustomizingDrink] = useState<any | null>(null);
-  const navigate = useNavigate(); 
+  
 
   const API_URL = '/api';
   const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
@@ -338,8 +338,7 @@ export default function Orders() {
                     alert("Thank you for your order! Have a nice day.");
                     setCart([]);
                     setShowCheckoutPopup(false);
-                    // Redirect to login page
-                        navigate("/login");
+                   
                   }
                 }}
                 style={{ marginRight: '1rem' }}
