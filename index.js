@@ -215,7 +215,114 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
-// Start server
+  // Fetch employee data
+  app.get('/api/employees', async (req, res) => {
+    try {
+      const result = await pool.query(
+        'SELECT employee_id, first_name, last_name, ismanager FROM Employee ORDER BY first_name'
+      );
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching employees:', err);
+      res.status(500).json({ error: 'Failed to fetch employees' });
+    }
+  });
+
+  // Create employee
+  app.post('/api/employees', async (req, res) => {
+    try {
+      const { employee_id, first_name, last_name, ismanager } = req.body;
+
+      const result = await pool.query(
+        `INSERT INTO Employee (employee_id, first_name, last_name, ismanager)
+        VALUES ($1, $2, $3, $4)
+        RETURNING employee_id, first_name, last_name, ismanager`,
+        [employee_id, first_name, last_name, ismanager]
+      );
+
+      res.json(result.rows[0]);
+    } catch (err) {
+      console.error('Error creating employee:', err);
+      res.status(500).json({ error: 'Failed to create employee' });
+    }
+  });
+
+  // Delete employee
+  app.delete('/api/employees/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      await pool.query(`DELETE FROM Employee WHERE employee_id = $1`, [id]);
+
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Error deleting employee:', err);
+      res.status(500).json({ error: 'Failed to delete employee' });
+    }
+  });
+
+  // Update employee
+  app.patch('/api/employees/:id/manager', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { ismanager } = req.body;
+
+      const result = await pool.query(
+        `UPDATE Employee
+        SET ismanager = $1
+        WHERE employee_id = $2
+        RETURNING employee_id, first_name, last_name, ismanager`,
+        [ismanager, id]
+      );
+
+      res.json(result.rows[0]);
+    } catch (err) {
+      console.error('Error updating manager status:', err);
+      res.status(500).json({ error: 'Failed to update manager status' });
+    }
+  });
+
+  app.get('/api/updatemenu/viewitemdata/:itemId', async (req, res) => {
+    try {
+      const { itemId } = req.params;
+      const result = await pool.query(`SELECT * FROM Item WHERE item_ID = $1;`, [itemId]);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching item data:', err);
+      res.status(500).json({ error: 'Failed to get item data' });
+    }
+  });
+
+  app.get('/api/updatemenu/updateitemprice/:itemId/:itemPrice', async (req, res) => {
+    try {
+      const { itemId, itemPrice } = req.params;
+      const result = await pool.query(`UPDATE Item SET item_cost = $1 WHERE item_ID = $2;`, [itemPrice, itemId]);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching item data:', err);
+      res.status(500).json({ error: 'Failed to get item data' });
+    }
+  });
+
+  app.get('/api/updatemenu/createnewitem/:newItemName/:newItemId/:newItemPrice/:newItemIsAvailable/:newItemSizes/:newItemPhotoPath/:newItemIsSeasonal/:newItemSeasonalTimeBegin/:newItemSeasonalTimeEnd', async (req, res) => {
+    try {
+      const { newItemName, newItemId, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd,  } = req.params;
+      const result = await pool.query(`INSERT INTO Item (item_ID, item_name, item_cost, in_stock, size_options, photo, seasonal_item, seasonal_item_beginning_time, seasonal_item_ending_time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
+      [newItemId, newItemName, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd]);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching item data:', err);
+      res.status(500).json({ error: 'Failed to get item data' });
+    }
+  });
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'API route not found' });
+  }
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${port}`);
 });

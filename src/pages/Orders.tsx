@@ -352,6 +352,7 @@ export default function Orders() {
         </div>
       )}
 
+<<<<<<< HEAD
       {/* --- Customization Popup --- */}
       {showCustomizationPopup && customizingDrink && (
         <div className="customization-popup" style={{
@@ -385,6 +386,12 @@ export default function Orders() {
           </div>
         </div>
       )}
+=======
+        <button disabled={cart.length === 0} className="btn btn-checkout">
+          Checkout
+        </button>
+      </div>
+>>>>>>> main
     </div>
   );
 }

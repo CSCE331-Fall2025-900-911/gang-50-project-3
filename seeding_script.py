@@ -90,7 +90,7 @@ base_menu = [
 # === Menu categories ===
 menu_categories = [
     "Milk Tea", "Fresh Brew", "Fruity Beverages", "Special Items",
-    "Matcha Series", "Ice Blended", "Misc" 
+    "Matcha Series", "Ice Blended",
 ]
 
 # Map drink -> category
@@ -244,7 +244,7 @@ print(f"employees.csv: {len(employees)} rows")
 # Menu Items (UPDATED with category_id)
 # ----------------------------
 menu_items = []
-default_item_category = "Misc"
+default_item_category = "Special Items"
 export_menu = base_menu[:delta_menu_items]  # respect delta_menu_items
 
 for i, name in enumerate(export_menu, start=1):
