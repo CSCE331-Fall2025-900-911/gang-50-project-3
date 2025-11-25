@@ -7,8 +7,8 @@ export default function ManagerNavbar() {
         </div>
         <div className="pageItem">
           <p>Analytics</p>
-          <p>Items</p>
-          <a href="/UpdateMenu">Employees</a>
+          <a href="/UpdateMenu">Items</a>
+          <a href="/Employee">Employees</a>
           <p>Inventory</p>
         </div>
       </div>
