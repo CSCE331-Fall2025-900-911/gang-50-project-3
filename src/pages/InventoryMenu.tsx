@@ -55,7 +55,7 @@ export default function UpdateMenu() {
 
       if (!res.ok) {
         setViewData(
-          `Error ${res.status}\n${raw || "Failed to fetch item data"}`
+          `Error ${res.status}\n${raw || "Failed to fetch ingredient data"}`
         );
         return;
       }
@@ -212,14 +212,14 @@ export default function UpdateMenu() {
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
               <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>View Ingedient Data</h2>
               <form onSubmit={handleViewSubmit} className="space-y-3 flex-1">
-                <label htmlFor="viewItemDataField" className="label-updateMenu" style={{ color: "#000000" }}>Ingredient ID: </label>
+                <label htmlFor="viewItemDataField" className="label-updateMenu" style={{ color: "#000000" }}>Ingredient Name: </label>
                 <input
                   id="viewItemDataField"
                   className={inputBase}
-                  placeholder="Ingredient ID"
+                  placeholder="Ingredient Name"
                   style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                  value={viewIngredientId}
-                  onChange={(e) => setViewIngredientId(e.target.value)}
+                  value={viewIngredientName}
+                  onChange={(e) => setViewIngredientName(e.target.value)}
                 />
                 <div className="mt-auto pt-2">
                   <button id="viewDataSubmitButton" type="submit" className="btn-updateMenu">
