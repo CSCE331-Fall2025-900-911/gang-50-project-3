@@ -316,6 +316,17 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
+  app.get('/api/inventorypage/viewingredientdata/:ingredientName', async (req, res) => {
+    try {
+      const { ingredientName } = req.params;
+      const result = await pool.query(`SELECT * FROM ingredient WHERE ingredient_name = $1;`, [ingredientName]);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching ingedient data:', err);
+      res.status(500).json({ error: 'Failed to get ingedient data' });
+    }
+  });
+
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API route not found' });
