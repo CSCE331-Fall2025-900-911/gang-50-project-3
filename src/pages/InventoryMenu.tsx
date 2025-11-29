@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
 import ManagerNavbar from "../components/ManagerNavbar";
 
 export default function UpdateMenu() {
-  const [viewItemId, setViewItemId] = useState("");
+  const [viewIngredientId, setViewIngredientId] = useState("");
   const [viewData, setViewData] = useState("");
   const [updateItemId, setUpdateItemId] = useState("");
   const [updatePrice, setUpdatePrice] = useState("");
@@ -45,7 +45,7 @@ export default function UpdateMenu() {
     e?.preventDefault();
     const trimmed = viewItemId.trim();
     if (!trimmed) {
-      setViewData("Please enter a valid item ID.");
+      setViewData("Please enter a valid ingredient ID.");
       return;
     }
 
@@ -214,16 +214,16 @@ export default function UpdateMenu() {
         <div className="mx-auto max-w-6xl p-6">
           <div className="update-menu-grid">
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-              <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>View Item Data</h2>
+              <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>View Ingedient Data</h2>
               <form onSubmit={handleViewSubmit} className="space-y-3 flex-1">
-                <label htmlFor="viewItemDataField" className="label-updateMenu" style={{ color: "#000000" }}>Item ID: </label>
+                <label htmlFor="viewItemDataField" className="label-updateMenu" style={{ color: "#000000" }}>Ingredient ID: </label>
                 <input
                   id="viewItemDataField"
                   className={inputBase}
-                  placeholder="Item ID"
+                  placeholder="Ingredient ID"
                   style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                  value={viewItemId}
-                  onChange={(e) => setViewItemId(e.target.value)}
+                  value={viewIngredientId}
+                  onChange={(e) => setViewIngredientId(e.target.value)}
                 />
                 <div className="mt-auto pt-2">
                   <button id="viewDataSubmitButton" type="submit" className="btn-updateMenu">
