@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
 import ManagerNavbar from "../components/ManagerNavbar";
 
 export default function UpdateMenu() {
-  const [viewIngredientId, setViewIngredientId] = useState("");
+  const [viewIngredientName, setViewIngredientName] = useState("");
   const [viewData, setViewData] = useState("");
   const [updateItemId, setUpdateItemId] = useState("");
   const [updatePrice, setUpdatePrice] = useState("");
@@ -43,14 +43,14 @@ export default function UpdateMenu() {
 
   const handleViewSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    const trimmed = viewItemId.trim();
+    const trimmed = viewIngredientName.trim();
     if (!trimmed) {
-      setViewData("Please enter a valid ingredient ID.");
+      setViewData("Please enter a valid ingredient name.");
       return;
     }
-
+  ///api/inventorypage/viewingredientdata/:ingredientName
     try {
-      const res = await fetch(`${API_URL}/updatemenu/viewitemdata/${encodeURIComponent(trimmed)}`);
+      const res = await fetch(`${API_URL}/inventorypage/viewingredientdata/${encodeURIComponent(trimmed)}`);
       const raw = await res.text();
 
       if (!res.ok) {
@@ -66,20 +66,16 @@ export default function UpdateMenu() {
         if (stringVersion == "[]")
           setViewData("Result is empty!");
         else {
-          const out = data.map((item: any) => {
+          const out = data.map((ingredient: any) => {
               return [
-                `Item ID: ${item.item_id}`,
-                `Name: ${item.item_name}`,
-                `Cost: $${item.item_cost}`,
-                `In stock: ${item.in_stock ? "Yes" : "No"}`,
-                `Sizes: ${item.size_options}`,
-                `Photo: ${item.photo}`,
-                `Seasonal: ${item.seasonal_item ? "Yes" : "No"}`,
-                item.seasonal_item ? `  From: ${item.seasonal_item_beginning_time}` : "",
-                item.seasonal_item ? `  To:   ${item.seasonal_item_ending_time}` : "",
-                `Category ID: ${item.category_id}`,
+                `Ingredient ID: ${ingredient.ingredient_ID}`,
+                `Name: ${ingredient.ingredient_name}`,
+                `Supply Level: $${ingredient.supply_level}`,
+                `Expiration Date: ${ingredient.expiration_date}`,
+                `Cost: ${ingredient.ingredient_cost}`,
+                `Vendor: ${ingredient.vendor}`,
               ]
-                .filter(Boolean)         // drop empty lines
+                .filter(Boolean)
                 .join("\n");
             })
           setViewData(out);
