@@ -92,11 +92,11 @@ export default function UpdateMenu() {
     const targetSupply = ingredientSupply.trim();
     const targetVendor = ingredientVendor.trim();
     var targetExpirationDate = ingredientExpirationDate.trim() + " 00:00:00";
-    /*if (!targetName || !targetID || !targetPrice || !targetSizes || !targetPhoto || !targetSeasonalStart || !targetSeasonalEnd) {
+    if (!targetName || !targetID || !targetPrice || !targetSupply || !targetVendor || !targetExpirationDate) {
       setViewData("Verify all information is valid.");
       return;
     }
-
+    /*
     const idNum = Number(targetID);
     if (!Number.isInteger(idNum) || idNum <= 0) {
       setViewData("Item ID must be a positive whole number.");
