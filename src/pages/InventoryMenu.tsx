@@ -96,26 +96,15 @@ export default function UpdateMenu() {
       setViewData("Verify all information is valid.");
       return;
     }
-    /*
-    const idNum = Number(targetID);
-    if (!Number.isInteger(idNum) || idNum <= 0) {
-      setViewData("Item ID must be a positive whole number.");
-      return;
-    }
 
-    const priceNum = Number(targetPrice);
-    if (!Number.isFinite(priceNum) || priceNum < 0) {
-      setViewData("Price must be a non-negative number.");
-      return;
-    }
+    const submitter = (e?.nativeEvent as any).submitter;
+    const action = submitter?.value; // "add" or "update"
 
-    if (!targetSeasonal) {
-      targetSeasonalStart = "1970-01-01 00:00:01";
-      targetSeasonalEnd = "1970-01-01 00:00:01";
-    }
-
-    try {
-      const res = await fetch(`${API_URL}/updatemenu/createnewitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}`);
+    if(action == "add")
+    {
+      ///api/inventorypage/createnewingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor
+      try {
+      const res = await fetch(`${API_URL}/inventorypage/createnewingredient/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetSupply)}/${encodeURIComponent(targetExpirationDate)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetVendor)})}`);
       const raw = await res.text();
 
       if (!res.ok) {
@@ -138,6 +127,25 @@ export default function UpdateMenu() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setViewData(`Something happend!! -> : ${message}`);
+      }
+    }
+    
+    
+    /*const idNum = Number(targetID);
+    if (!Number.isInteger(idNum) || idNum <= 0) {
+      setViewData("Item ID must be a positive whole number.");
+      return;
+    }
+
+    const priceNum = Number(targetPrice);
+    if (!Number.isFinite(priceNum) || priceNum < 0) {
+      setViewData("Price must be a non-negative number.");
+      return;
+    }
+
+    if (!targetSeasonal) {
+      targetSeasonalStart = "1970-01-01 00:00:01";
+      targetSeasonalEnd = "1970-01-01 00:00:01";
     }*/
   };
 
@@ -251,10 +259,10 @@ export default function UpdateMenu() {
                   />
                 </div>
                 <div className="mt-auto flex items-center gap-2 pt-2">
-                  <button type="submit" className="btn-updateMenu">Add</button>
+                  <button type="submit" value="add" className="btn-updateMenu">Add</button>
                 </div>
                 <div className="mt-auto flex items-center gap-2 pt-2">
-                  <button type="submit" className="btn-updateMenu">Update</button>
+                  <button type="submit" value="update" className="btn-updateMenu">Update</button>
                 </div>
               </form>
             </section>
