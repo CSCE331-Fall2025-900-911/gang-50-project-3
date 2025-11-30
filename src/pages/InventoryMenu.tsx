@@ -4,15 +4,12 @@ import ManagerNavbar from "../components/ManagerNavbar";
 export default function UpdateMenu() {
   const [viewIngredientName, setViewIngredientName] = useState("");
   const [viewData, setViewData] = useState("");
-  const [itemNewName, setItemNewName] = useState("");
-  const [itemNewID, setItemNewID] = useState("");
-  const [itemNewPrice, setItemNewPrice] = useState("");
-  const [itemIsAvailable, setItemIsAvailable] = useState(false);
-  const [itemSizes, setItemSizes] = useState("");
-  const [itemPhotoPath, setItemPhotoPath] = useState("");
-  const [itemIsSeasonal, setItemIsSeasonal] = useState(false);
-  const [itemSeasonalTimeBegin, setItemIsSeasonalTimeBegin] = useState("");
-  const [itemSeasonalTimeEnd, setItemIsSeasonalTimeEnd] = useState("");
+  const [ingredientNewName, setIngredientNewName] = useState("");
+  const [ingredientNewID, setIngredientNewID] = useState("");
+  const [ingredientNewPrice, setIngredientNewPrice] = useState("");
+  const [ingredientSupply, setIngredientSupply] = useState(false);
+  const [ingredientExpirationDate, setIngredientExpirationDate] = useState("");
+  const [ingredientVendor, setIngredientVendor] = useState("");
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerH, setHeaderH] = useState(64);
 
@@ -66,11 +63,11 @@ export default function UpdateMenu() {
         else {
           const out = data.map((ingredient: any) => {
               return [
-                `Ingredient ID: ${ingredient.ingredient_ID}`,
+                `Ingredient ID: ${ingredient.ingredient_id}`,
                 `Name: ${ingredient.ingredient_name}`,
-                `Supply Level: $${ingredient.supply_level}`,
+                `Supply Level: ${ingredient.supply_level}`,
                 `Expiration Date: ${ingredient.expiration_date}`,
-                `Cost: ${ingredient.ingredient_cost}`,
+                `Cost: $${ingredient.ingredient_cost}`,
                 `Vendor: ${ingredient.vendor}`,
               ]
                 .filter(Boolean)
@@ -87,7 +84,7 @@ export default function UpdateMenu() {
     }
   };
 
-  const handleAddItem = async (e?: React.FormEvent) => {
+  const handleAddIngredient = async (e?: React.FormEvent) => {
     e?.preventDefault();
     const targetName = itemNewName.trim();
     const targetID = itemNewID.trim();
@@ -188,109 +185,79 @@ export default function UpdateMenu() {
             </section>
 
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-              <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>Add Item</h2>
-              <form onSubmit={handleAddItem} className="grid grid-cols-1 gap-4 flex-1">
+              <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>Add/Update Ingredient</h2>
+              <form onSubmit={handleAddIngredient} className="grid grid-cols-1 gap-4 flex-1">
                 <div>
-                  <label htmlFor="itemNewName" className="label-updateMenu" style={{ color: "#000000" }}>Name: </label>
+                  <label htmlFor="ingredientNewName" className="label-updateMenu" style={{ color: "#000000" }}>Name: </label>
                   <input
-                    id="itemNewName"
+                    id="ingredientNewName"
                     className={inputBase}
                     placeholder="Name"
                     style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                    value={itemNewName}
-                    onChange={(e) => setItemNewName(e.target.value)}
+                    value={ingredientNewName}
+                    onChange={(e) => setIngredientNewName(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label htmlFor="itemNewID" className="label-updateMenu" style={{ color: "#000000" }}>Item ID: </label>
+                  <label htmlFor="ingredientNewID" className="label-updateMenu" style={{ color: "#000000" }}>Ingredient ID: </label>
                   <input
-                    id="itemNewID"
+                    id="ingredientNewID"
                     className={inputBase}
                     placeholder="ID"
                     style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                    value={itemNewID}
-                    onChange={(e) => setItemNewID(e.target.value)}
+                    value={ingredientNewID}
+                    onChange={(e) => setIngredientNewID(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label htmlFor="itemNewPrice" className="label-updateMenu" style={{ color: "#000000" }}>Price: </label>
+                  <label htmlFor="ingredientSupply" className="label-updateMenu" style={{ color: "#000000" }}>Supply: </label>
                   <input
-                    id="itemNewPrice"
+                    id="ingredientSupply"
                     className={inputBase}
                     style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
                     placeholder="0.00"
-                    value={itemNewPrice}
-                    onChange={(e) => setItemNewPrice(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    id="itemIsAvailable"
-                    type="checkbox"
-                    checked={itemIsAvailable}
-                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                    onChange={(e) => setItemIsAvailable(e.target.checked)}
-                    className="h-4 w-4"
-                  />
-                  <label htmlFor="itemIsAvailable" className="label-updateMenu" style={{ color: "#000000" }}>In stock: </label>
-                </div>
-                <div>
-                  <label htmlFor="itemSizes" className="label-updateMenu" style={{ color: "#000000" }}>Sizes: </label>
-                  <input
-                    id="itemSizes"
-                    className={inputBase}
-                    placeholder="S/M/L"
-                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                    value={itemSizes}
-                    onChange={(e) => setItemSizes(e.target.value)}
+                    value={ingredientSupply}
+                    onChange={(e) => setIngredientSupply(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label htmlFor="itemPhotoPath" className="label-updateMenu" style={{ color: "#000000" }}>Photo: </label>
+                  <label htmlFor="ingredientExpirationDate" className="label-updateMenu" style={{ color: "#000000" }}>Expiration Date: </label>
                   <input
-                    id="itemPhotoPath"
-                    className={inputBase}
-                    placeholder="/tmp/photo"
-                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                    value={itemPhotoPath}
-                    onChange={(e) => setItemPhotoPath(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    id="itemIsSeasonal"
-                    type="checkbox"
-                    checked={itemIsSeasonal}
-                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                    onChange={(e) => setItemIsSeasonal(e.target.checked)}
-                    className="h-4 w-4"
-                  />
-                  <label htmlFor="isSeasonal" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal item: </label>
-                </div>
-                <div>
-                  <label htmlFor="itemSeasonalTimeBegin" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal time begin: </label>
-                  <input
-                    id="itemSeasonalTimeBegin"
+                    id="ingredientExpirationDate"
                     className={inputBase}
                     placeholder="YYYY-MM-DD"
                     style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                    value={itemSeasonalTimeBegin}
-                    onChange={(e) => setItemIsSeasonalTimeBegin(e.target.value)}
+                    value={ingredientExpirationDate}
+                    onChange={(e) => setIngredientExpirationDate(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label htmlFor="itemSeasonalTimeEnd" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal time end: </label>
+                  <label htmlFor="ingredientNewPrice" className="label-updateMenu" style={{ color: "#000000" }}>Cost: </label>
                   <input
-                    id="itemSeasonalTimeEnd"
+                    id="ingredientNewPrice"
                     className={inputBase}
-                    placeholder="YYYY-MM-DD"
+                    placeholder="0"
                     style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                    value={itemSeasonalTimeEnd}
-                    onChange={(e) => setItemIsSeasonalTimeEnd(e.target.value)}
+                    value={ingredientNewPrice}
+                    onChange={(e) => setIngredientNewPrice(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="ingredientVendor" className="label-updateMenu" style={{ color: "#000000" }}>Vendor: </label>
+                  <input
+                    id="ingredientVendor"
+                    className={inputBase}
+                    placeholder="Vendor Name"
+                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
+                    value={ingredientVendor}
+                    onChange={(e) => setIngredientVendor(e.target.value)}
                   />
                 </div>
                 <div className="mt-auto flex items-center gap-2 pt-2">
                   <button type="submit" className="btn-updateMenu">Add</button>
+                </div>
+                <div className="mt-auto flex items-center gap-2 pt-2">
+                  <button type="submit" className="btn-updateMenu">Update</button>
                 </div>
               </form>
             </section>
