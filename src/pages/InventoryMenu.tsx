@@ -230,35 +230,7 @@ export default function UpdateMenu() {
             </section>
 
             <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-              <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>Update Price</h2>
-              <form onSubmit={handleUpdatePrice} className="space-y-3 flex-1">
-                <div>
-                  <label htmlFor="updateItemId" className="label-updateMenu" style={{ color: "#000000" }}>Item ID: </label>
-                  <input
-                    id="updateItemId"
-                    className={inputBase}
-                    placeholder="Item ID"
-                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                    value={updateItemId}
-                    onChange={(e) => setUpdateItemId(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="updatePrice" className="label-updateMenu" style={{ color: "#000000" }}>New Price: </label>
-                  <input
-                    id="updatePrice"
-                    className={inputBase}
-                    placeholder="0.00"
-                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                    value={updatePrice}
-                    onChange={(e) => setUpdatePrice(e.target.value)}
-                  />
-                </div>
-                <div className="mt-auto pt-2">
-                  <button type="submit" className="btn-updateMenu">Update</button>
-                </div>
-              </form>
-              <h2 className="mb-2 text-base font-semibold text-center text-black" style={{ color: "#000000" }}>Data Output</h2>
+              <h2 className="mb-2 text-base font-semibold text-center text-black" style={{ color: "#000000" }}>Output</h2>
               <textarea
                 id="viewDataTextArea"
                 className="w-full resize-none rounded-xl border border-gray-300 p-3"
