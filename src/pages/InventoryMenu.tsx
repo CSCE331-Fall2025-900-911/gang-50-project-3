@@ -86,16 +86,13 @@ export default function UpdateMenu() {
 
   const handleAddIngredient = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    const targetName = itemNewName.trim();
-    const targetID = itemNewID.trim();
-    const targetPrice = itemNewPrice.trim();
-    const targetAvailability = itemIsAvailable;
-    const targetSizes = itemSizes.trim();
-    const targetPhoto = itemPhotoPath.trim();
-    const targetSeasonal = itemIsSeasonal;
-    var targetSeasonalStart = itemSeasonalTimeBegin.trim() + " 00:00:00";
-    var targetSeasonalEnd = itemSeasonalTimeEnd.trim() + " 00:00:00";
-    if (!targetName || !targetID || !targetPrice || !targetSizes || !targetPhoto || !targetSeasonalStart || !targetSeasonalEnd) {
+    const targetName = ingredientNewName.trim();
+    const targetID = ingredientNewID.trim();
+    const targetPrice = ingredientNewPrice.trim();
+    const targetSupply = ingredientSupply.trim();
+    const targetVendor = ingredientVendor.trim();
+    var targetExpirationDate = ingredientExpirationDate.trim() + " 00:00:00";
+    /*if (!targetName || !targetID || !targetPrice || !targetSizes || !targetPhoto || !targetSeasonalStart || !targetSeasonalEnd) {
       setViewData("Verify all information is valid.");
       return;
     }
@@ -141,7 +138,7 @@ export default function UpdateMenu() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setViewData(`Something happend!! -> : ${message}`);
-    }
+    }*/
   };
 
   return (
