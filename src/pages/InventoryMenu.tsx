@@ -136,7 +136,7 @@ export default function UpdateMenu() {
       return;
       }
 
-      const res = await fetch(`${API_URL}/inventorypage/viewingredientdata/${encodeURIComponent(trimmed)}`);
+      const res = await fetch(`${API_URL}/inventorypage/viewingredientdata/${encodeURIComponent(targetName)}`);
       const raw = await res.text();
 
       if (!res.ok) {
