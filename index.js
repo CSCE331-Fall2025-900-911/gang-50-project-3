@@ -327,6 +327,18 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
+  app.get('/api/inventorypage/createnewingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor', async (req, res) => {
+    try {
+      const { newIngredientId, newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor } = req.params;
+      const result = await pool.query(`INSERT INTO ingredient (ingredient_id, ingredient_name, supply_level, expiration_date, ingredient_cost, vendor) VALUES ($1, $2, $3, $4, $5, $6)`,
+      [newIngredientId, newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor]);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching item data:', err);
+      res.status(500).json({ error: 'Failed to get item data' });
+    }
+  });
+
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API route not found' });
