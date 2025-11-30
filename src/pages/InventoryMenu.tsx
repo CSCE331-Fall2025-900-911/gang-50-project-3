@@ -147,6 +147,7 @@ export default function UpdateMenu() {
       }
       var ids;
       try {
+      try {
         const data = JSON.parse(raw);
         const stringVersion = JSON.stringify(data, null, 2)
         if (stringVersion == "[]")
