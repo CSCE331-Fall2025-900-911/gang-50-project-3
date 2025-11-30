@@ -4,8 +4,6 @@ import ManagerNavbar from "../components/ManagerNavbar";
 export default function UpdateMenu() {
   const [viewIngredientName, setViewIngredientName] = useState("");
   const [viewData, setViewData] = useState("");
-  const [updateItemId, setUpdateItemId] = useState("");
-  const [updatePrice, setUpdatePrice] = useState("");
   const [itemNewName, setItemNewName] = useState("");
   const [itemNewID, setItemNewID] = useState("");
   const [itemNewPrice, setItemNewPrice] = useState("");
@@ -89,57 +87,6 @@ export default function UpdateMenu() {
     }
   };
 
-  const handleUpdatePrice = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const targetID = updateItemId.trim();
-    const targetPrice = updatePrice.trim();
-    if (!targetID) {
-      setViewData("Please enter a valid item ID.");
-      return;
-    }
-    if (!targetPrice) {
-      setViewData("Please enter a valid item price.");
-      return;
-    }
-
-    const idNum = Number(targetID);
-    if (!Number.isInteger(idNum) || idNum <= 0) {
-      setViewData("Item ID must be a positive whole number.");
-      return;
-    }
-
-    const priceNum = Number(targetPrice);
-    if (!Number.isFinite(priceNum) || priceNum < 0) {
-      setViewData("Price must be a non-negative number.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_URL}/updatemenu/updateitemprice/${encodeURIComponent(idNum)}/${encodeURIComponent(priceNum)}`);
-      const raw = await res.text();
-
-      if (!res.ok) {
-        setViewData(
-          `Error ${res.status}\n${raw || "Failed to fetch item data"}`
-        );
-        return;
-      }
-
-      try {
-        const data = JSON.parse(raw);
-        const stringVersion = JSON.stringify(data, null, 2)
-        if (stringVersion == "[]")
-          setViewData("Action successful!");
-        else
-          setViewData(stringVersion);
-      } catch {
-        setViewData(`Non-JSON response from server:\n${raw}`);
-      }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      setViewData(`Something happend!! -> : ${message}`);
-    }
-  };
   const handleAddItem = async (e?: React.FormEvent) => {
     e?.preventDefault();
     const targetName = itemNewName.trim();
