@@ -154,6 +154,7 @@ export default function UpdateMenu() {
         else {
           ids = data.map((ingredient: any) => ingredient);
           setViewData(ids);
+        }
       } catch {
         setViewData(`Non-JSON response from server:\n${raw}`);
       }
