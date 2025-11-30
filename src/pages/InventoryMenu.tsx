@@ -7,7 +7,7 @@ export default function UpdateMenu() {
   const [ingredientNewName, setIngredientNewName] = useState("");
   const [ingredientNewID, setIngredientNewID] = useState("");
   const [ingredientNewPrice, setIngredientNewPrice] = useState("");
-  const [ingredientSupply, setIngredientSupply] = useState(false);
+  const [ingredientSupply, setIngredientSupply] = useState("");
   const [ingredientExpirationDate, setIngredientExpirationDate] = useState("");
   const [ingredientVendor, setIngredientVendor] = useState("");
   const headerRef = useRef<HTMLElement | null>(null);
