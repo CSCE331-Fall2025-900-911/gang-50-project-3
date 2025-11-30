@@ -92,19 +92,19 @@ export default function UpdateMenu() {
     const targetSupply = ingredientSupply.trim();
     const targetVendor = ingredientVendor.trim();
     var targetExpirationDate = ingredientExpirationDate.trim() + " 00:00:00";
-    if (!targetName || !targetID || !targetPrice || !targetSupply || !targetVendor || !targetExpirationDate) {
-      setViewData("Verify all information is valid.");
-      return;
-    }
 
     const submitter = (e?.nativeEvent as any).submitter;
     const action = submitter?.value; // "add" or "update"
 
     if(action == "add")
     {
+      if (!targetName || !targetID || !targetPrice || !targetSupply || !targetVendor || !targetExpirationDate) {
+      setViewData("Verify all information is valid.");
+      return;
+      }
       ///api/inventorypage/createnewingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor
       try {
-      const res = await fetch(`${API_URL}/inventorypage/createnewingredient/${encodeURIComponent(targetID)}/${encodeURIComponent(targetName)}/${encodeURIComponent(targetSupply)}/${encodeURIComponent(targetExpirationDate)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetVendor)})}`);
+      const res = await fetch(`${API_URL}/inventorypage/createnewingredient/${encodeURIComponent(targetID)}/${encodeURIComponent(targetName)}/${encodeURIComponent(targetSupply)}/${encodeURIComponent(targetExpirationDate)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetVendor)}`);
       const raw = await res.text();
 
       if (!res.ok) {
@@ -128,6 +128,41 @@ export default function UpdateMenu() {
       const message = err instanceof Error ? err.message : String(err);
       setViewData(`Something happend!! -> : ${message}`);
       }
+    }
+    if(action == "update")
+    {
+      if (!targetName) {
+      setViewData("Verify all information is valid.");
+      return;
+      }
+
+      const res = await fetch(`${API_URL}/inventorypage/viewingredientdata/${encodeURIComponent(trimmed)}`);
+      const raw = await res.text();
+
+      if (!res.ok) {
+        setViewData(
+          `Error ${res.status}\n${raw || "Failed to fetch ingredient data"}`
+        );
+        return;
+      }
+      var ids;
+      try {
+        const data = JSON.parse(raw);
+        const stringVersion = JSON.stringify(data, null, 2)
+        if (stringVersion == "[]")
+          setViewData("Result is empty!");
+        else {
+          ids = data.map((ingredient: any) => ingredient);
+          setViewData(ids);
+      } catch {
+        setViewData(`Non-JSON response from server:\n${raw}`);
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setViewData(`Something happend!! -> : ${message}`);
+    }
+
+      
     }
     
     
