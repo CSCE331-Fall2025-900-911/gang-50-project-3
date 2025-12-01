@@ -4,8 +4,8 @@ import ManagerNavbar from "../components/ManagerNavbar";
 export default function UpdateMenu() {
     const [viewItemId, setViewItemId] = useState("");
     const [viewData, setViewData] = useState("");
-    const [updateItemId, setUpdateItemId] = useState("");
-    const [updatePrice, setUpdatePrice] = useState("");
+    //const [updateItemId, setUpdateItemId] = useState("");
+    //const [updatePrice, setUpdatePrice] = useState("");
     const [itemNewName, setItemNewName] = useState("");
     const [itemNewID, setItemNewID] = useState("");
     const [itemNewPrice, setItemNewPrice] = useState("");
@@ -93,7 +93,7 @@ export default function UpdateMenu() {
         }
     };
 
-    const handleUpdatePrice = async (e?: React.FormEvent) => {
+    /*const handleUpdatePrice = async (e?: React.FormEvent) => {
         e?.preventDefault();
         const targetID = updateItemId.trim();
         const targetPrice = updatePrice.trim();
@@ -143,7 +143,7 @@ export default function UpdateMenu() {
             const message = err instanceof Error ? err.message : String(err);
             setViewData(`Something happend!! -> : ${message}`);
         }
-    };
+    };*/
     const handleAddItem = async (e?: React.FormEvent) => {
         e?.preventDefault();
         var targetName = itemNewName.trim();
