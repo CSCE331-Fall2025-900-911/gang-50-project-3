@@ -178,7 +178,7 @@ export default function UpdateMenu() {
 
             ///api/inventorypage/updateingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor
             try {
-                const res = await fetch(`${API_URL}/inventorypage/createnewingredient/${encodeURIComponent(targetID)}/${encodeURIComponent(targetName)}/${encodeURIComponent(targetSupply)}/${encodeURIComponent(targetExpirationDate)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetVendor)}`);
+                const res = await fetch(`${API_URL}/inventorypage/updateingredient/${encodeURIComponent(targetID)}/${encodeURIComponent(targetName)}/${encodeURIComponent(targetSupply)}/${encodeURIComponent(targetExpirationDate)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetVendor)}`);
                 const raw = await res.text();
 
                 if (!res.ok) {
