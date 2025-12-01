@@ -428,7 +428,7 @@ return (
                                     type="checkbox"
                                     checked={itemIsAvailable}
                                     style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    onChange={(e) => setItemIsAvailable(e.target.checked); setItemIsAvailableTouched(true);}
+                                    onChange={(e) => {setItemIsAvailable(e.target.checked); setItemIsAvailableTouched(true);}}
                                     className="h-4 w-4"
                                 />
                                 <label htmlFor="itemIsAvailable" className="label-updateMenu" style={{ color: "#000000" }}>In stock: </label>
@@ -461,7 +461,7 @@ return (
                                     type="checkbox"
                                     checked={itemIsSeasonal}
                                     style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    onChange={(e) => setItemIsSeasonal(e.target.checked); setItemIsSeasonalTouched(true);}
+                                    onChange={(e) => {setItemIsSeasonal(e.target.checked); setItemIsSeasonalTouched(true);}}
                                     className="h-4 w-4"
                                 />
                                 <label htmlFor="isSeasonal" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal item: </label>
