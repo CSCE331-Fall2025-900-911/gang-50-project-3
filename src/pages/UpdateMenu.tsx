@@ -162,6 +162,12 @@ export default function UpdateMenu() {
         const submitter = (e?.nativeEvent as any).submitter;
         const action = submitter?.value;
 
+        if(!targetID)
+        {
+            setViewData("Missing target item id!");
+            return;
+        }
+
         if (action == "add") {
             if (!targetName || !targetID || !targetPrice || !targetSizes || !targetPhoto || !targetSeasonalStart || !targetSeasonalEnd) {
                 setViewData("Verify all information is valid.");
