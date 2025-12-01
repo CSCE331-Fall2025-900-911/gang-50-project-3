@@ -86,11 +86,11 @@ export default function UpdateMenu() {
 
     const handleAddIngredient = async (e?: React.FormEvent) => {
         e?.preventDefault();
-        const targetName = ingredientNewName.trim();
-        const targetID = ingredientNewID.trim();
-        const targetPrice = ingredientNewPrice.trim();
-        const targetSupply = ingredientSupply.trim();
-        const targetVendor = ingredientVendor.trim();
+        var targetName = ingredientNewName.trim();
+        var targetID = ingredientNewID.trim();
+        var targetPrice = ingredientNewPrice.trim();
+        var targetSupply = ingredientSupply.trim();
+        var targetVendor = ingredientVendor.trim();
         var targetExpirationDate = ingredientExpirationDate.trim() + " 00:00:00";
 
         const submitter = (e?.nativeEvent as any).submitter;
@@ -211,13 +211,11 @@ export default function UpdateMenu() {
                 } catch {
                     setViewData(`Non-JSON response from server:\n${raw}`);
                 }
-            }
-    catch (err: unknown) {
+            } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : String(err);
                     setViewData(`Something happend!! -> : ${message}`);
                 }
             }
-    }
     };
 
     return (
