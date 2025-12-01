@@ -351,6 +351,17 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
+  app.get('/api/inventorypage/deleteingredient/:ingredientId', async (req, res) => {
+    try {
+      const { ingredientId } = req.params;
+      const result = await pool.query(`DELETE FROM ingredient WHERE ingredient_id = $1;`, [ingredientId]);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching ingedient data:', err);
+      res.status(500).json({ error: 'Failed to get ingedient data' });
+    }
+  });
+
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API route not found' });
