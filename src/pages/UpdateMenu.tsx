@@ -70,7 +70,7 @@ export default function UpdateMenu() {
                 else {
                     const out = data.map((item: any) => {
                         return [
-                            `Pulled Data:`,
+                            `Pulled Data -->`,
                             `Item ID: ${item.item_id}`,
                             `Name: ${item.item_name}`,
                             `Cost: $${item.item_cost}`,
@@ -270,7 +270,10 @@ export default function UpdateMenu() {
                 targetSeasonal = ids[0].seasonal_item;
 
             if(!ids[0].seasonal_item)
+            {
+                console.log("setting to false...");
                 targetSeasonal = false;
+            }
 
             console.log(targetName);
             console.log(targetPrice);
@@ -300,7 +303,7 @@ export default function UpdateMenu() {
                     else {
                         const out = data.map((item: any) => {
                             return [
-                            `Updated Item:`,
+                            `Updated Item -->`,
                             `Item ID: ${item.item_id}`,
                             `Name: ${item.item_name}`,
                             `Cost: $${item.item_cost}`,
