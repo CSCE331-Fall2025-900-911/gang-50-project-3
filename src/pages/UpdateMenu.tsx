@@ -249,17 +249,27 @@ export default function UpdateMenu() {
                 targetPhoto = ids[0].photo;
             if(!targetSeasonalStart || targetSeasonalStart == " 00:00:00")
                 targetSeasonalStart = ids[0].seasonal_item_beginning_time;
+            if(!ids[0].seasonal_item_beginning_time)
+                targetSeasonalStart = "1970-01-01 00:00:01";
             if(!targetSeasonalEnd || targetSeasonalEnd == " 00:00:00")
                 targetSeasonalEnd = ids[0].seasonal_item_ending_time;
+            if(!ids[0].seasonal_item_ending_time)
+               targetSeasonalEnd = "1970-01-01 00:00:01";
             if (itemIsAvailableTouched)
                 targetAvailability = itemIsAvailable;
             else
                 targetAvailability = ids[0].in_stock;
+
+            if(!ids[0].in_stock)
+                targetAvailability = false;
             
             if (itemIsSeasonalTouched)
                 targetSeasonal = itemIsSeasonal;
             else
                 targetSeasonal = ids[0].seasonal_item;
+
+            if(!ids[0].seasonal_item)
+                targetSeasonal = false;
 
             console.log(targetName);
             console.log(targetPrice);
