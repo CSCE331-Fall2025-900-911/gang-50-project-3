@@ -152,7 +152,6 @@ export default function UpdateMenu() {
                         setViewData("Result is empty!");
                     else {
                         ids = data.map((ingredient: any) => ingredient);
-                        setViewData(ids);
                     }
                 } catch {
                     setViewData(`Non-JSON response from server:\n${raw}`);
@@ -161,10 +160,6 @@ export default function UpdateMenu() {
                 const message = err instanceof Error ? err.message : String(err);
                 setViewData(`Something happend!! -> : ${message}`);
             }
-
-
-
-
             if (!targetID)
                 targetID = ids[0].ingredient_id;
             if (!targetPrice)
