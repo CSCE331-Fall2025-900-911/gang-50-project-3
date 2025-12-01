@@ -241,18 +241,23 @@ export default function UpdateMenu() {
                 targetName = ids[0].item_name;
             if (!targetPrice)
                 targetPrice = ids[0].item_cost;
-            if (!targetAvailability)
-                targetAvailability = ids[0].in_stock;
             if (!targetSizes)
                 targetSizes = ids[0].size_options;
             if (!targetPhoto)// || targetExpirationDate == " 00:00:00")
                 targetPhoto = ids[0].photo;
-            if(!targetSeasonal)
-                targetSeasonal = ids[0].seasonal_item;
             if(!targetSeasonalStart || targetSeasonalStart == " 00:00:00")
                 targetSeasonalStart = ids[0].seasonal_item_beginning_time;
             if(!targetSeasonalEnd || targetSeasonalEnd == " 00:00:00")
                 targetSeasonalEnd = ids[0].seasonal_item_ending_time;
+
+            console.log(targetName);
+            console.log(targetPrice);
+            console.log(targetSizes);
+            console.log(targetAvailability);
+            console.log(targetPhoto);
+            console.log(targetSeasonal);
+            console.log(targetSeasonalStart);
+            console.log(targetSeasonalEnd);
           
             try {
                 const res = await fetch(`${API_URL}/updatemenu/updateitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}`);
