@@ -1,31 +1,34 @@
 import React from 'react';
 import './MenuBoard.css';
 
-// Placeholder data - you would fetch this from your API
 const menuData = {
   milkySeries: [
-    { name: 'Classic Pearl Milk Tea', new: false },
-    { name: 'Honey Pearl Milk Tea', new: false },
-    { name: 'Coffee Creama', new: false },
-    { name: 'Coffee Milk Tea w/ Coffee Jelly', new: false },
-    { name: 'Hokkaido Pearl Milk Tea', new: false },
-    { name: 'Thai Pearl Milk Tea', new: false },
-    { name: 'Taro Pearl Milk Tea', new: false },
-    { name: 'Mango Green Milk Tea', new: false },
-    { name: 'Golden Retriever', new: true },
+    { name: 'Brown Sugar Boba', new: false },
+    { name: 'Caramel Milk Tea', new: false },
+    { name: 'Chocolate Milk Tea', new: false },
+    { name: 'Coffee Milk Tea', new: false },
+    { name: 'Hazelnut Latte', new: false },
+    { name: 'Thai Milk Tea', new: false },
+    { name: 'Taro Milk Tea', new: false },
+    { name: 'Honeydew Milk Tea', new: false },
+    { name: 'Rose Milk Tea', new: false },
+    { name: 'Vanilla Milk Tea', new: false },
+    { name: 'Wintermelon Milk Tea', new: false },
   ],
+
   freshBrew: [
     { name: 'Classic Tea', description: '(Black/Green/Oolong Tea)', new: false },
     { name: 'Honey Tea', description: '(Black/Green/Oolong Tea)', new: false },
+    { name: 'Oolong Tea', new: false },
   ],
+
   fruityBeverage: [
-    { name: 'Mango Green Tea', new: false },
-    { name: 'Passion Chess', new: true },
-    { name: 'Berry Lychee Burst', new: true },
-    { name: 'Peach Tea w/ Honey Jelly', description: '(Black/Green/Oolong Tea)', new: false },
-    { name: 'Mango & Passion Fruit Tea', new: false },
-    { name: 'Honeylemonade', new: true },
+    { name: 'Pinapple Green Tea', new: false },
+    { name: 'Lychee Jasmine', new: false },
+    { name: 'Peach Oolong', new: false },
+    { name: 'Passion Fruit Tea', new: false },
   ],
+
   nonCaffeinated: [
     { name: 'Tiger Boba', new: true },
     { name: 'Strawberry Coconut', new: true },
@@ -36,74 +39,76 @@ const menuData = {
     { name: 'Wintermelon Lemonade Ice Blended', new: true },
     { name: 'Wintermelon w/ Fresh Milk', new: true },
   ],
+
   newMatchaSeries: [
     { name: 'Matcha Pearl Milk Tea', new: false },
     { name: 'Matcha Fresh Milk', new: false },
     { name: 'Strawberry Matcha Fresh Milk', new: false },
-    { name: 'Mango Matcha Fresh Milk', new: false },
     { name: 'Matcha Ice Blended', new: false },
   ],
+
   iceBlended: [
     { name: 'Oreo w/ Pearl', new: false },
     { name: 'Taro w/ Pudding', new: false },
     { name: 'Thai Tea w/ Pearl', new: false },
-    { name: 'Coffee w/ Ice Cream', new: false },
-    { name: 'Mango w/ Ice Cream', new: false },
-    { name: 'Strawberry w/ Lychee Jelly & Ice Cream', new: false },
-    { name: 'Peach Tea w/ Lychee Jelly', new: false },
-    { name: 'Lava Flow', new: true },
+    { name: 'Coffee w/ Pearl', new: false },
+    { name: 'Mango Slush', new: false },
+    { name: 'Strawberry Smoothie', new: false },
+  ],
+
+  LimitedEdition: [
+    { name: 'Eggnog', new: true },
+    { name: 'Peppermint Mocha', new: true },
+    { name: 'Gingerbread Shake', new: true },
   ],
 };
 
 const customizationOptions = {
   iceLevel: [
     { label: 'Regular', value: '100%' },
-    { label: 'Less', value: '80%' },
+    { label: 'Less', value: '50%' },
     { label: 'No Ice', value: '0%' },
   ],
+
   sweetnessLevel: [
-    { label: 'Normal', value: '100%' },
-    { label: 'Less', value: '80%' },
+    { label: 'Regular', value: '100%' },
+    { label: 'Less', value: '75%' },
     { label: 'Half', value: '50%' },
-    { label: 'Light', value: '30%' },
+    { label: 'Light', value: '25%' },
     { label: 'No Sugar', value: '0%' },
   ],
-  topping: [
-    { name: 'Pearls (Boba)' },
-    { name: 'Jelly' },
-    { name: 'Coffee Jelly' },
-    { name: 'Honey Jelly' },
-    { name: 'Crystal Boba' },
-    { name: 'Mango/Popping Boba' },
-    { name: 'Strawberry Popping Boba' },
-    { name: 'Ice Cream' },
-    { name: 'Creama' },
+
+  CupSizes: [
+    { label: 'Medium', value: 'M' },
+    { label: 'Large', value: 'L' },
+    { label: 'Small', value: 'S' },
+  ],
+
+  MilkOptions: [
+    { name: 'Whole Milk' },
+    { name: '2% Milk' },
+    { name: 'Non-Dairy Milk' },
   ],
 };
-
 
 export default function MenuBoard() {
   return (
     <div className="menu-board-container">
       <h1 className="menu-title">Menu Board</h1>
+
       <div className="menu-header-image">
-        {/* Placeholder for the main image with text "SWIRL INTO HAPPINESS" */}
-        <div className="header-text-overlay">
-          <p className="swirl-text">SWIRL INTO</p>
-          <p className="happiness-text">HAPPINESS</p>
-          <p className="tagline">THE FIRST AND BEST SIP</p>
-          <p className="taste-tagline">Taste the Joy!</p>
-        </div>
-        <img src="https://via.placeholder.com/300x700?text=Sharetea+Menu+Image" alt="Sharetea Menu Visual" className="main-menu-img" />
+        <img src="menu_image.png" alt="Sharetea Menu Visual" className="main-menu-img" />
+
         <div className="drink-overlay-strawberry">
-            <span className="new-tag">NEW</span>
-            <span className="drink-name-overlay">Strawberry Coconut</span>
-            <span className="drink-type-overlay">Ice Blended</span>
+          <span className="new-tag">NEW</span>
+          <span className="drink-name-overlay">Strawberry Coconut</span>
+          <span className="drink-type-overlay">Ice Blended</span>
         </div>
+
         <div className="drink-overlay-matcha">
-            <span className="new-tag">NEW</span>
-            <span className="drink-name-overlay">Matcha</span>
-            <span className="drink-type-overlay">Ice Blended</span>
+          <span className="new-tag">NEW</span>
+          <span className="drink-name-overlay">Matcha</span>
+          <span className="drink-type-overlay">Ice Blended</span>
         </div>
       </div>
 
@@ -136,6 +141,7 @@ export default function MenuBoard() {
             ))}
           </div>
         </div>
+
         <div className="customization-group">
           <span className="customization-label">SWEETNESS LEVEL</span>
           <div className="options-row">
@@ -147,20 +153,11 @@ export default function MenuBoard() {
             ))}
           </div>
         </div>
-        <div className="customization-group topping-group">
-          <span className="customization-label">TOPPING</span>
-          <div className="options-row">
-            {customizationOptions.topping.map((opt, index) => (
-              <span key={index} className="option-item-topping">{opt.name}</span>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
 }
 
-// Helper component for rendering a menu section
 const MenuSection: React.FC<{ title: string; items: any[] }> = ({ title, items }) => (
   <div className="menu-section">
     <h3 className="section-title">{title}</h3>
