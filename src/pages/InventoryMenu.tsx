@@ -160,8 +160,8 @@ export default function UpdateMenu() {
                 const message = err instanceof Error ? err.message : String(err);
                 setViewData(`Something happend!! -> : ${message}`);
             }
-            if (!targetID)
-                targetID = ids[0].ingredient_id;
+            if (!targetName)
+                targetName = ids[0].ingredient_name;
             if (!targetPrice)
                 targetPrice = ids[0].ingredient_cost;
             if (!targetSupply)
@@ -268,7 +268,7 @@ export default function UpdateMenu() {
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="ingredientNewID" className="label-updateMenu" style={{ color: "#000000" }}>Ingredient ID: </label>
+                                    <label htmlFor="ingredientNewID" className="label-updateMenu" style={{ color: "#000000" }}>Ingredient ID (Primary): </label>
                                     <input
                                         id="ingredientNewID"
                                         className={inputBase}
