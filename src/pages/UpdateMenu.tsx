@@ -15,6 +15,8 @@ export default function UpdateMenu() {
     const [itemIsSeasonal, setItemIsSeasonal] = useState(false);
     const [itemSeasonalTimeBegin, setItemIsSeasonalTimeBegin] = useState("");
     const [itemSeasonalTimeEnd, setItemIsSeasonalTimeEnd] = useState("");
+    const [itemIsAvailableTouched, setItemIsAvailableTouched] = useState(false);
+    const [itemIsSeasonalTouched, setItemIsSeasonalTouched] = useState(false);
     const headerRef = useRef<HTMLElement | null>(null);
     const [headerH, setHeaderH] = useState(64);
 
@@ -249,6 +251,15 @@ export default function UpdateMenu() {
                 targetSeasonalStart = ids[0].seasonal_item_beginning_time;
             if(!targetSeasonalEnd || targetSeasonalEnd == " 00:00:00")
                 targetSeasonalEnd = ids[0].seasonal_item_ending_time;
+            if (itemIsAvailableTouched)
+                targetAvailability = itemIsAvailable;
+            else
+                targetAvailability = ids[0].in_stock;
+            
+            if (itemIsSeasonalTouched)
+                targetSeasonal = itemIsSeasonal;
+            else
+                targetSeasonal = ids[0].seasonal_item;
 
             console.log(targetName);
             console.log(targetPrice);
@@ -417,7 +428,7 @@ return (
                                     type="checkbox"
                                     checked={itemIsAvailable}
                                     style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    onChange={(e) => setItemIsAvailable(e.target.checked)}
+                                    onChange={(e) => setItemIsAvailable(e.target.checked), setItemIsAvailableTouched(true)}
                                     className="h-4 w-4"
                                 />
                                 <label htmlFor="itemIsAvailable" className="label-updateMenu" style={{ color: "#000000" }}>In stock: </label>
@@ -450,7 +461,7 @@ return (
                                     type="checkbox"
                                     checked={itemIsSeasonal}
                                     style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    onChange={(e) => setItemIsSeasonal(e.target.checked)}
+                                    onChange={(e) => setItemIsSeasonal(e.target.checked), setItemIsSeasonalTouched(true)}
                                     className="h-4 w-4"
                                 />
                                 <label htmlFor="isSeasonal" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal item: </label>
