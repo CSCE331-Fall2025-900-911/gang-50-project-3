@@ -173,7 +173,7 @@ export default function UpdateMenu() {
                 targetSupply = ids[0].supply_level;
             if (!targetVendor)
                 targetVendor = ids[0].vendor;
-            if (!targetExpirationDate)
+            if (!targetExpirationDate || targetExpirationDate == " 00:00:00")
                 targetExpirationDate = ids[0].expiration_date;
 
             ///api/inventorypage/updateingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor
