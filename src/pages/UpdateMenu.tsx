@@ -256,33 +256,29 @@ export default function UpdateMenu() {
                 targetSeasonalEnd = ids[0].seasonal_item_ending_time;
             if(!ids[0].seasonal_item_ending_time)
                targetSeasonalEnd = "1970-01-01 00:00:01";
+            
             if (itemIsAvailableTouched)
                 targetAvailability = itemIsAvailable;
             else
-                targetAvailability = ids[0].in_stock;
-
+            {
+                if(!ids[0].in_stock)
+                    targetAvailability = false;
+                else
+                    targetAvailability = ids[0].in_stock;
+            }
+            
             if(!ids[0].in_stock)
                 targetAvailability = false;
             
             if (itemIsSeasonalTouched)
                 targetSeasonal = itemIsSeasonal;
             else
-                targetSeasonal = ids[0].seasonal_item;
-
-            if(!ids[0].seasonal_item)
             {
-                console.log("setting to false...");
-                targetSeasonal = false;
+                if(!ids[0].seasonal_item)
+                    targetSeasonal = false;
+                else
+                    targetSeasonal = ids[0].seasonal_item;
             }
-
-            console.log(targetName);
-            console.log(targetPrice);
-            console.log(targetSizes);
-            console.log(targetAvailability);
-            console.log(targetPhoto);
-            console.log(targetSeasonal);
-            console.log(targetSeasonalStart);
-            console.log(targetSeasonalEnd);
           
             try {
                 const res = await fetch(`${API_URL}/updatemenu/updateitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}`);
