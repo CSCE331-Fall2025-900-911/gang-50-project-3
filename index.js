@@ -342,8 +342,8 @@ app.post('/api/orders', async (req, res) => {
   app.get('/api/inventorypage/updateingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor', async (req, res) => {
     try {
       const { newIngredientId, newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor } = req.params;
-      const result = await pool.query(`UPDATE ingredient SET ingredient_id = $1, supply_level = $2, expiration_date = $3, ingredient_cost = $4, vendor = $5 WHERE ingredient_name = $6 RETURNING *;`,
-      [newIngredientId, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor, newIngredientName]);
+      const result = await pool.query(`UPDATE ingredient SET ingredient_name = $1, supply_level = $2, expiration_date = $3, ingredient_cost = $4, vendor = $5 WHERE ingredient_id = $6 RETURNING *;`,
+      [newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor, newIngredientId]);
       res.json(result.rows);
     } catch (err) {
       console.error('Error fetching item data:', err);
