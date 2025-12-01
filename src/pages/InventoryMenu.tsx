@@ -217,7 +217,6 @@ export default function UpdateMenu() {
       const message = err instanceof Error ? err.message : String(err);
       setViewData(`Something happend!! -> : ${message}`);
       }
-    }
   };
 
   return (
