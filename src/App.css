@@ -396,6 +396,7 @@ html, body {
   background-color: #CF152D;
   border-radius: 999px;
   transition: background-color 0.25s, border-color 0.25s;
+  margin-top: 12px; 
 }
 
 .btn-updateMenu:hover{
