@@ -164,26 +164,56 @@ export default function UpdateMenu() {
       setViewData(`Something happend!! -> : ${message}`);
     }
 
-      
-    }
-    
-    
-    /*const idNum = Number(targetID);
-    if (!Number.isInteger(idNum) || idNum <= 0) {
-      setViewData("Item ID must be a positive whole number.");
-      return;
-    }
 
-    const priceNum = Number(targetPrice);
-    if (!Number.isFinite(priceNum) || priceNum < 0) {
-      setViewData("Price must be a non-negative number.");
-      return;
-    }
 
-    if (!targetSeasonal) {
-      targetSeasonalStart = "1970-01-01 00:00:01";
-      targetSeasonalEnd = "1970-01-01 00:00:01";
-    }*/
+    
+    if(!targetID)
+      targetID = ids[0].ingredient_id;
+    if(!targetPrice)
+      targetPrice = ids[0].ingredient_cost;
+    if(!targetSupply)
+      targetSupply = ids[0].supply_level;
+    if(!targetVendor)
+      targetVendor = ids[0].vendor;
+    if(!targetExpirationDate)
+      targetExpirationDate = ids[0].expiration_date;
+
+    ///api/inventorypage/updateingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor
+    try {
+      const res = await fetch(`${API_URL}/inventorypage/createnewingredient/${encodeURIComponent(targetID)}/${encodeURIComponent(targetName)}/${encodeURIComponent(targetSupply)}/${encodeURIComponent(targetExpirationDate)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetVendor)}`);
+      const raw = await res.text();
+
+      if (!res.ok) {
+        setViewData(
+          `Error ${res.status}\n${raw || "Failed to fetch ingredient data"}`
+        );
+        return;
+      }
+
+      try {
+        const data = JSON.parse(raw);
+        const stringVersion = JSON.stringify(data, null, 2)
+        if (stringVersion == "[]")
+          setViewData("Result is empty!");
+        else {
+          const out = data.map((ingredient: any) => {
+              return [
+                `Ingredient ID: ${ingredient.ingredient_id}`,
+                `Name: ${ingredient.ingredient_name}`,
+                `Supply Level: ${ingredient.supply_level}`,
+                `Expiration Date: ${ingredient.expiration_date}`,
+                `Cost: $${ingredient.ingredient_cost}`,
+                `Vendor: ${ingredient.vendor}`,
+              ]
+                .filter(Boolean)
+                .join("\n");
+            })
+          setViewData(out);
+        }
+      } catch {
+        setViewData(`Non-JSON response from server:\n${raw}`);
+      }
+    }
   };
 
   return (
