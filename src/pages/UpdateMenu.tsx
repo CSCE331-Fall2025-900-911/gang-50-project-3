@@ -210,7 +210,7 @@ export default function UpdateMenu() {
         }
 
         if (action == "update") {
-            const res = await fetch(`${API_URL}/updatemenu/createnewitem/${encodeURIComponent(targetID)}`);
+            const res = await fetch(`${API_URL}/updatemenu/viewitemdata/${encodeURIComponent(targetID)}`);
             const raw = await res.text();
 
             if (!res.ok) {
