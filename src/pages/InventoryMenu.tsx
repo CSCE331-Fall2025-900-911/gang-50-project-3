@@ -129,7 +129,7 @@ export default function UpdateMenu() {
             }
         }
         if (action == "update") {
-            if (!targetID) {
+            if (!targetID || !targetName) {
                 setViewData("Verify all information is valid.");
                 return;
             }
