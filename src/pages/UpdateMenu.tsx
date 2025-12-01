@@ -70,6 +70,7 @@ export default function UpdateMenu() {
                 else {
                     const out = data.map((item: any) => {
                         return [
+                            `Pulled Data:`,
                             `Item ID: ${item.item_id}`,
                             `Name: ${item.item_name}`,
                             `Cost: $${item.item_cost}`,
@@ -77,8 +78,8 @@ export default function UpdateMenu() {
                             `Sizes: ${item.size_options}`,
                             `Photo: ${item.photo}`,
                             `Seasonal: ${item.seasonal_item ? "Yes" : "No"}`,
-                            item.seasonal_item ? `  From: ${item.seasonal_item_beginning_time}` : "",
-                            item.seasonal_item ? `  To:   ${item.seasonal_item_ending_time}` : "",
+                            item.seasonal_item_beginning_time && `  From: ${item.seasonal_item_beginning_time}`,
+                            item.seasonal_item_ending_time && `  To:   ${item.seasonal_item_ending_time}`,
                             `Category ID: ${item.category_id}`,
                         ]
                             .filter(Boolean)         // drop empty lines
@@ -299,6 +300,7 @@ export default function UpdateMenu() {
                     else {
                         const out = data.map((item: any) => {
                             return [
+                            `Updated Item:`,
                             `Item ID: ${item.item_id}`,
                             `Name: ${item.item_name}`,
                             `Cost: $${item.item_cost}`,
@@ -306,8 +308,8 @@ export default function UpdateMenu() {
                             `Sizes: ${item.size_options}`,
                             `Photo: ${item.photo}`,
                             `Seasonal: ${item.seasonal_item ? "Yes" : "No"}`,
-                            item.seasonal_item ? `  From: ${item.seasonal_item_beginning_time}` : "",
-                            item.seasonal_item ? `  To:   ${item.seasonal_item_ending_time}` : "",
+                            item.seasonal_item_beginning_time && `  From: ${item.seasonal_item_beginning_time}`,
+                            item.seasonal_item_ending_time && `  To:   ${item.seasonal_item_ending_time}`,
                             `Category ID: ${item.category_id}`,
                         ]
                             .filter(Boolean)         // drop empty lines
