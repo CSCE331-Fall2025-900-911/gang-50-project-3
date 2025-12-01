@@ -316,6 +316,19 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
+  app.get('/api/updatemenu/updateitem/:newItemName/:newItemId/:newItemPrice/:newItemIsAvailable/:newItemSizes/:newItemPhotoPath/:newItemIsSeasonal/:newItemSeasonalTimeBegin/:newItemSeasonalTimeEnd', async (req, res) => {
+    try {
+      const { newItemName, newItemId, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd,  } = req.params;
+      //const result = await pool.query(`UPDATE ingredient SET ingredient_name = $1, supply_level = $2, expiration_date = $3, ingredient_cost = $4, vendor = $5 WHERE ingredient_id = $6 RETURNING *;`,
+      const result = await pool.query(`UPDATE item SET item_name = $1, item_cost = $2, in_stock = $3, size_options = $4, photo = $5, seasonal_item = $6, seasonal_item_beginning_time = $7, seasonal_item_ending_time = $8 WHERE item_id = $9 RETURNING *;`,
+      [newItemName, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd, newItemId]);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching item data:', err);
+      res.status(500).json({ error: 'Failed to get item data' });
+    }
+  });
+
   app.get('/api/updatemenu/deleteitem/:itemId', async (req, res) => {
     try {
       const { itemId } = req.params;
