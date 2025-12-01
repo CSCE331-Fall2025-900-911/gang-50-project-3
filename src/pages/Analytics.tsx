@@ -2,7 +2,7 @@ import { useState, useRef, useLayoutEffect, useEffect } from 'react'
 import CashierNavbar from '../components/CashierNavbar'
 
 
-export default function Reports() {
+export default function Analytics() {
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerH, setHeaderH] = useState(64);
 
