@@ -328,7 +328,6 @@ export default function UpdateMenu() {
                 setViewData(`Something happend!! -> : ${message}`);
             }
         }
-    }
 };
 
 return (
