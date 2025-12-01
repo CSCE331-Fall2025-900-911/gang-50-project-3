@@ -316,6 +316,18 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
+  app.get('/api/updatemenu/deleteitem/:itemId', async (req, res) => {
+    try {
+      const { itemId } = req.params;
+      const result = await pool.query(`DELETE FROM item WHERE item_id = $1;`, [itemId]);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching item data:', err);
+      res.status(500).json({ error: 'Failed to get ingedient data' });
+    }
+  });
+
+
   app.get('/api/inventorypage/viewingredientdata/:ingredientName', async (req, res) => {
     try {
       const { ingredientName } = req.params;
