@@ -211,6 +211,39 @@ export default function UpdateMenu() {
                     setViewData(`Something happend!! -> : ${message}`);
                 }
             }
+        if(action == "delete")
+        {
+            if (!targetID) {
+                setViewData("Verify all information is valid.");
+                return;
+            }
+            ///api/inventorypage/createnewingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor
+            try {
+                const res = await fetch(`${API_URL}/inventorypage/deleteingredient/${encodeURIComponent(targetID)}`);
+                const raw = await res.text();
+
+                if (!res.ok) {
+                    setViewData(
+                        `Error ${res.status}\n${raw || "Failed to fetch item data"}`
+                    );
+                    return;
+                }
+
+                try {
+                    const data = JSON.parse(raw);
+                    const stringVersion = JSON.stringify(data, null, 2)
+                    if (stringVersion == "[]")
+                        setViewData("Action successful!");
+                    else
+                        setViewData(stringVersion);
+                } catch {
+                    setViewData(`Non-JSON response from server:\n${raw}`);
+                }
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : String(err);
+                setViewData(`Something happend!! -> : ${message}`);
+            }
+        }
     };
 
     return (
@@ -327,6 +360,9 @@ export default function UpdateMenu() {
                                 </div>
                                 <div className="mt-auto flex items-center gap-2 pt-2">
                                     <button type="submit" value="update" className="btn-updateMenu">Update</button>
+                                </div>
+                                <div className="mt-auto flex items-center gap-2 pt-2">
+                                    <button type="submit" value="delete" className="btn-updateMenu">Delete</button>
                                 </div>
                             </form>
                         </section>
