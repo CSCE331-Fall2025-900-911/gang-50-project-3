@@ -27,15 +27,12 @@ export default function Analytics() {
 }, []);
 
   return (
-    <div
-      id="rootPane"
-      className="min-h-screen flex flex-col bg-white text-gray-900"
-    >
+    <div id="rootPane" className="min-h-screen flex flex-col bg-white text-gray-900">
       <nav ref={headerRef as any} className="cashier-nav">
         <CashierNavbar />
       </nav>
       <div style={{ paddingTop: headerH }} className="flex-1">
-        {/* Reports content will go here later */}
+        {Analytics}
       </div>
     </div>
   );
