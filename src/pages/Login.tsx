@@ -50,7 +50,7 @@ export default function Login() {
           </div>
 
           <h2 className="orDivider">
-            ───────────────────── OR ─────────────────────
+            ─────────────────── OR ───────────────────
           </h2>
 
           <div className="googleButton">
