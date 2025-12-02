@@ -29,17 +29,6 @@ const menuData = {
     { name: 'Passion Fruit Tea', new: false },
   ],
 
-  nonCaffeinated: [
-    { name: 'Tiger Boba', new: true },
-    { name: 'Strawberry Coconut', new: true },
-    { name: 'Strawberry Coconut Ice Blended', new: true },
-    { name: 'Halo Halo', new: true },
-    { name: 'Halo Halo Ice Blended', new: true },
-    { name: 'Wintermelon Lemonade', new: false },
-    { name: 'Wintermelon Lemonade Ice Blended', new: true },
-    { name: 'Wintermelon w/ Fresh Milk', new: true },
-  ],
-
   newMatchaSeries: [
     { name: 'Matcha Pearl Milk Tea', new: false },
     { name: 'Matcha Fresh Milk', new: false },
@@ -91,25 +80,17 @@ const customizationOptions = {
   ],
 };
 
-export default function MenuBoard() {
+export default function MenuData() {
   return (
     <div className="menu-board-container">
       <h1 className="menu-title">Menu Board</h1>
 
       <div className="menu-header-image">
-        <img src="menu_image.png" alt="Sharetea Menu Visual" className="main-menu-img" />
-
-        <div className="drink-overlay-strawberry">
-          <span className="new-tag">NEW</span>
-          <span className="drink-name-overlay">Strawberry Coconut</span>
-          <span className="drink-type-overlay">Ice Blended</span>
-        </div>
-
-        <div className="drink-overlay-matcha">
-          <span className="new-tag">NEW</span>
-          <span className="drink-name-overlay">Matcha</span>
-          <span className="drink-type-overlay">Ice Blended</span>
-        </div>
+        <img
+          src="menu_image.png"
+          alt="Sharetea Menu Visual"
+          className="main-menu-img"
+        />
       </div>
 
       <div className="menu-sections">
@@ -120,7 +101,7 @@ export default function MenuBoard() {
 
         <div className="menu-column col-2">
           <MenuSection title="FRUITY BEVERAGE" items={menuData.fruityBeverage} />
-          <MenuSection title="NON-CAFFEINATED" items={menuData.nonCaffeinated} />
+          <MenuSection title="LIMITED EDITION" items={menuData.LimitedEdition} />
         </div>
 
         <div className="menu-column col-3">
@@ -130,6 +111,7 @@ export default function MenuBoard() {
       </div>
 
       <div className="customization-bar">
+        {/* ICE LEVEL */}
         <div className="customization-group">
           <span className="customization-label">ICE LEVEL</span>
           <div className="options-row">
@@ -142,6 +124,7 @@ export default function MenuBoard() {
           </div>
         </div>
 
+        {/* SWEETNESS LEVEL */}
         <div className="customization-group">
           <span className="customization-label">SWEETNESS LEVEL</span>
           <div className="options-row">
@@ -149,6 +132,30 @@ export default function MenuBoard() {
               <span key={index} className="option-item">
                 <span className="option-label">{opt.label}</span>
                 <span className="option-value">{opt.value}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* CUP SIZE */}
+        <div className="customization-group">
+          <span className="customization-label">CUP SIZE</span>
+          <div className="options-row">
+            {customizationOptions.CupSizes.map((opt, index) => (
+              <span key={index} className="option-item">
+                <span className="option-label">{opt.label}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* MILK OPTIONS */}
+        <div className="customization-group">
+          <span className="customization-label">MILK OPTIONS</span>
+          <div className="options-row">
+            {customizationOptions.MilkOptions.map((opt, index) => (
+              <span key={index} className="option-item">
+                <span className="option-label">{opt.name}</span>
               </span>
             ))}
           </div>
@@ -165,7 +172,9 @@ const MenuSection: React.FC<{ title: string; items: any[] }> = ({ title, items }
       {items.map((item, index) => (
         <li key={index} className="menu-item">
           <span>{item.name}</span>
-          {item.description && <span className="item-description">{item.description}</span>}
+          {item.description && (
+            <span className="item-description">{item.description}</span>
+          )}
           {item.new && <span className="new-tag-inline">NEW</span>}
         </li>
       ))}

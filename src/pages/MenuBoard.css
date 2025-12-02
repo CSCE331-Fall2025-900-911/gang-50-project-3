@@ -1,119 +1,44 @@
-/* General Layout */
+/* Main container horizontal */
 .menu-board-container {
     font-family: Arial, sans-serif;
-    max-width: 1200px; /* Adjust as needed */
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    color: #333;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
 }
 
-.menu-title {
-    font-size: 2.5em;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
-    color: #000; /* Assuming black from the image */
-}
-
-/* Header Image Section */
+/* Left image fixed and fully responsive */
 .menu-header-image {
-    position: relative;
-    width: 100%; /* Or a fixed width */
-    max-width: 300px; /* Sharetea image width */
-    margin-bottom: 30px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: min(50%, 400px); /* Max 400px, otherwise 50% of viewport */
+    height: 100vh; /* Full viewport height */
+    overflow: hidden;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    z-index: 1;
 }
 
 .main-menu-img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover; /* Image covers container without distortion */
     display: block;
-    /* Placeholder styling - adjust as you replace with actual image */
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    object-fit: cover;
 }
 
-.header-text-overlay {
-    position: absolute;
-    top: 5%; /* Adjust as needed */
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    color: white; /* Text color on the image */
-    font-weight: bold;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.5); /* For better readability */
-}
-
-.swirl-text {
-    font-size: 1em; /* Smaller "SWIRL INTO" */
-    margin: 0;
-    line-height: 1;
-}
-
-.happiness-text {
-    font-size: 1.8em; /* Larger "HAPPINESS" */
-    margin: 0;
-    line-height: 1;
-}
-
-.tagline {
-    font-size: 0.7em;
-    margin-top: 5px;
-    font-weight: normal;
-}
-
-.taste-tagline {
-    font-size: 0.8em;
-    margin-top: 10px;
-    font-weight: normal;
-}
-
-
-/* Overlays for "NEW" drinks on the main image */
-.drink-overlay-strawberry {
-    position: absolute;
-    bottom: 20px; /* Adjust as needed */
-    left: 10px; /* Adjust as needed */
-    text-align: center;
-    color: white;
-    font-size: 0.8em;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-}
-
-.drink-overlay-matcha {
-    position: absolute;
-    bottom: 30%; /* Adjust as needed */
-    left: 20%; /* Adjust as needed */
-    text-align: center;
-    color: white;
-    font-size: 0.8em;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-}
-
-.drink-name-overlay {
-    display: block;
-    font-weight: bold;
-    font-size: 1.1em;
-}
-
-.drink-type-overlay {
-    display: block;
-    font-size: 0.9em;
-}
-
-
-/* Menu Sections Grid */
+/* Right menu sections scrollable */
 .menu-sections {
+    margin-left: min(50%, 400px); /* Align with fixed image width */
+    flex: 1;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* Three columns */
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 20px;
-    width: 100%;
-    margin-bottom: 30px;
+    padding: 20px;
+    height: 100vh;
+    overflow-y: auto;
 }
 
 .menu-column {
@@ -127,7 +52,7 @@
     font-size: 1.3em;
     font-weight: bold;
     margin-bottom: 15px;
-    border-bottom: 2px solid #eee; /* Subtle separator */
+    border-bottom: 2px solid #eee;
     padding-bottom: 8px;
     color: #444;
 }
@@ -148,48 +73,47 @@
 }
 
 .menu-item span {
-    margin-right: 5px; /* Space between item name and description/tag */
+    margin-right: 5px;
 }
 
 .item-description {
     font-size: 0.8em;
     color: #777;
-    margin-left: auto; /* Pushes description to the right */
-    white-space: nowrap; /* Keeps description on one line */
+    margin-left: auto;
+    white-space: nowrap;
 }
 
 .new-tag-inline {
-    background-color: #ffda44; /* Yellowish background */
+    background-color: #ffda44;
     color: #333;
     padding: 2px 6px;
     border-radius: 3px;
     font-size: 0.7em;
     font-weight: bold;
-    margin-left: 8px; /* Space from the item name */
+    margin-left: 8px;
     white-space: nowrap;
 }
 
-/* Customization Bar */
+/* Customization bar */
 .customization-bar {
-    width: 100%;
-    background-color: #f0f0f0; /* Light grey background */
+    width: calc(100% - min(50%, 400px));
+    margin-left: min(50%, 400px);
     padding: 15px 20px;
-    border-radius: 8px;
     display: flex;
-    justify-content: space-around; /* Distribute groups evenly */
-    align-items: flex-start; /* Align groups to the top */
-    gap: 20px; /* Space between groups */
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
-    margin-top: 20px; /* Space from menu sections */
 }
 
 .customization-group {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    flex: 1; /* Allow groups to grow */
-    min-width: 150px; /* Minimum width for each group */
+    flex: 1;
+    min-width: 150px;
 }
 
 .customization-label {
@@ -202,13 +126,13 @@
 
 .options-row {
     display: flex;
-    flex-wrap: wrap; /* Allow options to wrap */
-    gap: 8px; /* Space between options */
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .option-item {
     display: flex;
-    flex-direction: column; /* Label and value stacked */
+    flex-direction: column;
     align-items: center;
     padding: 4px 8px;
     background-color: #e0e0e0;
@@ -237,25 +161,40 @@
 }
 
 .topping-group .options-row {
-    justify-content: flex-start; /* Align toppings to start */
+    justify-content: flex-start;
 }
 
 /* Responsive adjustments */
 @media (max-width: 900px) {
+    .menu-board-container {
+        flex-direction: column;
+        height: auto;
+        align-items: center;
+    }
+
+    .menu-header-image {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
+
     .menu-sections {
-        grid-template-columns: 1fr 1fr; /* Two columns on medium screens */
+        margin-left: 0;
+        grid-template-columns: 1fr 1fr;
+        height: auto;
+        overflow: visible;
+    }
+
+    .customization-bar {
+        width: 100%;
+        margin-left: 0;
     }
 }
 
 @media (max-width: 600px) {
     .menu-sections {
-        grid-template-columns: 1fr; /* Single column on small screens */
-    }
-    .customization-bar {
-        flex-direction: column; /* Stack customization groups vertically */
-        align-items: stretch;
-    }
-    .menu-header-image {
-        max-width: 100%; /* Image takes full width */
+        grid-template-columns: 1fr;
     }
 }
+
+
