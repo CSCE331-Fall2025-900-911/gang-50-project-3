@@ -1,57 +1,57 @@
-/* General Layout */
+/* --- FULL LAYOUT --- */
 .menu-board-container {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: row;
     width: 100vw;
     height: 100vh;
-    margin: 0;
-    padding: 0;
-    background-color: #fff;
+    overflow: hidden; /* Prevent extra whitespace */
+    background-color: #ffffff;
 }
 
-/* Left Image Section */
+/* --- LEFT IMAGE SECTION --- */
 .menu-header-image {
-    flex: 0 0 40%; /* 40% width for the image */
-    max-width: 500px; /* Optional max width */
+    flex: 0 0 40%;        /* Takes 40% of the screen */
+    max-width: 550px;     /* You can adjust if needed */
     height: 100vh;
     overflow: hidden;
-    position: relative;
 }
 
 .main-menu-img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Cover without distortion */
+    object-fit: cover;    /* Clean crop of the menu image */
     display: block;
 }
 
-/* Right Content (Menu + Customizations) */
+/* --- RIGHT SIDE CONTENT --- */
 .menu-content {
-    flex: 1; /* Take remaining width */
+    flex: 1;              /* Fills ALL remaining space */
+    min-width: 0;         /* CRITICAL: allows flexbox to stretch on monitors */
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    overflow-y: auto; /* Scrollable */
     height: 100vh;
     box-sizing: border-box;
+    padding: 25px;
+    overflow-y: auto;     /* Scrolls if content exceeds screen height */
+    background: #fff;     /* Guarantees white background (not transparent) */
 }
 
-/* Title */
+/* --- TITLE --- */
 .menu-title {
-    font-size: 2.5em;
-    font-weight: bold;
+    text-align: center;
+    font-size: 2.6em;
     margin-bottom: 20px;
     color: #000;
-    text-align: center;
+    font-weight: bold;
 }
 
-/* Menu Sections Grid */
+/* --- MENU SECTIONS GRID --- */
 .menu-sections {
+    flex: 1; /* expand to fill vertical space */
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* Three columns */
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
-    margin-bottom: 20px;
 }
 
 .menu-column {
@@ -61,81 +61,72 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+/* Section Titles */
 .section-title {
     font-size: 1.3em;
+    margin-bottom: 12px;
     font-weight: bold;
-    margin-bottom: 15px;
     border-bottom: 2px solid #eee;
-    padding-bottom: 8px;
-    color: #444;
+    padding-bottom: 6px;
 }
 
+/* Items */
 .menu-list {
-    list-style: none;
     padding: 0;
     margin: 0;
+    list-style: none;
 }
 
 .menu-item {
-    padding: 5px 0;
     display: flex;
-    justify-content: space-between;
     align-items: baseline;
+    justify-content: space-between;
+    padding: 4px 0;
     font-size: 0.95em;
-    line-height: 1.4;
-}
-
-.menu-item span {
-    margin-right: 5px;
 }
 
 .item-description {
     font-size: 0.8em;
     color: #777;
-    margin-left: auto;
     white-space: nowrap;
+    margin-left: auto;
 }
 
 .new-tag-inline {
     background-color: #ffda44;
-    color: #333;
     padding: 2px 6px;
     border-radius: 3px;
     font-size: 0.7em;
-    font-weight: bold;
     margin-left: 8px;
-    white-space: nowrap;
+    font-weight: bold;
 }
 
-/* Customization Bar */
+/* --- CUSTOMIZATION BAR --- */
 .customization-bar {
     width: 100%;
-    background-color: #f0f0f0;
+    background: #f0f0f0;
     padding: 15px 20px;
     border-radius: 8px;
+    margin-top: 20px;
     display: flex;
-    justify-content: space-around;
-    align-items: flex-start;
+    flex-wrap: wrap;
     gap: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    flex-wrap: wrap;
-    margin-top: 20px;
 }
 
 .customization-group {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     flex: 1;
     min-width: 150px;
 }
 
 .customization-label {
     font-weight: bold;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-size: 0.9em;
-    color: #555;
     text-transform: uppercase;
+    color: #444;
 }
 
 .options-row {
@@ -145,14 +136,11 @@
 }
 
 .option-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 4px 8px;
-    background-color: #e0e0e0;
+    padding: 5px 8px;
+    background: #e0e0e0;
     border-radius: 4px;
     font-size: 0.8em;
-    color: #666;
+    text-align: center;
 }
 
 .option-label {
@@ -165,42 +153,33 @@
     color: #555;
 }
 
-.option-item-topping {
-    padding: 4px 8px;
-    background-color: #e0e0e0;
-    border-radius: 4px;
-    font-size: 0.8em;
-    color: #666;
-    white-space: nowrap;
-}
-
-.topping-group .options-row {
-    justify-content: flex-start;
-}
-
-/* Responsive adjustments */
+/* --- RESPONSIVE BREAKPOINTS --- */
 @media (max-width: 1200px) {
     .menu-sections {
-        grid-template-columns: 1fr 1fr; /* Two columns */
+        grid-template-columns: 1fr 1fr;
     }
 }
 
 @media (max-width: 900px) {
     .menu-board-container {
         flex-direction: column;
+        height: auto;
     }
+
     .menu-header-image {
         width: 100%;
-        height: auto;
+        height: 40vh;
+        max-width: none;
     }
+
     .menu-content {
         height: auto;
+        padding: 15px;
         overflow: visible;
-        padding: 10px 20px;
     }
+
     .menu-sections {
         grid-template-columns: 1fr 1fr;
-        gap: 15px;
     }
 }
 
@@ -208,8 +187,9 @@
     .menu-sections {
         grid-template-columns: 1fr;
     }
+
     .customization-bar {
         flex-direction: column;
-        align-items: stretch;
     }
 }
+
