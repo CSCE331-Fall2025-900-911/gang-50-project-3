@@ -393,8 +393,6 @@
 
 
 
-
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -785,19 +783,22 @@ export default function Orders() {
                 <h4>{cat}</h4>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {groupedIngredients[cat]?.map((ing: any) => {
-                        const isSelected = customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID;
-                        return (
+                        const isSelected = customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID;
+                        return (
                     <button
                       key={ing.ingredient_ID}
                       onClick={() => setCustomizationOption(cat, ing)}
                       className={`btn ${isSelected ? 'selected' : ''}`}
-                      // Added inline style for persistent visual selection
-                      style={isSelected ? { border: '2px solid #007bff', backgroundColor: '#e9f5ff' } : {}}
+                      // MODIFIED to use !important for highest possible specificity
+                      style={isSelected ? { 
+                          border: '2px solid #007bff !important', 
+                          backgroundColor: '#e9f5ff !important' 
+                      } : {}}
                     >
                       {ing.ingredient_name}
                     </button>
-                    );
-                })}
+                    );
+                })}
                 </div>
               </div>
             ))}
