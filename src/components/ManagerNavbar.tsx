@@ -9,7 +9,7 @@ export default function ManagerNavbar() {
           <p>Analytics</p>
           <a href="/UpdateMenu">Items</a>
           <a href="/Employee">Employees</a>
-          <p>Inventory</p>
+          <a href="/inventorymenu">Inventory</a>
         </div>
       </div>
 
