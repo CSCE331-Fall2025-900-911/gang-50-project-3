@@ -2,6 +2,7 @@ import './App.css'
 import Login from './pages/Login'
 import Orders from './pages/Orders'
 import UpdateMenu from './pages/UpdateMenu'
+import Analytics from './pages/Analytics'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 function App() {
