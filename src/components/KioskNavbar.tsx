@@ -1,4 +1,19 @@
+import { useNavigate } from "react-router-dom";
+
 export default function KioskNavbar() {
+
+  const navigate = useNavigate();
+
+  const handleCancelOrder = () => {
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    console.log("User canceled order out.");
+
+    navigate("/");
+  };
+  
   return (
     <nav>
       <div className="ShareTeaLogo">
@@ -17,7 +32,7 @@ export default function KioskNavbar() {
         </div>
 
         <div className="navItem">
-          <button className="logout">Cancel Order</button>
+          <button className="logout" onClick={handleCancelOrder}>Cancel Order</button>
         </div>
       </div>
     </nav>
