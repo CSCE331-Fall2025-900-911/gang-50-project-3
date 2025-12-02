@@ -8,7 +8,7 @@ export default function Login() {
 
   const handleLoginSuccess = (credentialResponse: CredentialResponse) => {
     console.log(credentialResponse)
-    navigate("/analytics")
+    navigate("/orders")
   }
 
   const handleLoginError = () => {
@@ -23,7 +23,7 @@ export default function Login() {
   } else if (role === "cashier") {
     navigate("/orders")
   } else if (role === "manager") {
-    navigate("/employee")
+    navigate("/analytics")
   }
 }
 
