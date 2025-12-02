@@ -440,7 +440,7 @@ export default function Orders() {
           <p>{error}</p>
           <button onClick={() => window.location.reload()} className="btn">Retry</button>
         </div>
-      </div>
+        </div>
     );
   }
 
@@ -789,11 +789,6 @@ export default function Orders() {
                       key={ing.ingredient_ID}
                       onClick={() => setCustomizationOption(cat, ing)}
                       className={`btn ${isSelected ? 'selected' : ''}`}
-                      // MODIFIED to use !important for highest possible specificity
-                      style={isSelected ? { 
-                          border: '2px solid #007bff !important', 
-                          backgroundColor: '#e9f5ff !important' 
-                      } : {}}
                     >
                       {ing.ingredient_name}
                     </button>
