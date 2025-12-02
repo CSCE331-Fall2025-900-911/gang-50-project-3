@@ -1,19 +1,46 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function KioskNavbar() {
 
   const navigate = useNavigate();
 
-  const handleCancelOrder = () => {
+  const [showAccessibilityPopup, setShowAccessibilityPopup] = useState(false);
+  const [fontSize, setFontSize] = useState(
+    Number(localStorage.getItem("fontSize")) || 16
+  );
 
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${fontSize}px`;
+  }, []); 
+
+  const handleCancelOrder = () => {
     localStorage.clear();
     sessionStorage.clear();
-
     console.log("User canceled order out.");
-
     navigate("/");
   };
-  
+
+  // Font size changes
+  const applyFontSize = (size: any) => {
+    document.documentElement.style.fontSize = `${size}px`;
+    localStorage.setItem("fontSize", size.toString());
+  };
+  const handleIncreaseFont = () => {
+    const newSize = fontSize + 2;
+    setFontSize(newSize);
+    applyFontSize(newSize);
+  };
+  const handleDecreaseFont = () => {
+    const newSize = fontSize - 2 >= 10 ? fontSize - 2 : 10;
+    setFontSize(newSize);
+    applyFontSize(newSize);
+  };
+  const handleResetFont = () => {
+    setFontSize(16);
+    applyFontSize(16);
+  };
+
   return (
     <nav>
       <div className="ShareTeaLogo">
@@ -26,15 +53,79 @@ export default function KioskNavbar() {
           <p>72° F</p>
         </div>
 
-        <div className="navItem">
+        {/* ACCESSIBILITY */}
+        <div 
+          className="navItem" 
+          onClick={() => setShowAccessibilityPopup(true)}
+          style={{ cursor: "pointer" }}
+        >
           <img className="navIcon" src="/Accessibility.svg" alt="Accessibility Icon" />
           <p>Accessibility</p>
         </div>
 
+        {/* CANCEL ORDER */}
         <div className="navItem">
           <button className="logout" onClick={handleCancelOrder}>Cancel Order</button>
         </div>
       </div>
+
+      {/* --- Accessibility Popup --- */}
+      {showAccessibilityPopup && (
+        <div
+          className="popup-overlay"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999
+          }}
+        >
+          <div
+            className="popup-content"
+            style={{
+              backgroundColor: "white",
+              padding: "2rem",
+              borderRadius: "8px",
+              width: "400px",
+              textAlign: "center"
+            }}
+          >
+            <h2>Accessibility Settings</h2>
+            <p style={{ marginBottom: "1rem" }}>Adjust Display Font Size</p>
+
+            <div style={{ display: "flex", justifyContent: "center", gap: "1rem" }}>
+              <button className="btn" onClick={handleDecreaseFont}>A−</button>
+              <button className="btn" onClick={handleIncreaseFont}>A+</button>
+            </div>
+
+            <p style={{ marginTop: "1rem" }}>Current Size: {fontSize}px</p>
+
+            <button 
+              className="btn" 
+              onClick={handleResetFont}
+              style={{ marginTop: "1rem" }}
+            >
+              Reset to Default
+            </button>
+
+            <div style={{ marginTop: "1.5rem" }}>
+              <button 
+                className="btn" 
+                onClick={() => setShowAccessibilityPopup(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </nav>
   );
 }
