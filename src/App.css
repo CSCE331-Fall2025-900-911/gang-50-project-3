@@ -478,3 +478,28 @@ html, body {
   margin-bottom: 2rem;
 }
 
+.roleButtonsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.roleButton {
+  width: 200px;
+  padding: 12px 20px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: #000000;
+  color: #ffffff;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.roleButton:hover {
+  background-color: #ff0000;
+  transform: scale(1.05);
+}
+
