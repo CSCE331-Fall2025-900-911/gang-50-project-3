@@ -2,6 +2,9 @@ import { useState, useRef, useLayoutEffect, useEffect } from 'react'
 import ManagerNavbar from '../components/ManagerNavbar'
 
 export default function Analytics() {
+  
+  const headerRef = useRef<HTMLElement | null>(null)
+  const [headerH, setHeaderH] = useState(64)
 
   useLayoutEffect(() => {
     const el = headerRef.current
