@@ -1,26 +1,22 @@
 /* General Layout */
 .menu-board-container {
     font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: row;
     width: 100vw;
     height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: transparent; /* Image will show through */
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
+    background-color: #fff;
 }
 
-/* Header Image Section */
+/* Left Image Section */
 .menu-header-image {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%; /* Full width */
-    height: 100vh; /* Full height */
-    z-index: 0;
+    flex: 0 0 40%; /* 40% width for the image */
+    max-width: 500px; /* Optional max width */
+    height: 100vh;
     overflow: hidden;
+    position: relative;
 }
 
 .main-menu-img {
@@ -28,28 +24,41 @@
     height: 100%;
     object-fit: cover; /* Cover without distortion */
     display: block;
-    filter: brightness(1); /* Image is clear */
 }
 
-/* Menu Sections scrollable */
+/* Right Content (Menu + Customizations) */
+.menu-content {
+    flex: 1; /* Take remaining width */
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto; /* Scrollable */
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Title */
+.menu-title {
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #000;
+    text-align: center;
+}
+
+/* Menu Sections Grid */
 .menu-sections {
-    position: relative;
-    z-index: 1; /* Above image */
     display: grid;
     grid-template-columns: 1fr 1fr 1fr; /* Three columns */
     gap: 20px;
-    width: 100%;
-    padding: 20px;
-    max-height: calc(100vh - 100px); /* Leave space for customization bar */
-    overflow-y: auto; /* Scroll menu items */
-    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+    margin-bottom: 20px;
 }
 
 .menu-column {
-    background-color: #f9f9f9; /* Light background for columns */
+    background-color: #f9f9f9;
     padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .section-title {
@@ -100,19 +109,17 @@
 
 /* Customization Bar */
 .customization-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
     width: 100%;
-    background-color: rgba(240, 240, 240, 0.95);
+    background-color: #f0f0f0;
     padding: 15px 20px;
-    border-radius: 8px 8px 0 0;
+    border-radius: 8px;
     display: flex;
     justify-content: space-around;
-    flex-wrap: wrap;
+    align-items: flex-start;
     gap: 20px;
-    box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
-    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    flex-wrap: wrap;
+    margin-top: 20px;
 }
 
 .customization-group {
@@ -172,17 +179,34 @@
 }
 
 /* Responsive adjustments */
+@media (max-width: 1200px) {
+    .menu-sections {
+        grid-template-columns: 1fr 1fr; /* Two columns */
+    }
+}
+
 @media (max-width: 900px) {
+    .menu-board-container {
+        flex-direction: column;
+    }
+    .menu-header-image {
+        width: 100%;
+        height: auto;
+    }
+    .menu-content {
+        height: auto;
+        overflow: visible;
+        padding: 10px 20px;
+    }
     .menu-sections {
         grid-template-columns: 1fr 1fr;
-        max-height: calc(100vh - 150px);
+        gap: 15px;
     }
 }
 
 @media (max-width: 600px) {
     .menu-sections {
         grid-template-columns: 1fr;
-        max-height: calc(100vh - 200px);
     }
     .customization-bar {
         flex-direction: column;
