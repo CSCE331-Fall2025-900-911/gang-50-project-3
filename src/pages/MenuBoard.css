@@ -1,62 +1,133 @@
-/* Main container horizontal */
+/* General Layout */
 .menu-board-container {
     font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: row;
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
+    max-width: 1200px; /* Adjust as needed */
+    margin: 0 auto;
+    padding: 20px;
     background-color: #fff;
-    position: relative;
-    z-index: 0;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-/* Left image fixed and fully responsive */
+.menu-title {
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #000; /* Assuming black from the image */
+}
+
+/* Header Image Section */
 .menu-header-image {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: min(50%, 400px); /* Max 400px or 50% viewport */
-    height: 100vh;
-    overflow: hidden;
-    z-index: 0;
+    position: relative;
+    width: 100%; /* Or a fixed width */
+    max-width: 300px; /* Sharetea image width */
+    margin-bottom: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
 }
 
 .main-menu-img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
     display: block;
-    filter: brightness(1); /* Ensures image is clear */
+    /* Placeholder styling - adjust as you replace with actual image */
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    object-fit: cover;
 }
 
-/* Right menu sections scrollable */
+.header-text-overlay {
+    position: absolute;
+    top: 5%; /* Adjust as needed */
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: white; /* Text color on the image */
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5); /* For better readability */
+}
+
+.swirl-text {
+    font-size: 1em; /* Smaller "SWIRL INTO" */
+    margin: 0;
+    line-height: 1;
+}
+
+.happiness-text {
+    font-size: 1.8em; /* Larger "HAPPINESS" */
+    margin: 0;
+    line-height: 1;
+}
+
+.tagline {
+    font-size: 0.7em;
+    margin-top: 5px;
+    font-weight: normal;
+}
+
+.taste-tagline {
+    font-size: 0.8em;
+    margin-top: 10px;
+    font-weight: normal;
+}
+
+
+/* Overlays for "NEW" drinks on the main image */
+.drink-overlay-strawberry {
+    position: absolute;
+    bottom: 20px; /* Adjust as needed */
+    left: 10px; /* Adjust as needed */
+    text-align: center;
+    color: white;
+    font-size: 0.8em;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+}
+
+.drink-overlay-matcha {
+    position: absolute;
+    bottom: 30%; /* Adjust as needed */
+    left: 20%; /* Adjust as needed */
+    text-align: center;
+    color: white;
+    font-size: 0.8em;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+}
+
+.drink-name-overlay {
+    display: block;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.drink-type-overlay {
+    display: block;
+    font-size: 0.9em;
+}
+
+
+/* Menu Sections Grid */
 .menu-sections {
-    margin-left: min(50%, 400px); /* Push menu to the right of image */
-    flex: 1;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr; /* Three columns */
     gap: 20px;
-    padding: 20px;
-    height: 100vh;
-    overflow-y: auto;
-    background-color: #fff; /* White background ensures text visibility */
-    z-index: 1;
+    width: 100%;
+    margin-bottom: 30px;
 }
 
 .menu-column {
-    background-color: #f9f9f9;
+    background-color: #f9f9f9; /* Light background for columns */
     padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .section-title {
     font-size: 1.3em;
     font-weight: bold;
     margin-bottom: 15px;
-    border-bottom: 2px solid #eee;
+    border-bottom: 2px solid #eee; /* Subtle separator */
     padding-bottom: 8px;
     color: #444;
 }
@@ -74,52 +145,51 @@
     align-items: baseline;
     font-size: 0.95em;
     line-height: 1.4;
-    color: #333; /* Ensure text is visible */
 }
 
 .menu-item span {
-    margin-right: 5px;
+    margin-right: 5px; /* Space between item name and description/tag */
 }
 
 .item-description {
     font-size: 0.8em;
     color: #777;
-    margin-left: auto;
-    white-space: nowrap;
+    margin-left: auto; /* Pushes description to the right */
+    white-space: nowrap; /* Keeps description on one line */
 }
 
 .new-tag-inline {
-    background-color: #ffda44;
+    background-color: #ffda44; /* Yellowish background */
     color: #333;
     padding: 2px 6px;
     border-radius: 3px;
     font-size: 0.7em;
     font-weight: bold;
-    margin-left: 8px;
+    margin-left: 8px; /* Space from the item name */
     white-space: nowrap;
 }
 
-/* Customization bar */
+/* Customization Bar */
 .customization-bar {
-    width: calc(100% - min(50%, 400px));
-    margin-left: min(50%, 400px);
+    width: 100%;
+    background-color: #f0f0f0; /* Light grey background */
     padding: 15px 20px;
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 20px;
-    background-color: #f0f0f0;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    z-index: 1;
+    display: flex;
+    justify-content: space-around; /* Distribute groups evenly */
+    align-items: flex-start; /* Align groups to the top */
+    gap: 20px; /* Space between groups */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    margin-top: 20px; /* Space from menu sections */
 }
 
 .customization-group {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    flex: 1;
-    min-width: 150px;
+    flex: 1; /* Allow groups to grow */
+    min-width: 150px; /* Minimum width for each group */
 }
 
 .customization-label {
@@ -132,13 +202,13 @@
 
 .options-row {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-wrap: wrap; /* Allow options to wrap */
+    gap: 8px; /* Space between options */
 }
 
 .option-item {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Label and value stacked */
     align-items: center;
     padding: 4px 8px;
     background-color: #e0e0e0;
@@ -167,38 +237,25 @@
 }
 
 .topping-group .options-row {
-    justify-content: flex-start;
+    justify-content: flex-start; /* Align toppings to start */
 }
 
 /* Responsive adjustments */
 @media (max-width: 900px) {
-    .menu-board-container {
-        flex-direction: column;
-        height: auto;
-        align-items: center;
-    }
-
-    .menu-header-image {
-        position: relative;
-        width: 100%;
-        height: auto;
-    }
-
     .menu-sections {
-        margin-left: 0;
-        grid-template-columns: 1fr 1fr;
-        height: auto;
-        overflow: visible;
-    }
-
-    .customization-bar {
-        width: 100%;
-        margin-left: 0;
+        grid-template-columns: 1fr 1fr; /* Two columns on medium screens */
     }
 }
 
 @media (max-width: 600px) {
     .menu-sections {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Single column on small screens */
+    }
+    .customization-bar {
+        flex-direction: column; /* Stack customization groups vertically */
+        align-items: stretch;
+    }
+    .menu-header-image {
+        max-width: 100%; /* Image takes full width */
     }
 }
