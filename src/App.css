@@ -390,3 +390,11 @@ html, body {
   left: 50%;
   transform: translateX(-50%);
 }
+
+.roleButtonsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  margin-top: 20px;
+}
