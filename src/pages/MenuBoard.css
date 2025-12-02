@@ -123,6 +123,7 @@
 
 .customization-label {
     font-weight: bold;
+    text-align: center;
     margin-bottom: 6px;
     font-size: 0.9em;
     text-transform: uppercase;
