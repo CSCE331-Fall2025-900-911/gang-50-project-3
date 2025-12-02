@@ -1,5 +1,5 @@
 import { useState, useRef, useLayoutEffect, useEffect } from 'react'
-import CashierNavbar from '../components/CashierNavbar'
+import ManagerNavbar from '../components/ManagerNavbar'
 
 
 export default function Analytics() {
