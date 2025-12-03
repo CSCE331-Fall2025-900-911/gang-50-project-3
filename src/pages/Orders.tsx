@@ -439,17 +439,34 @@ export default function Orders() {
     );
   }
 
-  // Group ingredients by category
+  // // Group ingredients by category
+  // const groupedIngredients: Record<string, any[]> = {};
+  // for (const ingRaw of ingredients) {
+  //   const ing = ingRaw as any;
+  //   const catName = ing.ingredient_category_name || 'Other';
+  //   if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
+  //   groupedIngredients[catName].push(ing);
+  // }
+  // Object.keys(groupedIngredients).forEach(catName => {
+  //   groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
+  // });
   const groupedIngredients: Record<string, any[]> = {};
-  for (const ingRaw of ingredients) {
-    const ing = ingRaw as any;
-    const catName = ing.ingredient_category_name || 'Other';
-    if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
-    groupedIngredients[catName].push(ing);
-  }
-  Object.keys(groupedIngredients).forEach(catName => {
-    groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
-  });
+for (const ingRaw of ingredients) {
+  const ing = ingRaw as any;
+  let catName = ing.ingredient_category_name || 'Other';
+
+  // Normalize category names to match singleSelectCategories
+  if (catName === 'Milk Options') catName = 'Milk';
+  if (catName === 'Ice') catName = 'Ice Level';
+  if (catName === 'Size') catName = 'Sizes';
+  if (catName === 'Sweetness') catName = 'Sweetness Level';
+
+  if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
+  groupedIngredients[catName].push(ing);
+}
+Object.keys(groupedIngredients).forEach(catName => {
+  groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
+});
 
   // Filter normal items (exclude Misc category)
   const filteredItems = selectedCategory === 7
