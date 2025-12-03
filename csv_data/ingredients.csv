@@ -17,7 +17,7 @@ ingredient_id,ingredient_name,ingredient_count,expiration_date,per_unit_cost,ven
 16,Oolong Tea,1713,2026-11-08,1.43,Vendor_2,5
 17,2% Milk,3201,2026-07-22,0.03,Vendor_1,3
 18,Whole Milk,3980,2026-09-13,1.64,Vendor_2,3
-19,Coconut Milk,4442,2026-07-24,0.87,Vendor_3,3
+19,Non-Dairy Milk,4442,2026-07-24,0.87,Vendor_3,3
 20,Taro Powder,542,2026-01-20,0.34,Vendor_3,4
 21,Brown Sugar,3794,2026-09-24,0.88,Vendor_6,4
 22,Chocolate Syrup,3574,2026-05-24,1.67,Vendor_7,4

@@ -392,10 +392,9 @@
 
 
 
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
-
+import './Orders.css'; // <-- CSS Import
 
 export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -440,7 +439,7 @@ export default function Orders() {
           <p>{error}</p>
           <button onClick={() => window.location.reload()} className="btn">Retry</button>
         </div>
-        </div>
+      </div>
     );
   }
 
@@ -640,7 +639,7 @@ export default function Orders() {
                       ) : (
                         <span className="thumb-ph">No image</span>
                       )}
-                    </div>
+                  </div>
                     <h3 className="item-name">{item.ingredient_name}</h3>
                   </button>
                 ))}
@@ -781,19 +780,27 @@ export default function Orders() {
             {singleSelectCategories.map(cat => (
               <div key={cat} style={{ marginBottom: '1rem' }}>
                 <h4>{cat}</h4>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <div className="radio-button-group">
                   {groupedIngredients[cat]?.map((ing: any) => {
                         const isSelected = customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID;
-                        return (
-                    <button
-                      key={ing.ingredient_ID}
-                      onClick={() => setCustomizationOption(cat, ing)}
-                      className={`btn ${isSelected ? 'selected' : ''}`}
-                    >
-                      {ing.ingredient_name}
-                    </button>
-                    );
-                })}
+                        const radioId = `radio-${cat}-${ing.ingredient_ID}`;
+                        return (
+                            <label 
+                                key={ing.ingredient_ID} 
+                                htmlFor={radioId}
+                                className={`btn radio-label ${isSelected ? 'selected' : ''}`}
+                            >
+                                <input
+                                    type="radio"
+                                    id={radioId}
+                                    name={cat} // Enforces single selection per category
+                                    checked={isSelected}
+                                    onChange={() => setCustomizationOption(cat, ing)} 
+                                />
+                                {ing.ingredient_name}
+                            </label>
+                        );
+                  })}
                 </div>
               </div>
             ))}

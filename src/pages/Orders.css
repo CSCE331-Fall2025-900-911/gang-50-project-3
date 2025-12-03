@@ -1,0 +1,261 @@
+/* Orders.css */
+
+/* --- Layout and Structure --- */
+.orders-layout {
+    display: grid;
+    grid-template-columns: 200px 1fr 300px; /* Left sidebar, main content, right cart */
+    height: 100vh;
+    overflow: hidden; /* Prevent body scroll */
+    font-family: Arial, sans-serif;
+}
+
+.sidebar {
+    padding: 1rem;
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+    background-color: #f8f8f8;
+}
+
+.sidebar-right {
+    border-left: 1px solid #ddd;
+    border-right: none;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.section-title {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.5rem;
+}
+
+/* --- Category List (Left Sidebar) --- */
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.category-btn {
+    padding: 0.75rem 1rem;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s, border-color 0.15s;
+    font-size: 1rem;
+}
+
+.category-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.category-btn.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    font-weight: bold;
+}
+
+/* --- Item Grid (Main Content) --- */
+.item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.item-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-align: center;
+}
+
+.item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.item-card .thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-card .thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-card .thumb-ph {
+    font-size: 0.6rem;
+    color: #888;
+    text-align: center;
+    padding: 5px;
+}
+
+.item-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.item-price {
+    color: #28a745;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.ingredient-category-title {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.25rem;
+}
+
+/* --- Cart (Right Sidebar) --- */
+.order-title {
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.5rem;
+}
+
+.order-drink {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.order-drink-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.order-drink-header button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #dc3545;
+    cursor: pointer;
+}
+
+.order-ingredients {
+    font-size: 0.9rem;
+    padding-left: 0.5rem;
+}
+
+.order-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.1rem 0;
+}
+
+.order-line button {
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+/* --- Totals and Checkout --- */
+.totals-card {
+    margin-top: auto; /* Push to the bottom */
+    padding: 1rem 0;
+    border-top: 2px solid #333;
+}
+
+.totals-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1rem;
+    padding: 0.25rem 0;
+}
+
+.totals-row-total {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #dc3545;
+}
+
+.btn-checkout {
+    width: 100%;
+    padding: 1rem;
+    background-color: #dc3545;
+    color: white;
+    font-size: 1.2rem;
+    border: none;
+    margin-top: 0.5rem;
+    transition: background-color 0.15s;
+}
+
+.btn-checkout:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* --- Generic Button Styling (Used for Customization Popup) --- */
+.btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.15s, border-color 0.15s;
+    user-select: none;
+    font-size: 1rem;
+}
+
+.btn:hover:not(:disabled) {
+    background-color: #e2e6ea;
+}
+
+/* Selection highlight for the buttons/labels */
+.btn.selected, .radio-label.selected {
+    border-color: #020e1b !important; 
+    background-color: #e9f5ff !important; 
+    font-weight: bold;
+}
+
+/* --- Radio Button Styling (New Customization Logic) --- */
+.radio-button-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Style the label to look like a button */
+.radio-label {
+    display: inline-block;
+}
+
+/* Hide the actual radio circle/dot */
+.radio-label input[type="radio"] {
+    display: none; 
+}

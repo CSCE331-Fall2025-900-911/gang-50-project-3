@@ -68,7 +68,7 @@ const customizationOptions = {
   MilkOptions: [
     { name: 'Whole Milk' },
     { name: '2% Milk' },
-    { name: 'Coconut Milk' },
+    { name: 'Non-Dairy Milk' },
   ],
 };
 

@@ -157,7 +157,7 @@ ingredient_category_map = {
 
     "2% Milk": "Milk",
     "Whole Milk": "Milk",
-    "Coconut Milk": "Milk",
+    "Non-Dairy Milk": "Milk",
 
     "Taro Powder": "Flavoring",
     "Brown Sugar": "Flavoring",
@@ -279,7 +279,7 @@ core_ingredients = [
     "Regular Ice", "Less Ice", "No Ice", "100% Sugar", "75% Sugar", "50% Sugar", "25% Sugar", "0% Sugar",
     "Tapioca Pearls", "Lychee Jelly", "Coffee Jelly", "Honey Jelly", "Pudding",
     "Black Tea", "Green Tea","Oolong Tea",
-    "2% Milk", "Whole Milk", "Coconut Milk",
+    "2% Milk", "Whole Milk", "Non-Dairy Milk",
     "Taro Powder", "Brown Sugar", "Chocolate Syrup", "Vanilla Syrup", "Caramel",
     "Strawberry Puree", "Mango Puree","Matcha Powder","Coffee"
 ]
