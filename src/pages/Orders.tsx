@@ -407,8 +407,6 @@
 //     </div>
 //   );
 // }
-
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -470,12 +468,10 @@ export default function Orders() {
     groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
   });
 
-  // Filter normal items (exclude Misc category)
   const filteredItems = selectedCategory === 7
     ? []
     : items.filter((item: any) => item.category_id === selectedCategory);
 
-  // Add drink and open customization popup
   const addDrink = (item: any) => {
     const newDrink = {
       cart_id: Date.now(),
@@ -494,7 +490,6 @@ export default function Orders() {
     setShowCustomizationPopup(true);
   };
 
-  // Add ingredient to last drink
   const addIngredient = (ingRaw: any) => {
     const ing = ingRaw as any;
     const lastDrink = [...cart].reverse().find((d: any) => d.item);
@@ -515,6 +510,7 @@ export default function Orders() {
         };
       }
 
+      if (d.extras.some((e: any) => e.ingredient_ID === ing.ingredient_ID)) return d; // avoid duplicates
       return {
         ...d,
         extras: [...d.extras, ing],
@@ -522,7 +518,6 @@ export default function Orders() {
     }));
   };
 
-  // Remove ingredient
   const removeIngredient = (drinkId: any, catName: any, ingId: any) => {
     setCart(prev => prev.map((d: any) => {
       if (d.cart_id !== drinkId) return d;
@@ -555,7 +550,6 @@ export default function Orders() {
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
-  // Only Packaging in Misc
   const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter((catName: string) => {
     const list = groupedIngredients[catName];
     return list[0] && list[0].ingredient_category_name === 'Packaging';
@@ -565,7 +559,6 @@ export default function Orders() {
   const setCustomizationOption = (category: string, ing: any) => {
     if (!customizingDrink) return;
 
-    // Update customizingDrink
     const updatedDrink = {
       ...customizingDrink,
       ingredients: {
@@ -574,13 +567,21 @@ export default function Orders() {
       },
     };
     setCustomizingDrink(updatedDrink);
+    setCart(prev => prev.map(d => d.cart_id === updatedDrink.cart_id ? updatedDrink : d));
+  };
 
-    // Live update the cart so it reflects in cart & checkout
-    setCart(prev =>
-      prev.map(d =>
-        d.cart_id === updatedDrink.cart_id ? updatedDrink : d
-      )
-    );
+  const toggleExtra = (ing: any) => {
+    if (!customizingDrink) return;
+
+    const updatedDrink = { ...customizingDrink };
+    const exists = updatedDrink.extras.some((e: any) => e.ingredient_ID === ing.ingredient_ID);
+
+    updatedDrink.extras = exists
+      ? updatedDrink.extras.filter((e: any) => e.ingredient_ID !== ing.ingredient_ID)
+      : [...updatedDrink.extras, ing];
+
+    setCustomizingDrink(updatedDrink);
+    setCart(prev => prev.map(d => d.cart_id === updatedDrink.cart_id ? updatedDrink : d));
   };
 
   const confirmCustomization = () => {
@@ -722,7 +723,6 @@ export default function Orders() {
             backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
           }}>
             <h3 style={{ marginBottom: '1rem' }}>Review Your Order</h3>
-
             {cart.map((d: any) => (
               <div key={d.cart_id} style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
                 <strong>{d.item.item_name}</strong> - ${d.item.item_cost.toFixed(2)}
@@ -736,30 +736,25 @@ export default function Orders() {
                 </div>
               </div>
             ))}
-
             <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Tax:</span><span>${tax.toFixed(2)}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}><span>Total:</span><span>${total.toFixed(2)}</span></div>
             </div>
-
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
               <button
                 className="btn"
                 onClick={() => {
                   const outOfStock = cart.some((d: any) => !d.item.in_stock);
-                  if (outOfStock) {
-                    alert("Some items are out of stock. Please remove them from your order.");
-                  } else {
+                  if (outOfStock) alert("Some items are out of stock. Please remove them from your order.");
+                  else {
                     alert("Thank you for your order! Have a nice day.");
                     setCart([]);
                     setShowCheckoutPopup(false);
                   }
                 }}
                 style={{ marginRight: '1rem' }}
-              >
-                Confirm
-              </button>
+              >Confirm</button>
               <button className="btn" onClick={() => setShowCheckoutPopup(false)}>Cancel</button>
             </div>
           </div>
@@ -768,48 +763,107 @@ export default function Orders() {
 
       {/* --- Customization Popup --- */}
       {showCustomizationPopup && customizingDrink && (
-        <div className="customization-popup" style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
-          }}>
+        <div
+          className="customization-popup"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              padding: '2rem',
+              borderRadius: '8px',
+              width: '500px',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+            }}
+          >
             <h3 style={{ marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
-            {singleSelectCategories.map(cat => (
+
+            {/* Single-select options */}
+            {singleSelectCategories.map((cat) => (
               <div key={cat} style={{ marginBottom: '1rem' }}>
                 <h4>{cat}</h4>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {groupedIngredients[cat]?.map((ing: any) => (
-                    <label
-                      key={ing.ingredient_ID}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.4rem",
-                        background: "#f0f0f0",
-                        padding: "0.4rem 0.6rem",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        border: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID
-                          ? "2px solid black"
-                          : "1px solid #ccc"
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name={cat}
-                        value={ing.ingredient_ID}
-                        checked={customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID}
-                        onChange={() => setCustomizationOption(cat, ing)}
-                        style={{ transform: "scale(1.2)" }}
-                      />
-                      <span>{ing.ingredient_name}</span>
-                    </label>
-                  ))}
+                  {groupedIngredients[cat]?.map((ing: any) => {
+                    const isSelected = customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID;
+                    return (
+                      <label
+                        key={ing.ingredient_ID}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.4rem',
+                          background: isSelected ? '#d1f0d1' : '#f0f0f0',
+                          padding: '0.4rem 0.6rem',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          border: isSelected ? '2px solid black' : '1px solid #ccc',
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name={cat}
+                          value={ing.ingredient_ID}
+                          checked={isSelected}
+                          onChange={() => setCustomizationOption(cat, ing)}
+                          style={{ transform: 'scale(1.2)' }}
+                        />
+                        <span>{ing.ingredient_name}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             ))}
+
+            {/* Multi-select extras */}
+            {Object.keys(groupedIngredients)
+              .filter(cat => !singleSelectCategories.includes(cat))
+              .map(cat => (
+                <div key={cat} style={{ marginBottom: '1rem' }}>
+                  <h4>{cat}</h4>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    {groupedIngredients[cat].map((ing: any) => {
+                      const isSelected = customizingDrink.extras.some((e: any) => e.ingredient_ID === ing.ingredient_ID);
+                      return (
+                        <label
+                          key={ing.ingredient_ID}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
+                            background: isSelected ? '#d1f0d1' : '#f0f0f0',
+                            padding: '0.4rem 0.6rem',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            border: isSelected ? '2px solid black' : '1px solid #ccc',
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleExtra(ing)}
+                            style={{ transform: 'scale(1.2)' }}
+                          />
+                          <span>{ing.ingredient_name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
               <button className="btn" onClick={confirmCustomization} style={{ marginRight: '1rem' }}>Confirm</button>
               <button className="btn" onClick={cancelCustomization}>Cancel</button>
@@ -820,6 +874,3 @@ export default function Orders() {
     </div>
   );
 }
-
-
-

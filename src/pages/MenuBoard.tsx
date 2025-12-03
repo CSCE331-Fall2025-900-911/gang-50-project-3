@@ -112,8 +112,7 @@ export default function MenuData() {
             <div className="options-row">
               {customizationOptions.iceLevel.map((opt, index) => (
                 <span key={index} className="option-item">
-                  <span className="option-label">{opt.label}</span>
-                  <span className="option-value">{opt.value}</span>
+                  {`${opt.label} - ${opt.value}`}
                 </span>
               ))}
             </div>
@@ -125,8 +124,7 @@ export default function MenuData() {
             <div className="options-row">
               {customizationOptions.sweetnessLevel.map((opt, index) => (
                 <span key={index} className="option-item">
-                  <span className="option-label">{opt.label}</span>
-                  <span className="option-value">{opt.value}</span>
+                  {`${opt.label} - ${opt.value}`}
                 </span>
               ))}
             </div>
@@ -138,7 +136,7 @@ export default function MenuData() {
             <div className="options-row">
               {customizationOptions.CupSizes.map((opt, index) => (
                 <span key={index} className="option-item">
-                  <span className="option-label">{opt.label}</span>
+                  {`${opt.label} - ${opt.value}`}
                 </span>
               ))}
             </div>
@@ -149,9 +147,7 @@ export default function MenuData() {
             <span className="customization-label">MILK OPTIONS</span>
             <div className="options-row">
               {customizationOptions.MilkOptions.map((opt, index) => (
-                <span key={index} className="option-item">
-                  <span className="option-label">{opt.name}</span>
-                </span>
+                <span key={index} className="option-item">{opt.name}</span>
               ))}
             </div>
           </div>
@@ -177,4 +173,3 @@ const MenuSection: React.FC<{ title: string; items: any[] }> = ({ title, items }
     </ul>
   </div>
 );
-
