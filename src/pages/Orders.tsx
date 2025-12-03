@@ -390,8 +390,6 @@
 // }
 
 
-
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -761,7 +759,7 @@ export default function Orders() {
         </div>
       )}
 
-      {/* --- Customization Popup --- */}
+      {/* --- Customization Popup (Updated for persistent single-select) --- */}
       {showCustomizationPopup && customizingDrink && (
         <div
           className="customization-popup"
@@ -791,12 +789,11 @@ export default function Orders() {
             <h3 style={{ marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
 
             {singleSelectCategories.map((cat) => (
-              <div key={cat} style={{ marginBottom: '1.2rem' }}>
+              <div key={cat} style={{ marginBottom: '1.5rem' }}>
                 <h4>{cat}</h4>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {groupedIngredients[cat]?.map((ing: any) => {
-                    const isSelected =
-                      customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID;
+                    const isSelected = customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID;
                     return (
                       <button
                         key={ing.ingredient_ID}
