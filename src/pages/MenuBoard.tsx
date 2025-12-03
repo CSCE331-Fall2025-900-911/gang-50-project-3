@@ -148,7 +148,7 @@ export default function MenuBoard() {
         const groupedItems: Record<string, any[]> = {};
         itemsJson.forEach((item: any) => {
           if (item.category_name !== 'Misc') {
-            const cat = item.category_name || 'Other';
+            const cat = item.category_name;
             if (!groupedItems[cat]) groupedItems[cat] = [];
             groupedItems[cat].push(item);
           }
