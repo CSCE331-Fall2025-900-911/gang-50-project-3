@@ -439,34 +439,23 @@ export default function Orders() {
     );
   }
 
-  // // Group ingredients by category
-  // const groupedIngredients: Record<string, any[]> = {};
-  // for (const ingRaw of ingredients) {
-  //   const ing = ingRaw as any;
-  //   const catName = ing.ingredient_category_name || 'Other';
-  //   if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
-  //   groupedIngredients[catName].push(ing);
-  // }
-  // Object.keys(groupedIngredients).forEach(catName => {
-  //   groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
-  // });
+  // Group ingredients by category with normalized names
   const groupedIngredients: Record<string, any[]> = {};
-for (const ingRaw of ingredients) {
-  const ing = ingRaw as any;
-  let catName = ing.ingredient_category_name || 'Other';
+  for (const ingRaw of ingredients) {
+    const ing = ingRaw as any;
+    let catName = ing.ingredient_category_name || 'Other';
 
-  // Normalize category names to match singleSelectCategories
-  if (catName === 'Milk Options') catName = 'Milk';
-  if (catName === 'Ice') catName = 'Ice Level';
-  if (catName === 'Size') catName = 'Sizes';
-  if (catName === 'Sweetness') catName = 'Sweetness Level';
+    if (catName === 'Milk Options') catName = 'Milk';
+    if (catName === 'Ice') catName = 'Ice Level';
+    if (catName === 'Size') catName = 'Sizes';
+    if (catName === 'Sweetness') catName = 'Sweetness Level';
 
-  if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
-  groupedIngredients[catName].push(ing);
-}
-Object.keys(groupedIngredients).forEach(catName => {
-  groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
-});
+    if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
+    groupedIngredients[catName].push(ing);
+  }
+  Object.keys(groupedIngredients).forEach(catName => {
+    groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
+  });
 
   // Filter normal items (exclude Misc category)
   const filteredItems = selectedCategory === 7
@@ -553,7 +542,6 @@ Object.keys(groupedIngredients).forEach(catName => {
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
-  // Only Packaging in Misc
   const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter((catName: string) => {
     const list = groupedIngredients[catName];
     return list[0] && list[0].ingredient_category_name === 'Packaging';
@@ -749,7 +737,7 @@ Object.keys(groupedIngredients).forEach(catName => {
             <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Tax:</span><span>${tax.toFixed(2)}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}><span>Total:</span><span>${total.toFixed(2)}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}><span>Total</span><span>${total.toFixed(2)}</span></div>
             </div>
 
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
@@ -776,7 +764,7 @@ Object.keys(groupedIngredients).forEach(catName => {
         </div>
       )}
 
-      {/* --- Customization Popup (Updated for persistent single-select) --- */}
+      {/* --- Customization Popup (Persistent single-select selection) --- */}
       {showCustomizationPopup && customizingDrink && (
         <div
           className="customization-popup"
