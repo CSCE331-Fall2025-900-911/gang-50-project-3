@@ -1,4 +1,16 @@
+import { useNavigate } from "react-router-dom";
+
 export default function CashierNavbar() {
+  
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    console.log("User logged out.");
+    navigate("/");
+  };
+  
   return (
     <nav>
       <div className="ShareTeaLogo">
@@ -17,7 +29,7 @@ export default function CashierNavbar() {
         </div>
 
         <div className="navItem">
-          <button className="logout">Logout</button>
+          <button className="logout" onClick={handleLogout}>Logout</button>
         </div>
       </div>
     </nav>
