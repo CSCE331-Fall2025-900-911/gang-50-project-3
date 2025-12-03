@@ -5,12 +5,9 @@ export default function KioskNavbar() {
   const navigate = useNavigate();
 
   const handleCancelOrder = () => {
-
     localStorage.clear();
     sessionStorage.clear();
-
     console.log("User canceled order out.");
-
     navigate("/");
   };
   
