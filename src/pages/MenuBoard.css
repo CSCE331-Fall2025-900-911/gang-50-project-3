@@ -3,16 +3,17 @@
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: row;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
-    overflow: hidden; /* Prevent extra whitespace */
+    overflow: hidden; /* Prevent scrollbars */
     background-color: #ffffff;
+    box-sizing: border-box;
 }
 
 /* --- LEFT IMAGE SECTION --- */
 .menu-header-image {
-    flex: 0 0 40%;        /* Takes 40% of the screen */
-    max-width: 550px;     /* You can adjust if needed */
+    flex: 0 0 40%;
+    max-width: 550px;
     height: 100vh;
     overflow: hidden;
 }
@@ -20,21 +21,21 @@
 .main-menu-img {
     width: 100%;
     height: 100%;
-    object-fit: cover;    /* Clean crop of the menu image */
+    object-fit: cover;
     display: block;
 }
 
 /* --- RIGHT SIDE CONTENT --- */
 .menu-content {
-    flex: 1;              /* Fills ALL remaining space */
-    min-width: 0;         /* CRITICAL: allows flexbox to stretch on monitors */
+    flex: 1;
+    min-width: 0; /* Critical to prevent flex overflow */
     display: flex;
     flex-direction: column;
     height: 100vh;
-    box-sizing: border-box;
     padding: 25px;
-    overflow-y: auto;     /* Scrolls if content exceeds screen height */
-    background: #fff;     /* Guarantees white background (not transparent) */
+    box-sizing: border-box;
+    overflow-y: auto;
+    background: #fff;
 }
 
 /* --- TITLE --- */
@@ -48,17 +49,21 @@
 
 /* --- MENU SECTIONS GRID --- */
 .menu-sections {
-    flex: 1; /* expand to fill vertical space */
+    flex: 1;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    gap: 15px; /* Slightly reduced for small screens */
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden; /* Ensure no horizontal scroll */
 }
 
 .menu-column {
     background-color: #f9f9f9;
-    padding: 15px;
+    padding: 10px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    word-break: break-word; /* Prevent long text from overflowing */
 }
 
 /* Section Titles */
@@ -105,12 +110,12 @@
 .customization-bar {
     width: 100%;
     background: #f0f0f0;
-    padding: 15px 20px;
+    padding: 15px 10px; /* reduced side padding */
     border-radius: 8px;
     margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 12px; /* smaller gap */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -118,7 +123,7 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    min-width: 150px;
+    min-width: 120px; /* reduce min width */
 }
 
 .customization-label {
@@ -133,12 +138,12 @@
 .options-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     justify-content: center;
 }
 
 .option-item {
-    padding: 5px 8px;
+    padding: 5px 6px;
     background: #e0e0e0;
     border-radius: 4px;
     font-size: 0.8em;
@@ -170,7 +175,7 @@
 
     .menu-header-image {
         width: 100%;
-        height: 40vh;
+        height: 35vh;
         max-width: none;
     }
 
@@ -182,29 +187,33 @@
 
     .menu-sections {
         grid-template-columns: 1fr 1fr;
+        gap: 10px;
     }
 }
 
 @media (max-width: 600px) {
     .menu-sections {
         grid-template-columns: 1fr;
+        gap: 8px;
     }
 
     .customization-bar {
         flex-direction: column;
+        gap: 6px;
+        padding: 10px 5px;
+    }
+
+    .customization-group {
+        min-width: 100px;
     }
 }
 
+/* Prevent horizontal scroll globally */
 html, body {
     overflow-x: hidden;
 }
 
-.menu-sections {
-    max-width: 100%;
-    overflow-x: hidden;
-}
-
 .menu-board-container {
-    width: 100%; /* replaces 100vw if you choose to apply it */
+    width: 100%;
 }
 
