@@ -353,7 +353,7 @@
 //       )}
 
 //       {/* --- Customization Popup --- */}
-//       {showCustomizationPopup && customizingDrink && (
+//       {showCustomizationPopup && customizingDrink && (https://chatgpt.com/c/69209cfd-7828-832f-917e-c6920ac2b0c0
 //         <div className="customization-popup" style={{
 //           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
 //           backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
@@ -388,6 +388,8 @@
 //     </div>
 //   );
 // }
+
+
 
 
 import { useState, useEffect } from 'react';
@@ -687,13 +689,32 @@ export default function Orders() {
 
       {/* --- Checkout Popup --- */}
       {showCheckoutPopup && (
-        <div className="checkout-popup" style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
-        }}>
-          <div className="checkout-content" style={{
-            backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
-          }}>
+        <div
+          className="checkout-popup"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            className="checkout-content"
+            style={{
+              backgroundColor: 'white',
+              padding: '2rem',
+              borderRadius: '8px',
+              width: '500px',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+            }}
+          >
             <h3 style={{ marginBottom: '1rem' }}>Review Your Order</h3>
 
             {cart.map((d: any) => (
@@ -742,29 +763,53 @@ export default function Orders() {
 
       {/* --- Customization Popup --- */}
       {showCustomizationPopup && customizingDrink && (
-        <div className="customization-popup" style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
-          }}>
+        <div
+          className="customization-popup"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              padding: '2rem',
+              borderRadius: '8px',
+              width: '500px',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+            }}
+          >
             <h3 style={{ marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
-            {singleSelectCategories.map(cat => (
-              <div key={cat} style={{ marginBottom: '1rem' }}>
+
+            {singleSelectCategories.map((cat) => (
+              <div key={cat} style={{ marginBottom: '1.2rem' }}>
                 <h4>{cat}</h4>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {groupedIngredients[cat]?.map((ing: any) => {
-                    const isSelected = customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID;
+                    const isSelected =
+                      customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID;
                     return (
                       <button
                         key={ing.ingredient_ID}
                         onClick={() => setCustomizationOption(cat, ing)}
-                        className={`btn ${isSelected ? 'selected' : ''}`}
                         style={{
-                          backgroundColor: isSelected ? '#007bff' : undefined,
-                          color: isSelected ? 'white' : undefined,
-                          border: isSelected ? '2px solid #0056b3' : undefined
+                          padding: '0.5rem 0.8rem',
+                          borderRadius: '5px',
+                          border: isSelected ? '2px solid black' : '1px solid #ccc',
+                          backgroundColor: '#ffffff',
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                          fontWeight: isSelected ? 'bold' : 'normal',
+                          transition: 'border 0.2s',
                         }}
                       >
                         {ing.ingredient_name}
@@ -774,6 +819,7 @@ export default function Orders() {
                 </div>
               </div>
             ))}
+
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
               <button className="btn" onClick={confirmCustomization} style={{ marginRight: '1rem' }}>Confirm</button>
               <button className="btn" onClick={cancelCustomization}>Cancel</button>

@@ -154,7 +154,7 @@ html, body {
     font-size: calc(0.5vw + 0.5em);
     text-align: center;
     white-space: nowrap;
-    gap:4px;
+    gap:20px;
     display: flex;
 }
 
