@@ -5,12 +5,9 @@ export default function ManagerNavbar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-
     localStorage.clear();
     sessionStorage.clear();
-
     console.log("User logged out.");
-
     navigate("/");
   };
   
