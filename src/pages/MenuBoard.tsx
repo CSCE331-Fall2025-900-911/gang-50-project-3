@@ -247,7 +247,6 @@
 //   </div>
 // );
 
-
 import React, { useEffect, useState } from 'react';
 import './MenuBoard.css';
 
@@ -266,10 +265,11 @@ export default function MenuBoard() {
 
         const groupedItems: Record<string, any[]> = {};
         itemsJson.forEach((item: any) => {
-          //  Remove entire "Other" category
-          if (item.category_name === 'Other') return;
+          const cat = item.category_name;
 
-          const cat = item.category_name || 'Other';
+          // Remove "Other" AND skip items with missing category
+          if (!cat || cat === 'Other') return;
+
           if (!groupedItems[cat]) groupedItems[cat] = [];
           groupedItems[cat].push(item);
         });
@@ -281,10 +281,8 @@ export default function MenuBoard() {
         ingJson.forEach((ing: any) => {
           const cat = ing.ingredient_category_name;
 
-          //  Remove all ingredients from "Other" category
           if (cat === 'Other') return;
 
-          // Only include single-select groups
           if (singleSelectCategories.includes(cat)) {
             if (!groupedIngredients[cat]) groupedIngredients[cat] = [];
             groupedIngredients[cat].push(ing);
