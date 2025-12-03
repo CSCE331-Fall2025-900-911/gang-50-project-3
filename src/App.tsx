@@ -5,7 +5,7 @@ import Kiosk from './pages/Kiosk'
 import UpdateMenu from './pages/UpdateMenu'
 import InventoryMenu from './pages/InventoryMenu'
 import Employee from './pages/Employee'
-import Analytics from './pages/Analytics'
+import Analytics from './pages/Analytics' 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 function App() {
