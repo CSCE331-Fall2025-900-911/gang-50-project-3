@@ -24,7 +24,7 @@ export default function Login() {
   } else if (role === "cashier") {
     navigate("/orders")
   } else if (role === "manager") {
-    navigate("/employee")
+    navigate("/analytics")
   }
 }
 
