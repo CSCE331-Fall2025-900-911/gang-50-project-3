@@ -123,6 +123,8 @@ export default function ManagerNavbar() {
               padding: "2rem",
               borderRadius: "8px",
               width: "400px",
+              maxHeight: "80vh",
+              overflowY: "auto",
               textAlign: "center"
             }}
           >
