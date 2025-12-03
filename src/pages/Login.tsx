@@ -34,8 +34,6 @@ export default function Login() {
         <div>
           <img src="/sharetealogo.png" className="logo" alt="ShareTea logo" />
 
-          <h2>Select Login Type</h2>
-
           <div className="roleButtonsContainer">
             <button className="roleButton" onClick={() => handleRoleSelect("kiosk")}>
               Kiosk
