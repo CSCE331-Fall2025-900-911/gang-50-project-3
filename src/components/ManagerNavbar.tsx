@@ -34,14 +34,12 @@ export default function ManagerNavbar() {
 
   const handleLogout = () => {
     // Reset styles
-    document.documentElement.style.fontSize = "";
+    document.documentElement.style.fontSize = '16px';
     document.documentElement.style.filter = "";
 
     localStorage.clear();
     sessionStorage.clear();
-
     console.log("User logged out.");
-
     navigate("/");
   };
 
@@ -75,7 +73,7 @@ export default function ManagerNavbar() {
           <img className="navLogo" src="/sharetealogo.png" alt="Share Tea Logo"/>
         </div>
         <div className="pageItem">
-          <p>Analytics</p>
+          <a href="/Analytics">Analytics</a>
           <a href="/UpdateMenu">Items</a>
           <a href="/Employee">Employees</a>
           <a href="/inventorymenu">Inventory</a>

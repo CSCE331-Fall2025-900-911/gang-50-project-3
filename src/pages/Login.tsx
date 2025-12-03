@@ -4,6 +4,7 @@ import type { CredentialResponse } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
+  
   const navigate = useNavigate()
 
   const handleLoginSuccess = (credentialResponse: CredentialResponse) => {
@@ -23,7 +24,7 @@ export default function Login() {
   } else if (role === "cashier") {
     navigate("/orders")
   } else if (role === "manager") {
-    navigate("/employee")
+    navigate("/analytics")
   }
 }
 
@@ -32,8 +33,6 @@ export default function Login() {
       <div className="backgroundBox">
         <div>
           <img src="/sharetealogo.png" className="logo" alt="ShareTea logo" />
-
-          <h2>Select Login Type</h2>
 
           <div className="roleButtonsContainer">
             <button className="roleButton" onClick={() => handleRoleSelect("kiosk")}>
