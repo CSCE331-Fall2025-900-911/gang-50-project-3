@@ -126,21 +126,13 @@
 // );
 
 
+// Updated MenuBoard.tsx reflecting Orders page categories and layout
+// (No Misc items shown, single-select categories only)
 
 import React, { useEffect, useState } from 'react';
 import './MenuBoard.css';
 
 const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
-
-// Only show these menu categories on the menu board
-const allowedMenuCategories = [
-  'MILKY SERIES',
-  'FRESH BREW',
-  'FRUITY BEVERAGE',
-  'NEW MATCHA SERIES',
-  'ICE-BLENDED',
-  'LIMITED EDITION',
-];
 
 export default function MenuBoard() {
   const [menuItems, setMenuItems] = useState<Record<string, any[]>>({});
@@ -150,22 +142,21 @@ export default function MenuBoard() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Fetch menu items
         const itemsRes = await fetch('/api/items');
         const itemsJson = await itemsRes.json();
-        const groupedItems: Record<string, any[]> = {};
 
+        const groupedItems: Record<string, any[]> = {};
         itemsJson.forEach((item: any) => {
-          const cat = (item.category_name || '').toUpperCase();
-          if (allowedMenuCategories.includes(cat)) {
+          if (item.category_name !== 'Misc') {
+            const cat = item.category_name || 'Other';
             if (!groupedItems[cat]) groupedItems[cat] = [];
             groupedItems[cat].push(item);
           }
         });
 
-        // Fetch ingredients
         const ingRes = await fetch('/api/ingredients');
         const ingJson = await ingRes.json();
+
         const groupedIngredients: Record<string, any[]> = {};
         ingJson.forEach((ing: any) => {
           const cat = ing.ingredient_category_name;
@@ -189,42 +180,40 @@ export default function MenuBoard() {
 
   if (loading) return <p>Loading menu...</p>;
 
-  // Split menu items into 3 columns
   const menuColumns: Record<string, any[]> = { col1: [], col2: [], col3: [] };
   Object.entries(menuItems).forEach(([cat, items], index) => {
-    const column = index % 3 === 0 ? 'col1' : index % 3 === 1 ? 'col2' : 'col3';
-    menuColumns[column].push({ cat, items });
+    if (index % 3 === 0) menuColumns.col1.push({ cat, items });
+    else if (index % 3 === 1) menuColumns.col2.push({ cat, items });
+    else menuColumns.col3.push({ cat, items });
   });
-
-  const formatCategoryTitle = (cat: string) =>
-    cat.toUpperCase() === 'LIMITED EDITION' ? 'SPECIAL ITEMS' : cat;
 
   return (
     <div className="menu-board-container" style={{ display: 'flex', gap: '2%' }}>
-      {/* Left Image */}
       <div className="menu-header-image" style={{ flex: 1 }}>
         <img src="menu_image.png" alt="Menu Visual" className="main-menu-img" />
       </div>
 
-      {/* Right Content */}
       <div className="menu-content" style={{ flex: 2 }}>
         <h1 className="menu-title">Menu Board</h1>
 
         <div className="menu-sections" style={{ display: 'flex', gap: '1%' }}>
-          {['col1', 'col2', 'col3'].map((col) => (
-            <div key={col} className={`menu-column ${col}`} style={{ flex: 1 }}>
-              {menuColumns[col].map(({ cat, items }) => (
-                <MenuSection
-                  key={cat}
-                  title={formatCategoryTitle(cat)}
-                  items={items}
-                />
-              ))}
-            </div>
-          ))}
+          <div className="menu-column col-1" style={{ flex: 1 }}>
+            {menuColumns.col1.map(({ cat, items }) => (
+              <MenuSection key={cat} title={cat} items={items} />
+            ))}
+          </div>
+          <div className="menu-column col-2" style={{ flex: 1 }}>
+            {menuColumns.col2.map(({ cat, items }) => (
+              <MenuSection key={cat} title={cat} items={items} />
+            ))}
+          </div>
+          <div className="menu-column col-3" style={{ flex: 1 }}>
+            {menuColumns.col3.map(({ cat, items }) => (
+              <MenuSection key={cat} title={cat} items={items} />
+            ))}
+          </div>
         </div>
 
-        {/* Single-select ingredients */}
         <div className="customization-bar">
           {Object.entries(ingredients).map(([cat, items]) => (
             <div key={cat} className="customization-group">
@@ -251,7 +240,7 @@ const MenuSection: React.FC<{ title: string; items: any[] }> = ({ title, items }
       {items.map((item) => (
         <li key={item.item_ID} className="menu-item">
           <span>{item.item_name}</span>
-          {item.seasonal_item && <span className="new-tag-inline">NEW</span>}
+          {item.special_item && <span className="new-tag-inline">NEW</span>}
         </li>
       ))}
     </ul>
