@@ -195,3 +195,16 @@
     }
 }
 
+html, body {
+    overflow-x: hidden;
+}
+
+.menu-sections {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.menu-board-container {
+    width: 100%; /* replaces 100vw if you choose to apply it */
+}
+
