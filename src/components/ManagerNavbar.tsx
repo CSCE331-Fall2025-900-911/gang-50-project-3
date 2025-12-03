@@ -1,5 +1,12 @@
-import { useState, useLayoutEffect } from "react";
+import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+declare global {
+  interface Window {
+    google?: any;
+    googleTranslateElementInit?: () => void;
+  }
+}
 
 export default function ManagerNavbar() {
   const navigate = useNavigate();
@@ -32,11 +39,43 @@ export default function ManagerNavbar() {
     applyContrastMode(highContrast);
   }, []);
 
+  // --- GOOGLE TRANSLATE LOADING LOGIC ---
+  useEffect(() => {
+    if (!showAccessibilityPopup) return;
+
+    const elem = document.getElementById("google_translate_element");
+    if (elem) elem.innerHTML = "";
+
+    // Global callback for Google API
+    window.googleTranslateElementInit = () => {
+      new window.google.translate.TranslateElement(
+        { pageLanguage: "en" },
+        "google_translate_element"
+      );
+    };
+
+    // Load script only once
+    const existingScript = document.querySelector("#google-translate-script");
+    if (!existingScript) {
+      const script = document.createElement("script");
+      script.id = "google-translate-script";
+      script.src =
+        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+      document.body.appendChild(script);
+    } else {
+      // Re-init only after google translate API is fully ready
+      const interval = setInterval(() => {
+        if (window.google && window.google.translate) {
+          window.googleTranslateElementInit?.();
+          clearInterval(interval);
+        }
+      }, 50);
+    }
+  }, [showAccessibilityPopup]);
+
   const handleLogout = () => {
-    // Reset styles
     document.documentElement.style.fontSize = '16px';
     document.documentElement.style.filter = "";
-
     localStorage.clear();
     sessionStorage.clear();
     console.log("User logged out.");
@@ -141,6 +180,15 @@ export default function ManagerNavbar() {
             </button>
 
             <hr style={{ margin: "1rem 0" }} />
+
+            {/* Google Translate */}
+            <div style={{ margin: "1rem 0" }}>
+              <h3 style={{ marginBottom: "0.5rem" }}>Translate</h3>
+              <div id="google_translate_element"></div>
+            </div>
+
+            <hr style={{ margin: "1rem 0" }} />
+
             <p style={{ marginBottom: "0.5rem" }}>High Contrast Mode</p>
             <button className="btn" onClick={toggleContrastMode}>
               {highContrast ? "Disable" : "Enable"}

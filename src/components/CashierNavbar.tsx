@@ -1,5 +1,12 @@
-import { useState, useLayoutEffect } from "react";
+import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+declare global {
+  interface Window {
+    google?: any;
+    googleTranslateElementInit?: () => void;
+  }
+}
 
 export default function CashierNavbar() {
   const navigate = useNavigate();
@@ -31,14 +38,42 @@ export default function CashierNavbar() {
     applyContrastMode(highContrast);
   }, []);
 
+  // --- GOOGLE TRANSLATE LOADING LOGIC ---
+  useEffect(() => {
+    if (!showAccessibilityPopup) return;
+
+    const elem = document.getElementById("google_translate_element");
+    if (elem) elem.innerHTML = "";
+
+    window.googleTranslateElementInit = () => {
+      new window.google.translate.TranslateElement(
+        { pageLanguage: "en" },
+        "google_translate_element"
+      );
+    };
+
+    const existingScript = document.querySelector("#google-translate-script");
+    if (!existingScript) {
+      const script = document.createElement("script");
+      script.id = "google-translate-script";
+      script.src =
+        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+      document.body.appendChild(script);
+    } else {
+      const interval = setInterval(() => {
+        if (window.google && window.google.translate) {
+          window.googleTranslateElementInit?.();
+          clearInterval(interval);
+        }
+      }, 50);
+    }
+  }, [showAccessibilityPopup]);
+
   const handleLogout = () => {
     localStorage.clear();
     sessionStorage.clear();
-
-    // Reset visual accessibility changes
     document.documentElement.style.fontSize = '16px';
     document.documentElement.style.filter = '';
-
     console.log("User logged out.");
     navigate("/");
   };
@@ -78,7 +113,6 @@ export default function CashierNavbar() {
           <p>72° F</p>
         </div>
 
-        {/* Accessibility Button */}
         <div 
           className="navItem" 
           onClick={() => setShowAccessibilityPopup(true)}
@@ -88,13 +122,11 @@ export default function CashierNavbar() {
           <p>Accessibility</p>
         </div>
 
-        {/* Logout Button */}
         <div className="navItem">
           <button className="logout" onClick={handleLogout}>Logout</button>
         </div>
       </div>
 
-      {/* Accessibility Popup */}
       {showAccessibilityPopup && (
         <div
           className="popup-overlay"
@@ -136,6 +168,15 @@ export default function CashierNavbar() {
             </button>
 
             <hr style={{ margin: "1rem 0" }} />
+
+            {/* Google Translate */}
+            <div style={{ margin: "1rem 0" }}>
+              <h3 style={{ marginBottom: "0.5rem" }}>Translate</h3>
+              <div id="google_translate_element"></div>
+            </div>
+
+            <hr style={{ margin: "1rem 0" }} />
+
             <p style={{ marginBottom: "0.5rem" }}>High Contrast Mode</p>
             <button className="btn" onClick={toggleContrastMode}>
               {highContrast ? "Disable" : "Enable"}
