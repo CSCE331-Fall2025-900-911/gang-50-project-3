@@ -1,6 +1,6 @@
 import { useState, useRef, useLayoutEffect, useEffect } from 'react'
 import ManagerNavbar from '../components/ManagerNavbar'
-
+// test comment
 export default function Analytics() {
   
   const headerRef = useRef<HTMLElement | null>(null)
