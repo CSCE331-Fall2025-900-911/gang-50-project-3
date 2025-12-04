@@ -94,7 +94,7 @@ export default function Analytics() {
           Sales Analytics
         </h1>
 
-        <<section className="flex w-full gap-6 items-start">
+        <section className="flex w-full gap-6 items-start">
   
           {/* LEFT — CHART */}
           <div className="flex-1 bg-gray-50 border rounded-xl shadow-sm p-4 h-96">
