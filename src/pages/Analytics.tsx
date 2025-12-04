@@ -87,19 +87,6 @@ export default function Analytics() {
                   Generate X/Z Report
                 </button>
               </div>
-
-              <div className="space-y-3 mb-6">
-                <input
-                  type="date"
-                  className="w-full border rounded-md px-3 py-2 text-sm placeholder-gray-400"
-                  placeholder="Date (YYYY-MM-DD)"
-                />
-                <input
-                  type="date"
-                  className="w-full border rounded-md px-3 py-2 text-sm placeholder-gray-400"
-                  placeholder="Date (YYYY-MM-DD)"
-                />
-              </div>
             </div>
           </div>
         </section>
