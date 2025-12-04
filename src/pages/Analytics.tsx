@@ -79,55 +79,7 @@ export default function Analytics() {
   };
 
   const fetchSalesData = async () => {
-    try {
-      setSalesError("");
-  
-      if (!salesDate) {
-        setSalesError("Please enter a date to get data.");
-        return;
-      }
-  
-      // Call your backend – you can name this route however you like
-      // Expecting JSON like:
-      // {
-      //   totals: { sales: number, orders: number, tips: number },
-      //   hourly: [{ hour: number, total: number }]
-      // }
-      const res = await fetch(`/api/sales/day?date=${salesDate}`);
-  
-      if (!res.ok) {
-        throw new Error("Request failed");
-      }
-  
-      const data = await res.json();
-  
-      // ---- Totals (top-right numbers) ----
-      const sales = Number(data.totals?.sales ?? 0);
-      const orders = Number(data.totals?.orders ?? 0);
-      const tips = Number(data.totals?.tips ?? 0);
-  
-      setTotalSales(`$${sales.toFixed(2)}`);
-      setTotalOrders(String(orders));
-      setTotalTips(`$${tips.toFixed(2)}`);
-  
-      // ---- Hourly data for the bar chart ----
-      const hourly = Array.isArray(data.hourly) ? data.hourly : [];
-  
-      const labels = hourly.map((row: any) => formatHour(Number(row.hour)));
-      const values = hourly.map((row: any) => Number(row.total));
-  
-      setBarData((prev) => ({
-        ...prev,
-        labels,
-        datasets: prev.datasets.map((ds) => ({
-          ...ds,
-          data: values,
-        })),
-      }));
-    } catch (err) {
-      console.error(err);
-      setSalesError("Failed to fetch sales data");
-    }
+    
   };
 
   return (
