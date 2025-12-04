@@ -62,7 +62,7 @@ export default function Analytics() {
       },
       title: {
         display: true,
-        text: "Sales by Day",
+        text: "X/Z Report",
       },
     },
     scales: {
