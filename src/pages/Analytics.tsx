@@ -44,8 +44,8 @@ export default function Analytics() {
       {
         label: "Sales ($)",
         data: [120, 200, 150, 300, 250, 400, 350],
-        backgroundColor: "rgba(37, 99, 235, 0.5)",
-        borderColor: "rgba(37, 99, 235, 1)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+        borderColor: "rgba(255, 99, 132, 1)",
         borderWidth: 1,
         borderRadius: 6,
       },
@@ -58,7 +58,7 @@ export default function Analytics() {
     plugins: {
       legend: {
         display: true,
-        position: "top" as const,
+        position: "bottom" as const,
       },
       title: {
         display: true,
