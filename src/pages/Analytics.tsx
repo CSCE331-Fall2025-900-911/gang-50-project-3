@@ -44,8 +44,8 @@ export default function Analytics() {
       {
         label: "Sales ($)",
         data: [120, 200, 150, 300, 250, 400, 350],
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
-        borderColor: "rgba(255, 99, 132, 1)",
+        backgroundColor: "rgba(197, 48, 48, 0.6)",
+        borderColor: "rgba(197, 48, 48, 1)",
         borderWidth: 1,
         borderRadius: 6,
       },
