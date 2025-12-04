@@ -43,47 +43,39 @@ export default function Analytics() {
           Sales Analytics
         </h1>
 
-        {/* Two-column layout */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* LEFT: Graph */}
+        <section className="grid grid-cols-2 gap-6 w-full">
           <div className="bg-gray-50 border rounded-xl shadow-sm p-4 flex items-center justify-center h-80">
-            {/* Replace this with your actual chart */}
             <span className="text-gray-400 text-sm">
               Graph / Chart goes here
             </span>
           </div>
 
-          {/* RIGHT: Order Statistics panel */}
           <div className="bg-gray-50 border rounded-xl shadow-sm px-8 py-10 flex flex-col items-center">
             <h2 className="text-2xl font-semibold mb-10 text-center">
               Order Statistics
             </h2>
 
-            {/* Total Sales */}
             <div className="mb-10 text-center">
               <div className="text-xl font-medium mb-2">Total Sales</div>
               <div className="text-gray-500">(Value)</div>
             </div>
 
-            {/* Total Orders */}
             <div className="mb-10 text-center">
               <div className="text-xl font-medium mb-2">Total Orders</div>
               <div className="text-gray-500">(Value)</div>
             </div>
 
-            {/* Total Tips */}
             <div className="mb-10 text-center">
               <div className="text-xl font-medium mb-2">Total Tips</div>
               <div className="text-gray-500">(Value)</div>
             </div>
 
-            {/* Generate Reports */}
+
             <div className="w-full max-w-xs mt-4">
               <h3 className="text-xl font-medium text-center mb-4">
                 Generate Reports
               </h3>
 
-              {/* Date + Hour + X/Z */}
               <div className="space-y-3 mb-6">
                 <input
                   type="date"
@@ -101,7 +93,6 @@ export default function Analytics() {
                 </button>
               </div>
 
-              {/* Two more dates */}
               <div className="space-y-3 mb-6">
                 <input
                   type="date"
