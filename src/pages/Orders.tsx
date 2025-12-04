@@ -257,34 +257,38 @@ export default function Orders() {
       {/* RIGHT SIDEBAR / CART */}
       <div className="sidebar sidebar-right">
         <h2 className="order-title">Current Order</h2>
+
+      <div className="order-lines">
         {cart.length === 0 ? (
           <p className="empty muted">No items in cart</p>
         ) : (
           cart.map((d: any) => (
-            <div key={d.cart_id} className="order-drink">
-              <div className="order-drink-header">
-                <strong>{d.item.item_name}</strong>
-                <button onClick={() => removeDrink(d.cart_id)}>×</button>
+            <div key={d.cart_id} className="order-line">
+              <div>
+                <div className="order-line-title">
+                  {d.item.item_name}
+                </div>
+                <div className="order-line-sub">
+                  {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
+                    ing ? (
+                      <div key={cat}>
+                        <span>{cat}: {ing.ingredient_name}</span>
+                      </div>
+                    ) : null
+                  ))}
+                </div>
               </div>
-              <div className="order-ingredients">
-                {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
-                  ing ? (
-                    <div key={cat} className="order-line">
-                      <span>{cat}: {ing.ingredient_name}</span>
-                      <button onClick={() => removeIngredient(d.cart_id, cat, ing.ingredient_ID)}>×</button>
-                    </div>
-                  ) : null
-                ))}
-                {d.extras.map((e: any) => (
-                  <div key={e.ingredient_ID} className="order-line">
-                    <span>{e.ingredient_name} (+${e.ingredient_cost})</span>
-                    <button onClick={() => removeIngredient(d.cart_id, 'extras', e.ingredient_ID)}>×</button>
-                  </div>
-                ))}
+              <div className="order-line-amt">
+                <span className="order-line-total">
+                    ${(d.item.item_cost * d.quantity).toFixed(2)}
+                  </span>
+                <button className="order-line-remove" onClick={() => removeDrink(d.cart_id)}>×</button>
               </div>
             </div>
           ))
+          
         )}
+      </div>
 
         <div className="totals-card">
           <div className="totals-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
@@ -329,7 +333,7 @@ export default function Orders() {
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
               {/* Updated Confirm Button */}
               <button
-                className="btn"
+                className="logout"
                 onClick={() => {
                   const outOfStock = cart.some((d: any) => !d.item.in_stock);
                   if (outOfStock) {
@@ -341,7 +345,6 @@ export default function Orders() {
                    
                   }
                 }}
-                style={{ marginRight: '1rem' }}
               >
                 Confirm
               </button>
@@ -361,8 +364,8 @@ export default function Orders() {
           <div style={{
             backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
           }}>
-            <h3 style={{ marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
-            {singleSelectCategories.map(cat => (
+            <h3 className="section-title" style={{ textAlign: 'center', marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
+              {singleSelectCategories.map(cat => (
               <div key={cat} style={{ marginBottom: '1rem' }}>
                 <h4>{cat}</h4>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -370,7 +373,7 @@ export default function Orders() {
                     <button
                       key={ing.ingredient_ID}
                       onClick={() => setCustomizationOption(cat, ing)}
-                      className={`btn ${customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? 'selected' : ''}`}
+                      className={`btn ${customizingDrink.ingredients[cat]?.ingredient_id === ing.ingredient_id ? 'active' : ''}`}
                     >
                       {ing.ingredient_name}
                     </button>
@@ -379,7 +382,7 @@ export default function Orders() {
               </div>
             ))}
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-              <button className="btn" onClick={confirmCustomization} style={{ marginRight: '1rem' }}>Confirm</button>
+              <button className="logout" onClick={confirmCustomization} style={{ marginRight: '1rem' }}>Confirm</button>
               <button className="btn" onClick={cancelCustomization}>Cancel</button>
             </div>
           </div>

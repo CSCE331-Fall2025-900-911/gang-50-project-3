@@ -217,6 +217,7 @@ html, body {
   background: #fde8ef;
   color: #be123c;
   border-color: #be123c;
+  font-weight: 700; 
 }
 
 /* Main content */
@@ -311,6 +312,7 @@ html, body {
   margin-bottom: 16px;
 }
 .order-title{ font-size: 20px; font-weight: 700; }
+
 .btn{
   padding: 10px 14px;
   border-radius: 999px;
@@ -318,6 +320,14 @@ html, body {
   background: #fff;
   cursor: pointer;
 }
+
+.btn.active {
+  background: #fde8ef;
+  color: #be123c;
+  border-color: #be123c;
+  font-weight: 700; 
+}
+
 .btn-logout{
   background: #CF152D;
   color: #fff;
@@ -334,8 +344,8 @@ html, body {
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
-.order-line-title{ font-weight: 600; }
-.order-line-sub{ color: #64748b; font-size: 12px; margin-top: 2px; }
+.order-line-title{ margin-top: 10px; font-weight: 600; text-align: left; }
+.order-line-sub{ color: #64748b; font-size: 12px; margin-top: 2px; text-align: left; margin-bottom: 10px; }
 .order-line-amt{ display: flex; align-items: center; gap: 8px; }
 .order-line-total{ font-weight: 600; }
 .order-line-remove{
@@ -345,6 +355,7 @@ html, body {
   line-height: 20px;
   color: #CF152D;
   cursor: pointer;
+  text-align: right; 
 }
 
 .totals-card{
