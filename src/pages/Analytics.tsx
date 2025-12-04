@@ -16,6 +16,21 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 export default function Analytics() {
   const headerRef = useRef<HTMLElement>(null);
   const [headerH, setHeaderH] = useState(64);
+  const [selectedDate, setSelectedDate] = useState("");   // date input
+  const [salesError, setSalesError] = useState("");       // error message
+  const [barData, setBarData] = useState({
+    labels: [] as string[],
+    datasets: [
+      {
+        label: "Sales ($)",
+        data: [] as number[],
+        backgroundColor: "rgba(197, 48, 48, 0.6)",
+        borderColor: "rgba(197, 48, 48, 1)",
+        borderWidth: 1,
+        borderRadius: 6,
+      },
+    ],
+  });
 
   useLayoutEffect(() => {
     const el = headerRef.current;
@@ -37,20 +52,6 @@ export default function Analytics() {
       document.body.style.overflowY = prev;
     };
   }, []);
-
-  const barData = {
-    labels: ["8 am", "9 am", "10 am", "11 am", "12 pm", "1 pm", "2 pm", "3 pm", "4 pm", "5 pm", "6 pm", "7 pm", "8 pm", "9 pm",],
-    datasets: [
-      {
-        label: "Sales ($)",
-        data: [120, 200, 150, 300, 250, 400, 350],
-        backgroundColor: "rgba(197, 48, 48, 0.6)",
-        borderColor: "rgba(197, 48, 48, 1)",
-        borderWidth: 1,
-        borderRadius: 6,
-      },
-    ],
-  };
 
   const barOptions: any = {
     responsive: true,
@@ -75,6 +76,46 @@ export default function Analytics() {
         beginAtZero: true,
       },
     },
+  };
+
+  const fetchDailySales = async () => {
+    if (!selectedDate) {
+      setSalesError("Please select a date first.");
+      return;
+    }
+  
+    try {
+      setSalesError("");
+  
+      // Example API: /api/sales?date=YYYY-MM-DD
+      const res = await fetch(`/api/sales?date=${selectedDate}`);
+  
+      if (!res.ok) throw new Error("Failed to fetch sales data");
+  
+      // Expecting something like: [{ hour: 8, total: 120 }, { hour: 9, total: 200 }, ...]
+      const data: { hour: number; total: number }[] = await res.json();
+  
+      const labels = data.map((item) => {
+        const h = item.hour;
+        const suffix = h < 12 ? "am" : "pm";
+        const displayHour = ((h + 11) % 12) + 1; // 0→12, 13→1, etc.
+        return `${displayHour} ${suffix}`;
+      });
+  
+      const totals = data.map((item) => item.total);
+  
+      setBarData((prev) => ({
+        ...prev,
+        labels,
+        datasets: prev.datasets.map((ds) => ({
+          ...ds,
+          data: totals,
+        })),
+      }));
+    } catch (err) {
+      console.error(err);
+      setSalesError("Failed to fetch daily sales");
+    }
   };
 
   return (
@@ -134,13 +175,21 @@ export default function Analytics() {
               <div className="space-y-3 mb-2">
                 <input
                   type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
                   className="w-full border rounded-md px-3 py-2 text-sm placeholder-gray-400"
-                  placeholder="Date (YYYY-MM-DD)"
                 />
-        
-                <button className="w-full border rounded-md px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200">
+                
+                <button
+                  onClick={fetchDailySales}
+                  className="w-full border rounded-md px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200"
+                >
                   Generate X/Z Report
                 </button>
+                
+                {salesError && (
+                  <p className="mt-2 text-sm text-red-500 font-semibold">{salesError}</p>
+                )}
               </div>
             </div>
           </section>
