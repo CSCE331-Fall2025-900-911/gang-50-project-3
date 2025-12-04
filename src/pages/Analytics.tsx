@@ -139,10 +139,6 @@ export default function Analytics() {
                 >
                   Generate X/Z Report
                 </button>
-                
-                {salesError && (
-                  <p className="mt-2 text-sm text-red-500 font-semibold">{salesError}</p>
-                )}
               </div>
             </div>
           </section>
