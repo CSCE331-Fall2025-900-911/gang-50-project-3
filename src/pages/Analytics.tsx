@@ -94,17 +94,16 @@ export default function Analytics() {
           Sales Analytics
         </h1>
 
-        <section className="flex w-full gap-6">
-          
-          <div className="flex-1 bg-gray-50 border rounded-xl shadow-sm p-4 flex items-center justify-center h-80">
+        <<section className="flex w-full gap-6 items-start">
+  
+          {/* LEFT — CHART */}
+          <div className="flex-1 bg-gray-50 border rounded-xl shadow-sm p-4 h-96">
             <Bar data={barData} options={barOptions} />
           </div>
         
-          
+          {/* RIGHT — TEXT / BUTTONS */}
           <div className="flex-1 bg-gray-50 border rounded-xl shadow-sm px-8 py-10 flex flex-col items-center">
-            <h2 className="text-2xl font-semibold mb-10 text-center">
-              Order Statistics
-            </h2>
+            <h2 className="text-2xl font-semibold mb-10 text-center">Order Statistics</h2>
         
             <div className="mb-10 text-center">
               <div className="text-xl font-medium mb-2">Total Sales</div>
@@ -122,15 +121,12 @@ export default function Analytics() {
             </div>
         
             <div className="w-full max-w-xs mt-4">
-              <h3 className="text-xl font-medium text-center mb-4">
-                Generate Reports
-              </h3>
+              <h3 className="text-xl font-medium text-center mb-4">Generate Reports</h3>
         
               <div className="space-y-3 mb-6">
                 <input
                   type="date"
                   className="w-full border rounded-md px-3 py-2 text-sm placeholder-gray-400"
-                  placeholder="Date (YYYY-MM-DD)"
                 />
         
                 <button className="w-full border rounded-md px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200">
