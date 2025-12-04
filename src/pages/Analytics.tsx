@@ -78,43 +78,55 @@ export default function Analytics() {
     },
   };
 
-  const fetchDailySales = async () => {
-    if (!selectedDate) {
-      setSalesError("Please select a date first.");
-      return;
-    }
-  
+  const fetchSalesData = async () => {
     try {
       setSalesError("");
   
-      // Example API: /api/sales?date=YYYY-MM-DD
-      const res = await fetch(`/api/sales?date=${selectedDate}`);
+      if (!salesDate) {
+        setSalesError("Please enter a date to get data.");
+        return;
+      }
   
-      if (!res.ok) throw new Error("Failed to fetch sales data");
+      // Call your backend – you can name this route however you like
+      // Expecting JSON like:
+      // {
+      //   totals: { sales: number, orders: number, tips: number },
+      //   hourly: [{ hour: number, total: number }]
+      // }
+      const res = await fetch(`/api/sales/day?date=${salesDate}`);
   
-      // Expecting something like: [{ hour: 8, total: 120 }, { hour: 9, total: 200 }, ...]
-      const data: { hour: number; total: number }[] = await res.json();
+      if (!res.ok) {
+        throw new Error("Request failed");
+      }
   
-      const labels = data.map((item) => {
-        const h = item.hour;
-        const suffix = h < 12 ? "am" : "pm";
-        const displayHour = ((h + 11) % 12) + 1; // 0→12, 13→1, etc.
-        return `${displayHour} ${suffix}`;
-      });
+      const data = await res.json();
   
-      const totals = data.map((item) => item.total);
+      // ---- Totals (top-right numbers) ----
+      const sales = Number(data.totals?.sales ?? 0);
+      const orders = Number(data.totals?.orders ?? 0);
+      const tips = Number(data.totals?.tips ?? 0);
+  
+      setTotalSales(`$${sales.toFixed(2)}`);
+      setTotalOrders(String(orders));
+      setTotalTips(`$${tips.toFixed(2)}`);
+  
+      // ---- Hourly data for the bar chart ----
+      const hourly = Array.isArray(data.hourly) ? data.hourly : [];
+  
+      const labels = hourly.map((row: any) => formatHour(Number(row.hour)));
+      const values = hourly.map((row: any) => Number(row.total));
   
       setBarData((prev) => ({
         ...prev,
         labels,
         datasets: prev.datasets.map((ds) => ({
           ...ds,
-          data: totals,
+          data: values,
         })),
       }));
     } catch (err) {
       console.error(err);
-      setSalesError("Failed to fetch daily sales");
+      setSalesError("Failed to fetch sales data");
     }
   };
 
