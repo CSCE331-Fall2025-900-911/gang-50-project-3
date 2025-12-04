@@ -16,8 +16,8 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 export default function Analytics() {
   const headerRef = useRef<HTMLElement>(null);
   const [headerH, setHeaderH] = useState(64);
-  const [selectedDate, setSelectedDate] = useState("");   // date input
-  const [salesError, setSalesError] = useState("");       // error message
+  const [selectedDate, setSelectedDate] = useState("");
+  const [salesError, setSalesError] = useState("");
   const [barData, setBarData] = useState({
     labels: [] as string[],
     datasets: [
