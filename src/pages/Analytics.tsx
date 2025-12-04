@@ -17,19 +17,6 @@ export default function Analytics() {
   const headerRef = useRef<HTMLElement>(null);
   const [headerH, setHeaderH] = useState(64);
   const [selectedDate, setSelectedDate] = useState("");
-  const [barData, setBarData] = useState({
-    labels: [] as string[],
-    datasets: [
-      {
-        label: "Sales ($)",
-        data: [] as number[],
-        backgroundColor: "rgba(197, 48, 48, 0.6)",
-        borderColor: "rgba(197, 48, 48, 1)",
-        borderWidth: 1,
-        borderRadius: 6,
-      },
-    ],
-  });
 
   useLayoutEffect(() => {
     const el = headerRef.current;
