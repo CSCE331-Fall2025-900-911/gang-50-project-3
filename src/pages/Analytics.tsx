@@ -126,11 +126,6 @@ export default function Analytics() {
               <div className="text-gray-500">(Value)</div>
             </div>
         
-            <div className="mb-8 text-center">
-              <div className="text-xl font-medium mb-2">Total Tips</div>
-              <div className="text-gray-500">(Value)</div>
-            </div>
-        
             <div className="w-full max-w-xs mt-auto">
               <h3 className="text-xl font-medium text-center mb-4">
                 Generate Reports
