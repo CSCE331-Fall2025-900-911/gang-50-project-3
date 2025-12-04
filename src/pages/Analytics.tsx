@@ -78,10 +78,6 @@ export default function Analytics() {
     },
   };
 
-  const fetchDailySales = async () => {
-    
-  };
-
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <nav
@@ -140,7 +136,6 @@ export default function Analytics() {
                 />
                 
                 <button
-                  onClick={fetchDailySales}
                   className="w-full border rounded-md px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200"
                 >
                   Generate X/Z Report
