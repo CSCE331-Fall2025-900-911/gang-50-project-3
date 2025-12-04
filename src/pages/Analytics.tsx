@@ -1,5 +1,17 @@
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import ManagerNavbar from "../components/ManagerNavbar";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function Analytics() {
   const headerRef = useRef<HTMLElement>(null);
@@ -26,6 +38,45 @@ export default function Analytics() {
     };
   }, []);
 
+  const barData = {
+    labels: ["8 am", "9 am", "10 am", "11 am", "12 pm", "1 pm", "2 pm", "3 pm", "4 pm", "5 pm", "6 pm", "7 pm", "8 pm", "9 ap",],
+    datasets: [
+      {
+        label: "Sales ($)",
+        data: [120, 200, 150, 300, 250, 400, 350],
+        backgroundColor: "rgba(37, 99, 235, 0.5)",
+        borderColor: "rgba(37, 99, 235, 1)",
+        borderWidth: 1,
+        borderRadius: 6,
+      },
+    ],
+  };
+
+  const barOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: "Sales by Day",
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <nav
@@ -45,9 +96,7 @@ export default function Analytics() {
 
         <section className="grid grid-cols-2 gap-6 w-full">
           <div className="bg-gray-50 border rounded-xl shadow-sm p-4 flex items-center justify-center h-80">
-            <span className="text-gray-400 text-sm">
-              Graph / Chart goes here
-            </span>
+              <Bar data={barData} options={barOptions} />
           </div>
 
           <div className="bg-gray-50 border rounded-xl shadow-sm px-8 py-10 flex flex-col items-center">
