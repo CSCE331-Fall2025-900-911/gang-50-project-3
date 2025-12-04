@@ -15,7 +15,7 @@ export default function Orders() {
   
 
   const API_URL = '/api';
-  const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
+  const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level', 'Toppings'];
 
   useEffect(() => {
     const load = async () => {
@@ -141,7 +141,8 @@ export default function Orders() {
 
   const subtotal = cart.reduce((sum: number, d: any) => {
     const drinkExtras = d.extras.reduce((s: number, e: any) => s + e.ingredient_cost, 0);
-    return sum + d.item.item_cost + drinkExtras;
+    const perDrink = d.item.item_cost + drinkExtras;
+    return sum + perDrink * d.quantity;
   }, 0);
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
@@ -152,14 +153,32 @@ export default function Orders() {
     return list[0] && list[0].ingredient_category_name === 'Packaging';
   });
 
+  const changeQuantity = (drinkId: number, delta: number) => {
+    setCart(prev =>
+      prev.map((d: any) => {
+        if (d.cart_id !== drinkId) return d;
+        const newQty = d.quantity + delta;
+        return {
+          ...d,
+          quantity: newQty < 1 ? 1 : newQty, // never go below 1
+        };
+      })
+    );
+  };
+
   // --- Customization Handlers ---
   const setCustomizationOption = (category: string, ing: any) => {
     if (!customizingDrink) return;
+
+    const current = customizingDrink.ingredients[category];
+
+    const isSame = current && current.ingredient_id === ing.ingredient_id;
+
     setCustomizingDrink({
       ...customizingDrink,
       ingredients: {
         ...customizingDrink.ingredients,
-        [category]: ing,
+        [category]: isSame ? null : ing,
       },
     });
   };
@@ -174,6 +193,17 @@ export default function Orders() {
   const cancelCustomization = () => {
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
+  };
+
+  const openCustomizationForDrink = (drink: any) => {
+    const copy = {
+      ...drink,
+      ingredients: { ...drink.ingredients },
+      extras: [...drink.extras],
+    };
+
+    setCustomizingDrink(copy);
+    setShowCustomizationPopup(true);
   };
 
   return (
@@ -258,33 +288,74 @@ export default function Orders() {
       <div className="sidebar sidebar-right">
         <h2 className="order-title">Current Order</h2>
 
-      <div className="order-lines">
+      <div className="order-lines" >
         {cart.length === 0 ? (
           <p className="empty muted">No items in cart</p>
         ) : (
           cart.map((d: any) => (
-            <div key={d.cart_id} className="order-line">
-              <div>
-                <div className="order-line-title">
-                  {d.item.item_name}
+            <div key={d.cart_id} className="order-line" onClick={() => openCustomizationForDrink(d)} style={{ cursor: 'pointer' }}>
+                <div>
+                  <div className="order-line-title">
+                    {d.item.item_name}
+                  </div>
+                  <div className="order-line-sub">
+                    {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
+                      ing ? (
+                        <div key={cat}>
+                          <span>{cat}: {ing.ingredient_name}</span>
+                        </div>
+                      ) : null
+                    ))}
+                  </div>
                 </div>
-                <div className="order-line-sub">
-                  {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
-                    ing ? (
-                      <div key={cat}>
-                        <span>{cat}: {ing.ingredient_name}</span>
-                      </div>
-                    ) : null
-                  ))}
+                <div> 
+                  <div className="order-line-amt">
+                    <span className="order-line-total">
+                      {(() => {
+                        const extrasCost = d.extras.reduce(
+                          (s: number, e: any) => s + e.ingredient_cost,
+                          0
+                        );
+                        const perDrink = d.item.item_cost + extrasCost;
+                        return `$${(perDrink * d.quantity).toFixed(2)}`;
+                      })()}
+                    </span>
+
+                    <button
+                      className="order-line-remove"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeDrink(d.cart_id);
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="qty-controls">
+                    <button
+                      className="qty-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        changeQuantity(d.cart_id, -1);
+                      }}
+                    >
+                      -
+                    </button>
+
+                    <span className="qty-display">{d.quantity}</span>
+
+                    <button
+                      className="qty-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        changeQuantity(d.cart_id, 1);
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className="order-line-amt">
-                <span className="order-line-total">
-                    ${(d.item.item_cost * d.quantity).toFixed(2)}
-                  </span>
-                <button className="order-line-remove" onClick={() => removeDrink(d.cart_id)}>×</button>
-              </div>
-            </div>
           ))
           
         )}
@@ -301,59 +372,119 @@ export default function Orders() {
 
       {/* --- Checkout Popup --- */}
       {showCheckoutPopup && (
-        <div className="checkout-popup" style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
-        }}>
-          <div className="checkout-content" style={{
-            backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
-          }}>
-            <h3 style={{ marginBottom: '1rem' }}>Review Your Order</h3>
+        <div className="checkout-backdrop">
+          <div className="checkout-modal">
+            <h3 className="checkout-title">Review Your Order</h3>
 
-            {cart.map((d: any) => (
-              <div key={d.cart_id} style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
-                <strong>{d.item.item_name}</strong> - ${d.item.item_cost.toFixed(2)}
-                <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
-                  {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
-                    ing ? <div key={cat}>{cat}: {ing.ingredient_name}</div> : null
-                  ))}
-                  {d.extras.map((e: any) => (
-                    <div key={e.ingredient_ID}>{e.ingredient_name} (+${e.ingredient_cost.toFixed(2)})</div>
-                  ))}
-                </div>
-              </div>
-            ))}
+            <div className="checkout-lines">
+              {cart.map((d: any) => {
+                const extrasCost = d.extras.reduce(
+                  (s: number, e: any) => s + e.ingredient_cost,
+                  0
+                );
+                const perDrink = d.item.item_cost + extrasCost;
+                const lineTotal = perDrink * d.quantity;
 
-            <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Tax:</span><span>${tax.toFixed(2)}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}><span>Total:</span><span>${total.toFixed(2)}</span></div>
+                return (
+                  <div key={d.cart_id} className="checkout-line">
+                    {/* Thumbnail */}
+                    <div className="checkout-thumb">
+                      {d.item.photo ? (
+                        <img
+                          src={d.item.photo}
+                          alt={d.item.item_name}
+                          className="checkout-thumb-img"
+                        />
+                      ) : (
+                        <div className="checkout-thumb-ph">No image</div>
+                      )}
+                    </div>
+
+                    {/* Drink details */}
+                    <div className="checkout-line-main">
+                      <span className="checkout-line-name">
+                        {d.item.item_name}
+                      </span>
+
+
+                      <div className="checkout-line-ingredients">
+                        {Object.entries(d.ingredients).map(
+                          ([cat, ing]: [string, any]) =>
+                            ing && (
+                              <div key={cat}>
+                                {cat}: {ing.ingredient_name}
+                              </div>
+                            )
+                        )}
+                        {d.extras.map((e: any) => (
+                          <div key={e.ingredient_ID}>
+                            {e.ingredient_name} (+${e.ingredient_cost.toFixed(2)})
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Qty + line total */}
+                    <div className="checkout-line-meta">
+                      <div className="checkout-line-total">
+                        ${lineTotal.toFixed(2)}
+                      </div>
+                      <div className="checkout-line-qty">
+                        Qty: <strong>{d.quantity}</strong>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-              {/* Updated Confirm Button */}
+            {/* Summary */}
+            <div className="checkout-summary">
+              <div className="checkout-summary-row">
+                <span>Subtotal</span>
+                <span>${subtotal.toFixed(2)}</span>
+              </div>
+              <div className="checkout-summary-row">
+                <span>Tax</span>
+                <span>${tax.toFixed(2)}</span>
+              </div>
+              <div className="checkout-summary-row checkout-summary-total">
+                <span>Total</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="checkout-actions">
               <button
-                className="logout"
+                className="btn btn-primary"
                 onClick={() => {
                   const outOfStock = cart.some((d: any) => !d.item.in_stock);
                   if (outOfStock) {
-                    alert("Some items are out of stock. Please remove them from your order.");
+                    alert(
+                      'Some items are out of stock. Please remove them from your order.'
+                    );
                   } else {
-                    alert("Thank you for your order! Have a nice day.");
+                    alert('Thank you for your order! Have a nice day.');
                     setCart([]);
                     setShowCheckoutPopup(false);
-                   
                   }
                 }}
               >
                 Confirm
               </button>
 
-              <button className="btn" onClick={() => setShowCheckoutPopup(false)}>Cancel</button>
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowCheckoutPopup(false)}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       )}
+
 
       {/* --- Customization Popup --- */}
       {showCustomizationPopup && customizingDrink && (
