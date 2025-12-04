@@ -83,11 +83,6 @@ export default function Analytics() {
                   placeholder="Date (YYYY-MM-DD)"
                 />
 
-                <select className="w-full border rounded-md px-3 py-2 text-sm bg-white">
-                  <option value="">Select Hour</option>
-                  {/* Add options as needed */}
-                </select>
-
                 <button className="w-full border rounded-md px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200">
                   Generate X/Z Report
                 </button>
@@ -104,16 +99,6 @@ export default function Analytics() {
                   className="w-full border rounded-md px-3 py-2 text-sm placeholder-gray-400"
                   placeholder="Date (YYYY-MM-DD)"
                 />
-              </div>
-
-              {/* Bottom buttons */}
-              <div className="flex gap-3">
-                <button className="flex-1 border rounded-md px-3 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200">
-                  Generate Sales Report
-                </button>
-                <button className="flex-1 border rounded-md px-3 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200">
-                  Product Usage Report
-                </button>
               </div>
             </div>
           </div>
