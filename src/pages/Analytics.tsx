@@ -18,6 +18,7 @@ export default function Analytics() {
   const [headerH, setHeaderH] = useState(64);
   const [selectedDate, setSelectedDate] = useState("");
   const [totalSales, setTotalSales] = useState<number | null>(null);
+  const [totalOrders, setTotalOrders] = useState<number | null>(null);
 
   useLayoutEffect(() => {
     const el = headerRef.current;
@@ -79,7 +80,7 @@ export default function Analytics() {
     },
   };
 
-  const fetchSalesReport = async () => {
+  const fetchTotalSales = async () => {
     try {
       console.log("Date submitting:", selectedDate);
       if (!selectedDate) {
@@ -96,11 +97,50 @@ export default function Analytics() {
         throw new Error(`Request failed with status ${res.status}`);
       }
   
-      const data = await res.json();
-      const total = Number(data[0]?.total_cost) || 0;
-      setTotalSales(total);
+      const sales_data = await res.json();
+      const sales_total = Number(sales_data[0]?.total_cost) || 0;
+      setTotalSales(sales_total);
     } catch (err) {
-      console.error("Error fetching sales report", err);
+      console.error("Error fetching total sales", err);
+    }
+  };
+
+  const fetchTotalOrders = async () => {
+    try {
+      console.log("Date submitting:", selectedDate);
+      if (!selectedDate) {
+        console.warn("No date selected");
+        return;
+      }
+  
+      const res = await fetch(`/api/totalOrders/by-date/${selectedDate}`);
+      console.log("Response status:", res.status);
+  
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Backend error body:", text);
+        throw new Error(`Request failed with status ${res.status}`);
+      }
+  
+      const order_data = await res.json();
+      const order_total = Number(order_data[0]?.total_orders) || 0;
+      setTotalOrders(order_total);
+    } catch (err) {
+      console.error("Error fetching total orders", err);
+    }
+  };
+
+  const fetchReportData = async () => {
+    if (!selectedDate) {
+      console.warn("No date selected");
+      return;
+    }
+  
+    try {
+      await Promise.all([fetchTotalSales(), fetchTotalOrders()]);
+      console.log("Report data updated.");
+    } catch (err) {
+      console.error("Error running report wrapper", err);
     }
   };
 
@@ -149,7 +189,9 @@ export default function Analytics() {
 
             <div className="mb-8 text-center">
               <div className="text-xl font-medium mb-2">Total Orders</div>
-              <div className="text-gray-500">(Value)</div>
+              <div className="text-gray-500">
+                {totalOrders !== null ? totalOrders : "(Value)"}
+              </div>
             </div>
 
             <div className="w-full max-w-xs mt-auto">
@@ -166,7 +208,7 @@ export default function Analytics() {
                 />
 
                 <button
-                  onClick={fetchSalesReport}
+                  onClick={fetchReportData}
                   className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-md w-full"
                 >
                   Generate X/Z Report
