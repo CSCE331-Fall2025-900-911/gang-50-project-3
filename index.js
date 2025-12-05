@@ -181,29 +181,37 @@
     }
   });
 
-app.get('/api/sales/by-date', async (req, res) => {
-  try {
-    const { currentDate } = req.query; // "2025-01-04"
-
-    const start = `${currentDate} 00:00:00`;
-    const end = `${currentDate} 23:59:59`;
-
-    const result = await pool.query(
-      `
-        SELECT SUM(total_cost) AS total_cost
-        FROM Customer_Order
-        WHERE time_ordered >= $1 AND time_ordered <= $2
-      `,
-      [start, end]
-    );
-
-    res.json(result.rows[0]);
-
-  } catch (err) {
-    console.error('Error fetching sales total:', err);
-    res.status(500).json({ error: 'Failed to fetch sales analytics' });
-  }
-});
+  app.get('/api/sales/by-date', async (req, res) => {
+    const { currentDate } = req.query;
+  
+    if (!currentDate) {
+      return res.status(400).json({ error: "currentDate query param is required (YYYY-MM-DD)" });
+    }
+  
+    try {
+      const start = new Date(`${currentDate}T00:00:00.000Z`);
+      const end = new Date(`${currentDate}T00:00:00.000Z`);
+      end.setUTCDate(end.getUTCDate() + 1);
+  
+      const result = await pool.query(
+        `
+          SELECT COALESCE(SUM(total_cost), 0) AS total_cost
+          FROM customer_order
+          WHERE time_ordered >= $1
+            AND time_ordered < $2
+        `,
+        [start, end]
+      );
+  
+      return res.json(result.rows[0]); // { total_cost: "123.45" }
+  
+    } catch (err) {
+      console.error("Error fetching sales total:", err);
+      return res
+        .status(500)
+        .json({ error: "Failed to fetch sales analytics", details: err.message });
+    }
+  });
 
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
