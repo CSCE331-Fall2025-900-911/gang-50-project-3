@@ -136,7 +136,7 @@ export default function Analytics() {
                 />
                 
                 <button
-                  className="w-full border rounded-md px-4 py-2 text-sm font-medium bg-red-100 hover:bg-red-200"
+                  className="w-full border rounded-md px-4 py-2 text-white font-medium bg-red-500 hover:bg-red-600"
                 >
                   Generate X/Z Report
                 </button>
