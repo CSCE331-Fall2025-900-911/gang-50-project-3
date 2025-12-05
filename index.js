@@ -182,28 +182,28 @@
   });
 
   app.get('/api/sales/by-date', async (req, res) => {
-    const { currentDate } = req.query;
+  const { currentDate } = req.query; // expected "YYYY-MM-DD"
+
+  if (!currentDate) {
+    return res
+      .status(400)
+      .json({ error: "currentDate query param is required (YYYY-MM-DD)" });
+  }
+
+  try {
+    // We use a [start, end) range for that date.
+    // Postgres side will treat $1 as date, then we add 1 day.
+    const query = `
+      SELECT COALESCE(SUM(total_cost), 0) AS total_cost
+      FROM customer_order
+      WHERE time_ordered >= $1::date
+        AND time_ordered <  ($1::date + INTERVAL '1 day')
+    `;
+
+      const result = await pool.query(query, [currentDate]);
   
-    if (!currentDate) {
-      return res.status(400).json({ error: "currentDate query param is required (YYYY-MM-DD)" });
-    }
-  
-    try {
-      const start = new Date(`${currentDate}T00:00:00.000Z`);
-      const end = new Date(`${currentDate}T00:00:00.000Z`);
-      end.setUTCDate(end.getUTCDate() + 1);
-  
-      const result = await pool.query(
-        `
-          SELECT COALESCE(SUM(total_cost), 0) AS total_cost
-          FROM customer_order
-          WHERE time_ordered >= $1
-            AND time_ordered < $2
-        `,
-        [start, end]
-      );
-  
-      return res.json(result.rows[0]); // { total_cost: "123.45" }
+      // result.rows[0].total_cost will be a string from pg; let the frontend cast if needed
+      return res.json(result.rows[0]); // -> { total_cost: "123.45" }
   
     } catch (err) {
       console.error("Error fetching sales total:", err);
