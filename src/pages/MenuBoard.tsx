@@ -122,8 +122,6 @@
 //   </div>
 // );
 
-
-
 import React, { useEffect, useState } from 'react';
 import './MenuBoard.css';
 
@@ -155,6 +153,7 @@ export default function MenuBoard() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Fetch menu items
         const itemsRes = await fetch('/api/items');
         if (!itemsRes.ok) throw new Error(`Failed to fetch items: ${itemsRes.status}`);
         const itemsJson = await itemsRes.json();
@@ -166,6 +165,7 @@ export default function MenuBoard() {
           groupedItems[cat].push(item);
         });
 
+        // Fetch ingredients
         const ingRes = await fetch('/api/ingredients');
         if (!ingRes.ok) throw new Error(`Failed to fetch ingredients: ${ingRes.status}`);
         const ingJson = await ingRes.json();
@@ -205,13 +205,16 @@ export default function MenuBoard() {
 
   return (
     <div className="menu-board-container" style={{ display: 'flex', gap: '2%' }}>
+      {/* Left image */}
       <div className="menu-header-image" style={{ flex: 1 }}>
         <img src="menu_image.png" alt="Menu Visual" className="main-menu-img" />
       </div>
 
+      {/* Menu content */}
       <div className="menu-content" style={{ flex: 2 }}>
         <h1 className="menu-title">Menu Board</h1>
 
+        {/* Menu sections in 3 columns */}
         <div className="menu-sections" style={{ display: 'flex', gap: '1%' }}>
           {[menuColumns.col1, menuColumns.col2, menuColumns.col3].map((col, idx) => (
             <div key={idx} className={`menu-column col-${idx + 1}`} style={{ flex: 1 }}>
@@ -222,6 +225,7 @@ export default function MenuBoard() {
           ))}
         </div>
 
+        {/* Customization options */}
         {Object.keys(ingredients).length > 0 && (
           <div className="customization-bar">
             {Object.entries(ingredients).map(([cat, items]) => (
@@ -229,7 +233,7 @@ export default function MenuBoard() {
                 <span className="customization-label">{cat}</span>
                 <div className="options-row">
                   {items.map((ing: any) => (
-                    <span key={ing.ingredient_ID} className="option-item">
+                    <span key={ing.ingredient_id} className="option-item">
                       <span className="option-label">{ing.ingredient_name}</span>
                     </span>
                   ))}
@@ -243,23 +247,24 @@ export default function MenuBoard() {
   );
 }
 
+// Menu Section component
 const MenuSection: React.FC<{ title: string; items: any[] }> = ({ title, items }) => (
   <div className="menu-section">
     <h3 className="section-title">{title}</h3>
     <ul className="menu-list">
       {items.map((item) => (
-        <li key={item.item_ID} className="menu-item">
-          <span>{item.name}</span>
+        <li key={item.item_id} className="menu-item">
+          <span>{item.item_name}</span>
 
           {/* Special Items Tag */}
           {title === 'Special Items' && <span className="new-tag-inline">NEW</span>}
 
           {/* Dietary Icons */}
           <span className="dietary-icons">
-            {dietaryRules.milkRequired.includes(item.name) && (
+            {dietaryRules.milkRequired.includes(item.item_name) && (
               <span className="dietary-icon milk" title="Requires Milk">🥛</span>
             )}
-            {isGluten(item.name) && (
+            {isGluten(item.item_name) && (
               <span className="dietary-icon gluten" title="Contains Gluten">🌾</span>
             )}
           </span>
