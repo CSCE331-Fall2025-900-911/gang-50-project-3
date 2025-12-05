@@ -184,6 +184,7 @@
   app.get('/api/sales/by-date', async (req, res) => {
   const { currentDate } = req.query; // expected "YYYY-MM-DD"
 
+  // Basic validation
   if (!currentDate) {
     return res
       .status(400)
@@ -191,8 +192,8 @@
   }
 
   try {
-    // We use a [start, end) range for that date.
-    // Postgres side will treat $1 as date, then we add 1 day.
+    console.log("GET /api/sales/by-date", { currentDate });
+
     const query = `
       SELECT COALESCE(SUM(total_cost), 0) AS total_cost
       FROM customer_order
@@ -200,16 +201,19 @@
         AND time_ordered <  ($1::date + INTERVAL '1 day')
     `;
 
-      const result = await pool.query(query, [currentDate]);
-  
-      // result.rows[0].total_cost will be a string from pg; let the frontend cast if needed
-      return res.json(result.rows[0]); // -> { total_cost: "123.45" }
-  
+    const result = await pool.query(query, [currentDate]);
+
+    console.log("Sales result:", result.rows[0]);
+
+    // Example response: { total_cost: "123.45" }
+    return res.json(result.rows[0]);
+
     } catch (err) {
       console.error("Error fetching sales total:", err);
-      return res
-        .status(500)
-        .json({ error: "Failed to fetch sales analytics", details: err.message });
+      return res.status(500).json({
+        error: "Failed to fetch sales analytics",
+        details: String(err),
+      });
     }
   });
 
