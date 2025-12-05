@@ -146,7 +146,7 @@ export default function Analytics() {
                 />
                 
                 <button
-                  onclick = {fetchTotalSales}
+                  onClick = {fetchTotalSales}
                   className="w-full border rounded-md px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200"
                 >
                   Generate X/Z Report
