@@ -429,6 +429,8 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
+  
+  
   app.get('/api/hourlySales/by-date/:currentDate', async (req, res) => {
     try {
       const { currentDate } = req.params;
