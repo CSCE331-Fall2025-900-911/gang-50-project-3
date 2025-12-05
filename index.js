@@ -182,25 +182,25 @@
   });
 
   app.get('/api/sales/by-date/:currentDate', async (req, res) => {
-  try {
-    const { currentDate } = req.params;
+    try {
+      const { currentDate } = req.params;
 
-    const result = await pool.query(
-      `
-        SELECT COALESCE(SUM(total_cost), 0) AS total_cost
-        FROM customer_order
-        WHERE time_ordered::date = $1
-      `,
-      [currentDate]
-    );
+      const result = await pool.query(
+        `
+          SELECT COALESCE(SUM(total_cost), 0) AS total_cost
+          FROM customer_order
+          WHERE time_ordered::date = $1
+        `,
+        [currentDate]
+      );
 
-    res.json(result.rows);
+      res.json(result.rows);
 
-  } catch (err) {
-    console.error('Error fetching sales by date:', err);
-    res.status(500).json({ error: 'Failed to fetch sales analytics' });
-  }
-});
+    } catch (err) {
+      console.error('Error fetching sales by date:', err);
+      res.status(500).json({ error: 'Failed to fetch sales analytics' });
+    }
+  });
 
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {

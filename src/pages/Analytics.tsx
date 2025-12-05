@@ -87,7 +87,7 @@ export default function Analytics() {
         return;
       }
   
-      const res = await fetch(`/api/sales/by-date?currentDate=${selectedDate}`);
+      const res = await fetch(`/api/sales/by-date/${selectedDate}`);
       console.log("Response status:", res.status);
   
       if (!res.ok) {
@@ -97,7 +97,7 @@ export default function Analytics() {
       }
   
       const data = await res.json();
-      const total = Number(data.total_cost) || 0;
+      const total = Number(data[0]?.total_cost) || 0;
       setTotalSales(total);
     } catch (err) {
       console.error("Error fetching sales report", err);
