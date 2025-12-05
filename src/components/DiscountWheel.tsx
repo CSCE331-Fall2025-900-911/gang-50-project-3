@@ -5,7 +5,7 @@ interface DiscountWheelProps {
 }
 
 export default function DiscountWheel({ onComplete }: DiscountWheelProps) {
-    const discountOptions = [0, 5, 10, 15, 20, 25]; // Equal slices
+    const discountOptions = [0, 5, 10, 15, 20, 25];
     const discountDisplayOptions = [25, 20, 15, 10, 5, 0];
     const sliceAngle = 360 / discountOptions.length;
 
@@ -31,7 +31,7 @@ export default function DiscountWheel({ onComplete }: DiscountWheelProps) {
             setHasSpun(true);
             localStorage.setItem("wheelHasSpun", "true");
             onComplete(selectedDiscount);
-        }, 4000); // matches CSS transition
+        }, 4000);
     };
 
     return (
