@@ -17,6 +17,7 @@ export default function Analytics() {
   const headerRef = useRef<HTMLElement>(null);
   const [headerH, setHeaderH] = useState(64);
   const [selectedDate, setSelectedDate] = useState("");
+  const [totalSales, setTotalSales] = useState<number | null>(null);
 
   useLayoutEffect(() => {
     const el = headerRef.current;
@@ -44,7 +45,7 @@ export default function Analytics() {
     datasets: [
       {
         label: "Sales ($)",
-        data: [10,20],
+        data: [10, 20],
         backgroundColor: "rgba(197, 48, 48, 0.6)",
         borderColor: "rgba(197, 48, 48, 1)",
         borderWidth: 1,
@@ -79,14 +80,27 @@ export default function Analytics() {
   };
 
   const fetchSalesReport = async () => {
-  try {
-    const res = await fetch(`/api/sales/by-date?currentDate=${selectedDate}`);
-    const data = await res.json();
-    console.log("Total Sales:", data.total_cost); 
-  } catch (err) {
-    console.error("Error fetching sales report", err);
-  }
-};
+    try {
+      if (!selectedDate) {
+        console.warn("No date selected");
+        return;
+      }
+
+      const res = await fetch(`/api/sales/by-date?currentDate=${selectedDate}`);
+      if (!res.ok) {
+        throw new Error(`Request failed with status ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // pg often returns numbers as strings – cast to number
+      const total = Number(data.total_cost) || 0;
+      setTotalSales(total);
+      console.log("Total Sales:", total);
+    } catch (err) {
+      console.error("Error fetching sales report", err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -104,39 +118,43 @@ export default function Analytics() {
         <h1 className="text-2xl font-bold mb-6 text-center">
           Sales Analytics
         </h1>
-        
+
         <div className="Analytics-grid">
           {/* Column 1: Chart */}
           <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-            <h2 className="mb-3 text-lg font-bold text-center text-black">X/Z Report</h2>
-        
+            <h2 className="mb-3 text-lg font-bold text-center text-black">
+              X/Z Report
+            </h2>
+
             {/* Chart container */}
             <div className="relative h-96">
               <Bar data={barData} options={barOptions} />
             </div>
           </section>
-        
+
           {/* Column 2: Order statistics + Report controls */}
           <section className="rounded-2xl border p-4 shadow-sm flex flex-col items-center">
             <h2 className="mb-6 text-lg font-bold text-center text-black">
               Order Statistics
             </h2>
-        
+
             <div className="mb-8 text-center">
               <div className="text-xl font-medium mb-2">Total Sales</div>
-              <div className="text-gray-500">(Value)</div>
+              <div className="text-gray-500">
+                {totalSales !== null ? `$${totalSales.toFixed(2)}` : "(Value)"}
+              </div>
             </div>
-        
+
             <div className="mb-8 text-center">
               <div className="text-xl font-medium mb-2">Total Orders</div>
               <div className="text-gray-500">(Value)</div>
             </div>
-        
+
             <div className="w-full max-w-xs mt-auto">
               <h3 className="text-xl font-medium text-center mb-4">
                 Generate Reports
               </h3>
-        
+
               <div className="space-y-3 mb-2">
                 <input
                   type="date"
@@ -144,10 +162,10 @@ export default function Analytics() {
                   onChange={(e) => setSelectedDate(e.target.value)}
                   className="w-full border rounded-md px-3 py-2 text-sm placeholder-gray-400"
                 />
-                
+
                 <button
-                  onClick = {fetchTotalSales}
-                  className="w-full border rounded-md px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200"
+                  onClick={fetchSalesReport} {/* ✅ call the right function */}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-md w-full"
                 >
                   Generate X/Z Report
                 </button>
