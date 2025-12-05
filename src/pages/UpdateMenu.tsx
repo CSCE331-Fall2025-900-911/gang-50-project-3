@@ -194,7 +194,7 @@ export default function UpdateMenu() {
             }
 
             try {
-                const res = await fetch(`${API_URL}/updatemenu/createnewitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}`);
+                const res = await fetch(`${API_URL}/updatemenu/createnewitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}/${encodeURIComponent(targetCategory)}`);
                 const raw = await res.text();
 
                 if (!res.ok) {
@@ -292,7 +292,7 @@ export default function UpdateMenu() {
             }
           
             try {
-                const res = await fetch(`${API_URL}/updatemenu/updateitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}`);
+                const res = await fetch(`${API_URL}/updatemenu/updateitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}/${encodeURIComponent(targetCategory)}`);
                 const raw = await res.text();
 
                 if (!res.ok) {
