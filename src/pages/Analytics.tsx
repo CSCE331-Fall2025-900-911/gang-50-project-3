@@ -81,6 +81,7 @@ export default function Analytics() {
 
   const fetchSalesReport = async () => {
     try {
+      console.log("Date submitting:", selectedDate);
       if (!selectedDate) {
         console.warn("No date selected");
         return;
