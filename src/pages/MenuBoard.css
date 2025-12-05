@@ -10,13 +10,18 @@ html, body {
 }
 
 /* --- MAIN CONTAINER --- */
-.menu-board-container {
+.menu-content {
+    flex: 1;
+    min-width: 0;
     display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: 100vh; /* fill viewport height */
-    overflow: hidden; /* no scroll */
-    background-color: #ffffff;
+    flex-direction: column;
+    height: 100%;
+    padding: 2%;
+    box-sizing: border-box;
+
+    /* Allow vertical scroll only */
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* --- LEFT IMAGE SECTION --- */
