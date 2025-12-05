@@ -78,6 +78,16 @@ export default function Analytics() {
     },
   };
 
+  const fetchSalesReport = async () => {
+  try {
+    const res = await fetch(`/api/sales/by-date?currentDate=${selectedDate}`);
+    const data = await res.json();
+    console.log("Total Sales:", data.total_cost); 
+  } catch (err) {
+    console.error("Error fetching sales report", err);
+  }
+};
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <nav
@@ -136,6 +146,7 @@ export default function Analytics() {
                 />
                 
                 <button
+                  onclick = {fetchTotalSales}
                   className="w-full border rounded-md px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200"
                 >
                   Generate X/Z Report
