@@ -537,11 +537,14 @@ export default function Orders() {
   const removeDrink = (drinkId: any) => setCart(prev => prev.filter((d: any) => d.cart_id !== drinkId));
 
   const subtotal = cart.reduce((sum: number, d: any) => {
-    const drinkExtras = d.extras.reduce((s: number, e: any) => s + (e.ingredient_cost || 0), 0);
-    return sum + d.item.item_cost + drinkExtras;
-  }, 0);
-  const tax = subtotal * 0.08;
-  const total = subtotal + tax;
+  const drinkExtras = d.extras
+    .filter((e: any) => e.ingredient_category_name !== 'Packaging') // Ignore Packaging cost
+    .reduce((s: number, e: any) => s + (e.ingredient_cost || 0), 0);
+  return sum + d.item.item_cost + drinkExtras;
+}, 0);
+
+const tax = subtotal * 0.08;
+const total = subtotal + tax;
 
   // Only Packaging in Misc
   const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter((catName: string) => {
@@ -726,14 +729,16 @@ export default function Orders() {
               <button
                 className="btn"
                 onClick={() => {
-                  const outOfStock = cart.some((d: any) => !d.item.in_stock);
-                  if (outOfStock) {
-                    alert("Some items are out of stock. Please remove them from your order.");
-                  } else {
-                    alert("Thank you for your order! Have a nice day.");
-                    setCart([]);
-                    setShowCheckoutPopup(false);
-                  }
+                  const outOfStock = cart.filter((d: any) => !d.item.in_stock);
+                        if (outOfStock.length > 0) {
+                // List the names of out-of-stock items
+                const names = outOfStock.map((d: any) => d.item.item_name).join(', ');
+                alert(`The following item(s) are out of stock: ${names}. Please remove them from your order.`);
+             } else {
+                 alert("Thank you for your order! Have a nice day.");
+                  setCart([]);
+                  setShowCheckoutPopup(false);
+              }
                 }}
                 style={{ marginRight: '1rem' }}
               >
