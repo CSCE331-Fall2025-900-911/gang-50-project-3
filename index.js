@@ -387,6 +387,72 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
+  app.get('/api/sales/by-date/:currentDate', async (req, res) => {
+    try {
+      const { currentDate } = req.params;
+
+      const result = await pool.query(
+        `
+          SELECT COALESCE(SUM(total_cost), 0) AS total_cost
+          FROM customer_order
+          WHERE time_ordered::date = $1
+        `,
+        [currentDate]
+      );
+
+      res.json(result.rows);
+
+    } catch (err) {
+      console.error('Error fetching sales by date:', err);
+      res.status(500).json({ error: 'Failed to fetch total sales SQL' });
+    }
+  });
+
+  app.get('/api/totalOrders/by-date/:currentDate', async (req, res) => {
+    try {
+      const { currentDate } = req.params;
+  
+      const result = await pool.query(
+        `
+          SELECT COALESCE(COUNT(order_id), 0) AS total_orders
+          FROM customer_order
+          WHERE time_ordered::date = $1
+        `,
+        [currentDate]
+      );
+  
+      res.json(result.rows);
+  
+    } catch (err) {
+      console.error('Error fetching orders by date:', err);
+      res.status(500).json({ error: 'Failed to fetch total orders SQL' });
+    }
+  });
+
+  app.get('/api/hourlySales/by-date/:currentDate', async (req, res) => {
+    try {
+      const { currentDate } = req.params;
+  
+      const result = await pool.query(
+        `
+          SELECT EXTRACT(HOUR FROM time_ordered) AS hour,
+          COALESCE(SUM(total_cost), 0) AS total_sales
+          FROM customer_order
+          WHERE time_ordered::date = $1
+            AND EXTRACT(HOUR FROM time_ordered) BETWEEN 8 AND 21
+          GROUP BY hour
+          ORDER BY hour
+        `,
+        [currentDate]
+      );
+  
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching hourly sales:', err);
+      res.status(500).json({ error: 'Failed to fetch hourly sales' });
+    }
+  });
+
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API route not found' });
