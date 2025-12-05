@@ -181,6 +181,30 @@
     }
   });
 
+app.get('/api/sales/by-date', async (req, res) => {
+  try {
+    const { currentDate } = req.query; // "2025-01-04"
+
+    const start = `${currentDate} 00:00:00`;
+    const end = `${currentDate} 23:59:59`;
+
+    const result = await pool.query(
+      `
+        SELECT SUM(total_cost) AS total_cost
+        FROM Customer_Order
+        WHERE time_ordered >= $1 AND time_ordered <= $2
+      `,
+      [start, end]
+    );
+
+    res.json(result.rows[0]);
+
+  } catch (err) {
+    console.error('Error fetching sales total:', err);
+    res.status(500).json({ error: 'Failed to fetch sales analytics' });
+  }
+});
+
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API route not found' });
