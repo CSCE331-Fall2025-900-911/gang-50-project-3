@@ -85,18 +85,19 @@ export default function Analytics() {
         console.warn("No date selected");
         return;
       }
-
+  
       const res = await fetch(`/api/sales/by-date?currentDate=${selectedDate}`);
+      console.log("Response status:", res.status);
+  
       if (!res.ok) {
+        const text = await res.text();
+        console.error("Backend error body:", text);
         throw new Error(`Request failed with status ${res.status}`);
       }
-
+  
       const data = await res.json();
-
-      // pg often returns numbers as strings – cast to number
       const total = Number(data.total_cost) || 0;
       setTotalSales(total);
-      console.log("Total Sales:", total);
     } catch (err) {
       console.error("Error fetching sales report", err);
     }
