@@ -248,7 +248,7 @@ const MenuSection: React.FC<{ title: string; items: any[] }> = ({ title, items }
     <h3 className="section-title">{title}</h3>
     <ul className="menu-list">
       {items.map((item) => (
-        <li key={item.menu_item_id} className="menu-item">
+        <li key={item.item_ID} className="menu-item">
           <span>{item.name}</span>
 
           {/* Special Items Tag */}
