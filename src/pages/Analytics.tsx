@@ -62,7 +62,8 @@ export default function Analytics() {
         position: "bottom" as const,
       },
       title: {
-        display: false
+        display: true,
+        text: "X/Z Report",
       },
     },
     scales: {
@@ -134,7 +135,9 @@ export default function Analytics() {
                   className="w-full border rounded-md px-3 py-2 text-sm placeholder-gray-400"
                 />
                 
-                <button className="w-full rounded-md px-3 py-2 text-white font-medium bg-red-500 hover:bg-red-600">
+                <button
+                  className="w-full border rounded-md px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200"
+                >
                   Generate X/Z Report
                 </button>
               </div>
