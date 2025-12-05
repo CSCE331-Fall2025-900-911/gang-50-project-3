@@ -11,9 +11,12 @@ export default function DiscountWheel({ onComplete }: DiscountWheelProps) {
 
     const [isSpinning, setIsSpinning] = useState(false);
     const [rotation, setRotation] = useState(0);
+    const [hasSpun, setHasSpun] = useState(() => {
+        return localStorage.getItem("wheelHasSpun") === "true";
+    });
 
     const spinWheel = () => {
-        if (isSpinning) return;
+        if (isSpinning || hasSpun) return;
         setIsSpinning(true);
 
         const randomIndex = Math.floor(Math.random() * discountOptions.length);
@@ -24,8 +27,10 @@ export default function DiscountWheel({ onComplete }: DiscountWheelProps) {
         setRotation(finalRotation);
 
         setTimeout(() => {
-        setIsSpinning(false);
-        onComplete(selectedDiscount);
+            setIsSpinning(false);
+            setHasSpun(true);
+            localStorage.setItem("wheelHasSpun", "true");
+            onComplete(selectedDiscount);
         }, 4000); // matches CSS transition
     };
 
@@ -55,8 +60,8 @@ export default function DiscountWheel({ onComplete }: DiscountWheelProps) {
         </div>
 
 
-        <button className="spin-btn" onClick={spinWheel} disabled={isSpinning}>
-            {isSpinning ? "Spinning..." : "Spin for Discount"}
+        <button className="spin-btn" onClick={spinWheel} disabled={isSpinning || hasSpun}>
+            {isSpinning ? "Spinning..." :  hasSpun ? "Already spun." : "Spin for Discount"}
         </button>
 
         <div className="pointer">▼</div>
