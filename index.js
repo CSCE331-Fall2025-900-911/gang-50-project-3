@@ -304,11 +304,11 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
-  app.get('/api/updatemenu/createnewitem/:newItemName/:newItemId/:newItemPrice/:newItemIsAvailable/:newItemSizes/:newItemPhotoPath/:newItemIsSeasonal/:newItemSeasonalTimeBegin/:newItemSeasonalTimeEnd', async (req, res) => {
+  app.get('/api/updatemenu/createnewitem/:newItemName/:newItemId/:newItemPrice/:newItemIsAvailable/:newItemSizes/:newItemPhotoPath/:newItemIsSeasonal/:newItemSeasonalTimeBegin/:newItemSeasonalTimeEnd:/newItemCategory', async (req, res) => {
     try {
-      const { newItemName, newItemId, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd,  } = req.params;
-      const result = await pool.query(`INSERT INTO Item (item_ID, item_name, item_cost, in_stock, size_options, photo, seasonal_item, seasonal_item_beginning_time, seasonal_item_ending_time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
-      [newItemId, newItemName, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd]);
+      const { newItemName, newItemId, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd, newItemCategory} = req.params;
+      const result = await pool.query(`INSERT INTO Item (item_ID, item_name, item_cost, in_stock, size_options, photo, seasonal_item, seasonal_item_beginning_time, seasonal_item_ending_time, category_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);`,
+      [newItemId, newItemName, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd, newItemCategory]);
       res.json(result.rows);
     } catch (err) {
       console.error('Error fetching item data:', err);
