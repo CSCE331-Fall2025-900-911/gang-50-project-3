@@ -129,7 +129,7 @@ import './MenuBoard.css';
 
 const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
 
-// Updated Dietary Rules
+// Dietary rules
 const dietaryRules = {
   milkRequired: [
     'Classic Milk Tea','Taro Milk Tea','Matcha Pearl Milk Tea','Matcha Fresh Milk',
@@ -140,7 +140,7 @@ const dietaryRules = {
   ]
 };
 
-// Helper function for gluten detection
+// Gluten detection
 const isGluten = (itemName: string) => {
   const keywords = ['Pearl', 'Pudding'];
   return keywords.some((kw) => itemName.includes(kw));
@@ -150,33 +150,30 @@ export default function MenuBoard() {
   const [menuItems, setMenuItems] = useState<Record<string, any[]>>({});
   const [ingredients, setIngredients] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const itemsRes = await fetch('/api/items');
+        if (!itemsRes.ok) throw new Error(`Failed to fetch items: ${itemsRes.status}`);
         const itemsJson = await itemsRes.json();
 
         const groupedItems: Record<string, any[]> = {};
         itemsJson.forEach((item: any) => {
-          const cat = item.category_name;
-
-          if (!cat || cat === 'Other') return;
-
+          const cat = item.category_name || 'Uncategorized';
           if (!groupedItems[cat]) groupedItems[cat] = [];
           groupedItems[cat].push(item);
         });
 
         const ingRes = await fetch('/api/ingredients');
+        if (!ingRes.ok) throw new Error(`Failed to fetch ingredients: ${ingRes.status}`);
         const ingJson = await ingRes.json();
 
         const groupedIngredients: Record<string, any[]> = {};
         ingJson.forEach((ing: any) => {
-          const cat = ing.ingredient_category_name;
-
-          if (cat === 'Other') return;
-
-          if (singleSelectCategories.includes(cat)) {
+          const cat = ing.ingredient_category_name || 'Other';
+          if (singleSelectCategories.map(c => c.toLowerCase()).includes(cat.toLowerCase())) {
             if (!groupedIngredients[cat]) groupedIngredients[cat] = [];
             groupedIngredients[cat].push(ing);
           }
@@ -185,8 +182,9 @@ export default function MenuBoard() {
         setMenuItems(groupedItems);
         setIngredients(groupedIngredients);
         setLoading(false);
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
+        setError(err.message);
         setLoading(false);
       }
     };
@@ -195,7 +193,9 @@ export default function MenuBoard() {
   }, []);
 
   if (loading) return <p>Loading menu...</p>;
+  if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
 
+  // Split items into 3 columns
   const menuColumns: Record<string, any[]> = { col1: [], col2: [], col3: [] };
   Object.entries(menuItems).forEach(([cat, items], index) => {
     if (index % 3 === 0) menuColumns.col1.push({ cat, items });
@@ -213,37 +213,31 @@ export default function MenuBoard() {
         <h1 className="menu-title">Menu Board</h1>
 
         <div className="menu-sections" style={{ display: 'flex', gap: '1%' }}>
-          <div className="menu-column col-1" style={{ flex: 1 }}>
-            {menuColumns.col1.map(({ cat, items }) => (
-              <MenuSection key={cat} title={cat} items={items} />
-            ))}
-          </div>
-          <div className="menu-column col-2" style={{ flex: 1 }}>
-            {menuColumns.col2.map(({ cat, items }) => (
-              <MenuSection key={cat} title={cat} items={items} />
-            ))}
-          </div>
-          <div className="menu-column col-3" style={{ flex: 1 }}>
-            {menuColumns.col3.map(({ cat, items }) => (
-              <MenuSection key={cat} title={cat} items={items} />
-            ))}
-          </div>
-        </div>
-
-        <div className="customization-bar">
-          {Object.entries(ingredients).map(([cat, items]) => (
-            <div key={cat} className="customization-group">
-              <span className="customization-label">{cat}</span>
-              <div className="options-row">
-                {items.map((ing: any) => (
-                  <span key={ing.ingredient_ID} className="option-item">
-                    <span className="option-label">{ing.ingredient_name}</span>
-                  </span>
-                ))}
-              </div>
+          {[menuColumns.col1, menuColumns.col2, menuColumns.col3].map((col, idx) => (
+            <div key={idx} className={`menu-column col-${idx + 1}`} style={{ flex: 1 }}>
+              {col.map(({ cat, items }) => (
+                <MenuSection key={cat} title={cat} items={items} />
+              ))}
             </div>
           ))}
         </div>
+
+        {Object.keys(ingredients).length > 0 && (
+          <div className="customization-bar">
+            {Object.entries(ingredients).map(([cat, items]) => (
+              <div key={cat} className="customization-group">
+                <span className="customization-label">{cat}</span>
+                <div className="options-row">
+                  {items.map((ing: any) => (
+                    <span key={ing.ingredient_ID} className="option-item">
+                      <span className="option-label">{ing.ingredient_name}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -257,15 +251,18 @@ const MenuSection: React.FC<{ title: string; items: any[] }> = ({ title, items }
         <li key={item.menu_item_id} className="menu-item">
           <span>{item.name}</span>
 
+          {/* Special Items Tag */}
           {title === 'Special Items' && <span className="new-tag-inline">NEW</span>}
 
-          {/* DIETARY TAGS */}
-          {dietaryRules.milkRequired.includes(item.name) && (
-            <span className="dietary-tag">Requires Milk</span>
-          )}
-          {isGluten(item.name) && (
-            <span className="dietary-tag gluten">Contains Gluten</span>
-          )}
+          {/* Dietary Icons */}
+          <span className="dietary-icons">
+            {dietaryRules.milkRequired.includes(item.name) && (
+              <span className="dietary-icon milk" title="Requires Milk">🥛</span>
+            )}
+            {isGluten(item.name) && (
+              <span className="dietary-icon gluten" title="Contains Gluten">🌾</span>
+            )}
+          </span>
         </li>
       ))}
     </ul>

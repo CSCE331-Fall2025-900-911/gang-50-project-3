@@ -171,19 +171,26 @@ html, body {
     font-size: calc(0.4vw + 0.4em);
     color: #555;
 }
+/* --- DIETARY RESTRICTION ICONS --- */
 
-.dietary-tag {
-    background-color: #ff9999;
-    color: #fff;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: calc(0.4vw + 0.5em);
-    margin-left: 6px;
-    font-weight: bold;
+.dietary-icons {
+  display: flex;
+  gap: 4px;
+  margin-left: 6px;
 }
 
-.dietary-tag.gluten {
-    background-color: #ff6f00; /* orange for gluten */
+.dietary-icon {
+  font-size: calc(0.6vw + 0.6em);
+  display: inline-flex;
+  align-items: center;
+}
+
+.dietary-icon.milk {
+  color: #3f51b5; /* blue for milk */
+}
+
+.dietary-icon.gluten {
+  color: #ff6f00; /* orange for gluten */
 }
 
 /* --- RESPONSIVE GRID --- */
