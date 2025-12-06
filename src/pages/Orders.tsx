@@ -23,6 +23,10 @@ export default function Orders() {
     const name = item.item_name || '';
     return milkCategories.includes(category) && !name.includes('Slush');
   };
+  const containsGluten = (itemName: string) => {
+  const keywords = ['Pearl', 'Pudding'];
+  return keywords.some((kw) => itemName.includes(kw));
+};
 
   // Load categories, items, ingredients
   useEffect(() => {
@@ -369,6 +373,20 @@ const total = subtotal + tax;
             backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
           }}>
             <h3 style={{ marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
+              {containsGluten(customizingDrink.item.item_name) && (
+                  <div style={{
+                  backgroundColor: '#ffe6e6',
+                  padding: '0.75rem',
+                  borderRadius: '6px',
+                  marginBottom: '1rem',
+                  color: '#b30000',
+                  fontWeight: 'bold',
+                  textAlign: 'center'
+                }}>
+                  ⚠️ Contains Gluten
+                </div>
+              )}
+
 
             {singleSelectCategories.map(cat => {
               // Skip Milk if not required
