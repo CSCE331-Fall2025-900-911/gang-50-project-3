@@ -10,10 +10,25 @@ declare global {
 
 
 export default function KioskNavbar() {
-  console.log('KioskNavbar render');
 
   const navigate = useNavigate();
   const [showAccessibilityPopup, setShowAccessibilityPopup] = useState(false);
+  const [showWeatherPopup, setShowWeatherPopup] = useState(false);
+  interface WeatherData {
+    main: {
+      temp: number;
+      feels_like: number;
+      humidity: number;
+    };
+    weather: {
+      description: string;
+    }[];
+    wind: {
+      speed: number;
+    };
+  }
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+
 
   // Initialize from localStorage only once
   const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem("fontSize")) || 16);
@@ -42,7 +57,7 @@ export default function KioskNavbar() {
     applyContrastMode(highContrast);
   }, []);
 
-  // --- GOOGLE TRANSLATE LOADING LOGIC ---
+  // Google translate loading logic
   useEffect(() => {
     if (!showAccessibilityPopup) return;
 
@@ -76,7 +91,7 @@ export default function KioskNavbar() {
     }
   }, [showAccessibilityPopup]);
 
-  // --- Adjust navbar for Google Translate banner ---
+  // Adjust navbar for Google Translate banner
   useEffect(() => {
     const navbar = document.querySelector("nav");
 
@@ -97,6 +112,25 @@ export default function KioskNavbar() {
 
     return () => observer.disconnect();
   }, []);
+
+  // Weather API
+  useEffect(() => {
+    if (!showWeatherPopup) return;
+
+    const fetchWeather = async () => {
+      try {
+        const res = await fetch(`/api/weather?lat=30.6280&lon=-96.3344`); // College Station longitude and latitude
+
+        const data = await res.json();
+        setWeather(data);
+      } catch (e) {
+        console.error("Weather fetch failed", e);
+      }
+    };
+
+    fetchWeather();
+  }, [showWeatherPopup]);
+
 
   const handleCancelOrder = () => {
     localStorage.clear();
@@ -137,9 +171,13 @@ export default function KioskNavbar() {
       </div>
 
       <div className="pages">
-        <div className="navItem">
+        <div
+          className="navItem"
+          onClick={() => setShowWeatherPopup(true)}
+          style={{ cursor: "pointer" }}
+        >
           <img className="navIcon" src="/Sun.svg" alt="Weather" />
-          <p>72° F</p>
+          <p>Weather</p>
         </div>
 
         <div 
@@ -219,6 +257,68 @@ export default function KioskNavbar() {
           </div>
         </div>
       )}
+
+      {showWeatherPopup && (
+        <div
+          className="popup-overlay"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999
+          }}
+        >
+          <div
+            className="popup-content"
+            style={{
+              backgroundColor: "white",
+              padding: "2rem",
+              borderRadius: "8px",
+              width: "400px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+              textAlign: "center"
+            }}
+          >
+            <h2>Current Weather</h2>
+
+            {weather ? (
+              <>
+                <p style={{ fontSize: "1.25rem", margin: "1rem 0" }}>
+                  Temperature: {weather.main?.temp ?? "N/A"}°F
+                </p>
+                <p style={{ fontSize: "1.25rem", margin: "1rem 0" }}>Feels like {weather.main?.feels_like ?? "N/A"}°F</p>
+                <p style={{ fontSize: "1.25rem", margin: "1rem 0" }}>
+                  {weather.weather?.[0]?.description
+                    ? weather.weather[0].description.charAt(0).toUpperCase() + weather.weather[0].description.slice(1)
+                    : "No description"}
+                </p>
+                <p style={{ fontSize: "1.25rem", margin: "1rem 0" }}>Humidity: {weather.main?.humidity ?? "N/A"}%</p>
+                <p style={{ fontSize: "1.25rem", margin: "1rem 0" }}>Wind: {weather.wind?.speed ?? "N/A"} mph</p>
+              </>
+            ) : (
+              <p>Loading or no data available...</p>
+            )}
+
+            <button
+              className="btn"
+              style={{ marginTop: "1.5rem" }}
+              onClick={() => setShowWeatherPopup(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+
+
     </nav>
   );
 }
