@@ -322,6 +322,22 @@ const total = subtotal + tax;
             {cart.map((d: any) => (
               <div key={d.cart_id} style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
                 <strong>{d.item.item_name}</strong> - ${d.item.item_cost.toFixed(2)}
+                    {/* Gluten warning */}
+                {containsGluten(d.item.item_name) && (
+                  <div style={{
+                    backgroundColor: '#ffe6e6',
+                    padding: '0.5rem',
+                    borderRadius: '6px',
+                    marginBottom: '0.25rem',
+                    color: '#b30000',
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    fontSize: '0.9rem'
+                  }}>
+                    ⚠️ Contains Gluten
+                  </div>
+                )}
+
                 <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
                   {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
                     ing ? <div key={cat}>{cat}: {ing.ingredient_name}</div> : null
