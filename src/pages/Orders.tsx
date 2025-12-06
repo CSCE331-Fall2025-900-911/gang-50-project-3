@@ -380,7 +380,7 @@ const total = subtotal + tax;
       )}
 
       {/* --- Customization Popup --- */}
-      {showCustomizationPopup && customizingDrink && (
+      {/* {showCustomizationPopup && customizingDrink && (
         <div className="customization-popup" style={{
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
           backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
@@ -439,7 +439,84 @@ const total = subtotal + tax;
             </div>
           </div>
         </div>
+      )} */}
+
+      {/* --- Customization Popup --- */}
+      {showCustomizationPopup && customizingDrink && (
+        <div className="customization-popup" style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
+          }}>
+            <h3 style={{ marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
+
+            {containsGluten(customizingDrink.item.item_name) && (
+              <div style={{
+                backgroundColor: '#ffe6e6',
+                padding: '0.75rem',
+                borderRadius: '6px',
+                marginBottom: '1rem',
+                color: '#b30000',
+                fontWeight: 'bold',
+                textAlign: 'center'
+              }}>
+                ⚠️ Contains Gluten
+              </div>
+            )}
+
+            {singleSelectCategories.map(cat => {
+              // Skip Milk if not required
+              if (cat === 'Milk' && !requiresMilk(customizingDrink.item)) return null;
+
+              return (
+                <div key={cat} style={{ marginBottom: '1rem' }}>
+                  <h4>{cat}</h4>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    {groupedIngredients[cat]?.map((ing: any) => (
+                      <label
+                        key={ing.ingredient_ID}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          padding: '0.25rem 0.5rem',
+                          border: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '2px solid #007bff' : '1px solid #ccc',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          backgroundColor: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '#e6f0ff' : 'white'
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name={cat}
+                          checked={customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID}
+                          onChange={() => setCustomizationOption(cat, ing)}
+                        />
+                        <span>{ing.ingredient_name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+
+            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+              <button
+                className="btn"
+                disabled={!allRequiredSelected}
+                onClick={confirmCustomization}
+                style={{ marginRight: '1rem' }}
+              >
+                Confirm
+              </button>
+              <button className="btn" onClick={cancelCustomization}>Cancel</button>
+            </div>
+          </div>
+        </div>
       )}
+
     </div>
   );
 }
