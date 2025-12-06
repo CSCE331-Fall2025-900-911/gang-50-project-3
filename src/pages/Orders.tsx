@@ -773,13 +773,12 @@ const total = subtotal + tax;
                       <button
                         key={ing.ingredient_ID}
                         onClick={() => setCustomizationOption(cat, ing)}
-                        // keep the existing btn class for app styles, but add an explicit visible border
                         className="btn"
                         aria-pressed={customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID}
                         style={{
-                          // strong visible outline for the selected option
-                          border: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '2px solid #000' : undefined,
-                          boxShadow: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '0 0 0 3px rgba(0,0,0,0.06)' : undefined,
+                          border: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '2px solid #000' : '1px solid #ccc',
+                          boxShadow: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '0 0 0 3px rgba(0,0,0,0.1)' : 'none',
+                          fontWeight: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? 'bold' : 'normal',
                         }}
                         title={ing.ingredient_name}
                       >
