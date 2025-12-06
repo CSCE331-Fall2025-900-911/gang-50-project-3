@@ -445,6 +445,8 @@
 //   );
 // }
 
+
+
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -474,7 +476,6 @@ export default function Orders() {
     return keywords.some((kw) => itemName.includes(kw));
   };
 
-  // Load categories, items, ingredients
   useEffect(() => {
     const load = async () => {
       try {
@@ -506,7 +507,6 @@ export default function Orders() {
     );
   }
 
-  // Group ingredients by category
   const groupedIngredients: Record<string, any[]> = {};
   for (const ingRaw of ingredients) {
     const ing = ingRaw as any;
@@ -518,7 +518,6 @@ export default function Orders() {
     groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
   });
 
-  // Ensure all single-select categories exist even if empty
   singleSelectCategories.forEach(cat => {
     if (!groupedIngredients[cat]) groupedIngredients[cat] = [];
   });
@@ -621,7 +620,7 @@ export default function Orders() {
       ...prev,
       {
         ...customizingDrink,
-        ingredients: { ...customizingDrink.ingredients }, // copy current selections
+        ingredients: { ...customizingDrink.ingredients },
       }
     ]);
 
@@ -717,14 +716,17 @@ export default function Orders() {
                 <button onClick={() => removeDrink(d.cart_id)}>×</button>
               </div>
               <div className="order-ingredients">
-                {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
-                  ing ? (
+                {/* Always show all single-select categories */}
+                {singleSelectCategories.map(cat => {
+                  if (cat === 'Milk' && !requiresMilk(d.item)) return null;
+                  const ing = d.ingredients[cat];
+                  return (
                     <div key={cat} className="order-line">
-                      <span>{cat}: {ing.ingredient_name}</span>
-                      <button onClick={() => removeIngredient(d.cart_id, cat, ing.ingredient_ID)}>×</button>
+                      <span>{cat}: {ing ? ing.ingredient_name : 'None'}</span>
+                      {ing && <button onClick={() => removeIngredient(d.cart_id, cat, ing.ingredient_ID)}>×</button>}
                     </div>
-                  ) : null
-                ))}
+                  );
+                })}
                 {d.extras.map((e: any) => (
                   <div key={e.ingredient_ID} className="order-line">
                     <span>{e.ingredient_name}</span>
@@ -774,9 +776,12 @@ export default function Orders() {
                   </div>
                 )}
                 <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
-                  {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
-                    ing ? <div key={cat}>{cat}: {ing.ingredient_name}</div> : null
-                  ))}
+                  {/* Always show all single-select categories */}
+                  {singleSelectCategories.map(cat => {
+                    if (cat === 'Milk' && !requiresMilk(d.item)) return null;
+                    const ing = d.ingredients[cat];
+                    return <div key={cat}>{cat}: {ing ? ing.ingredient_name : 'None'}</div>;
+                  })}
                   {d.extras.map((e: any) => <div key={e.ingredient_ID}>{e.ingredient_name}</div>)}
                 </div>
               </div>
@@ -813,7 +818,7 @@ export default function Orders() {
         </div>
       )}
 
-      {/* --- Customization Popup (RADIO BUTTONS ONLY) --- */}
+      {/* --- Customization Popup --- */}
       {showCustomizationPopup && customizingDrink && (
         <div className="customization-popup" style={{
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
@@ -840,7 +845,6 @@ export default function Orders() {
 
             {singleSelectCategories.map(cat => {
               if (cat === 'Milk' && !requiresMilk(customizingDrink.item)) return null;
-
               return (
                 <div key={cat} style={{ marginBottom: '1rem' }}>
                   <h4>{cat}</h4>
@@ -863,13 +867,7 @@ export default function Orders() {
             })}
 
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-              <button
-                className="btn"
-                onClick={confirmCustomization}
-                style={{ marginRight: '1rem' }}
-              >
-                Confirm
-              </button>
+              <button className="btn" onClick={confirmCustomization} style={{ marginRight: '1rem' }}>Confirm</button>
               <button className="btn" onClick={cancelCustomization}>Cancel</button>
             </div>
           </div>
@@ -878,3 +876,4 @@ export default function Orders() {
     </div>
   );
 }
+
