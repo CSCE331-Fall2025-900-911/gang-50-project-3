@@ -878,7 +878,6 @@
 // }
 
 
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -908,7 +907,6 @@ export default function Orders() {
     return keywords.some((kw) => itemName.includes(kw));
   };
 
-  // Load categories, items, ingredients
   useEffect(() => {
     const load = async () => {
       try {
@@ -940,7 +938,6 @@ export default function Orders() {
     );
   }
 
-  // Group ingredients by category
   const groupedIngredients: Record<string, any[]> = {};
   for (const ingRaw of ingredients) {
     const ing = ingRaw as any;
@@ -952,7 +949,7 @@ export default function Orders() {
     groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
   });
 
-  // Ensure all single-select categories exist even if empty
+  // Ensure all single-select categories exist
   singleSelectCategories.forEach(cat => {
     if (!groupedIngredients[cat]) groupedIngredients[cat] = [];
   });
@@ -1050,15 +1047,13 @@ export default function Orders() {
 
   const confirmCustomization = () => {
     if (!customizingDrink) return;
-
     setCart(prev => [
       ...prev,
       {
         ...customizingDrink,
-        ingredients: { ...customizingDrink.ingredients }, // copy current selections
+        ingredients: { ...customizingDrink.ingredients },
       }
     ]);
-
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
   };
@@ -1150,33 +1145,14 @@ export default function Orders() {
                 <strong>{d.item.item_name}</strong>
                 <button onClick={() => removeDrink(d.cart_id)}>×</button>
               </div>
-
-              {/* --- Display Ingredients with Radio Bubble Visual --- */}
               <div className="order-ingredients">
-                {singleSelectCategories.map(cat => {
+                {/* Show only selected ingredients */}
+                {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => {
+                  if (!ing) return null;
                   if (cat === 'Milk' && !requiresMilk(d.item)) return null;
-                  const options = groupedIngredients[cat] || [];
                   return (
                     <div key={cat} className="order-line">
-                      <strong>{cat}:</strong>
-                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
-                        {options.map(opt => {
-                          const isSelected = d.ingredients[cat]?.ingredient_ID === opt.ingredient_ID;
-                          return (
-                            <div key={opt.ingredient_ID} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                              <span style={{
-                                display: 'inline-block',
-                                width: '16px',
-                                height: '16px',
-                                borderRadius: '50%',
-                                border: '2px solid #333',
-                                backgroundColor: isSelected ? '#333' : 'transparent'
-                              }}></span>
-                              <span>{opt.ingredient_name}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
+                      <span>{cat}: {ing.ingredient_name}</span>
                     </div>
                   );
                 })}
@@ -1228,35 +1204,12 @@ export default function Orders() {
                     ⚠️ Contains Gluten
                   </div>
                 )}
-
-                {/* --- Checkout Ingredients with Radio Bubble --- */}
                 <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
-                  {singleSelectCategories.map(cat => {
+                  {/* Show only selected ingredients */}
+                  {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => {
+                    if (!ing) return null;
                     if (cat === 'Milk' && !requiresMilk(d.item)) return null;
-                    const options = groupedIngredients[cat] || [];
-                    return (
-                      <div key={cat} style={{ marginBottom: '0.25rem' }}>
-                        <strong>{cat}:</strong>
-                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
-                          {options.map(opt => {
-                            const isSelected = d.ingredients[cat]?.ingredient_ID === opt.ingredient_ID;
-                            return (
-                              <div key={opt.ingredient_ID} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                <span style={{
-                                  display: 'inline-block',
-                                  width: '16px',
-                                  height: '16px',
-                                  borderRadius: '50%',
-                                  border: '2px solid #333',
-                                  backgroundColor: isSelected ? '#333' : 'transparent'
-                                }}></span>
-                                <span>{opt.ingredient_name}</span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
+                    return <div key={cat}>{cat}: {ing.ingredient_name}</div>;
                   })}
                   {d.extras.map((e: any) => <div key={e.ingredient_ID}>{e.ingredient_name}</div>)}
                 </div>
@@ -1287,7 +1240,6 @@ export default function Orders() {
               >
                 Confirm
               </button>
-
               <button className="btn" onClick={() => setShowCheckoutPopup(false)}>Cancel</button>
             </div>
           </div>
@@ -1359,5 +1311,3 @@ export default function Orders() {
     </div>
   );
 }
-
-
