@@ -518,6 +518,11 @@ export default function Orders() {
     groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
   });
 
+  // Ensure all single-select categories exist even if empty
+  singleSelectCategories.forEach(cat => {
+    if (!groupedIngredients[cat]) groupedIngredients[cat] = [];
+  });
+
   const filteredItems = selectedCategory === 7
     ? []
     : items.filter((item: any) => item.category_id === selectedCategory);
@@ -611,17 +616,15 @@ export default function Orders() {
 
   const confirmCustomization = () => {
     if (!customizingDrink) return;
-        // Create a new drink object to push to cart
-          // Push the currently selected ingredients into the cart
-      setCart(prev => [
-        ...prev,
-        {
-          ...customizingDrink,
-          ingredients: { ...customizingDrink.ingredients }, // copy the current selections
-        }
-      ]);
-      
-    // setCart(prev => [...prev, customizingDrink]);
+
+    setCart(prev => [
+      ...prev,
+      {
+        ...customizingDrink,
+        ingredients: { ...customizingDrink.ingredients }, // copy current selections
+      }
+    ]);
+
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
   };
@@ -875,4 +878,3 @@ export default function Orders() {
     </div>
   );
 }
-
