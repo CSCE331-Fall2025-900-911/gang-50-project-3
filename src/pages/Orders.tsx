@@ -445,7 +445,6 @@
 //   );
 // }
 
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -475,6 +474,7 @@ export default function Orders() {
     return keywords.some((kw) => itemName.includes(kw));
   };
 
+  // Load categories, items, ingredients
   useEffect(() => {
     const load = async () => {
       try {
@@ -506,6 +506,7 @@ export default function Orders() {
     );
   }
 
+  // Group ingredients by category
   const groupedIngredients: Record<string, any[]> = {};
   for (const ingRaw of ingredients) {
     const ing = ingRaw as any;
@@ -608,16 +609,8 @@ export default function Orders() {
     });
   };
 
-  const allRequiredSelected = customizingDrink
-    ? Object.entries(customizingDrink.ingredients).every(([cat, ing]: [string, any]) => {
-        if (cat === 'Milk' && !requiresMilk(customizingDrink.item)) return true;
-        return ing && Object.keys(ing).length > 0;
-      })
-    : false;
-
   const confirmCustomization = () => {
     if (!customizingDrink) return;
-    if (!allRequiredSelected) return alert('Please select all required options before adding to cart.');
     setCart(prev => [...prev, customizingDrink]);
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
@@ -767,7 +760,6 @@ export default function Orders() {
                     ⚠️ Contains Gluten
                   </div>
                 )}
-
                 <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
                   {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
                     ing ? <div key={cat}>{cat}: {ing.ingredient_name}</div> : null
@@ -780,7 +772,7 @@ export default function Orders() {
             <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Tax:</span><span>${tax.toFixed(2)}</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}><span>Total:</span><span>${total.toFixed(2)}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}><span>Total</span><span>${total.toFixed(2)}</span></div>
             </div>
 
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
@@ -808,7 +800,7 @@ export default function Orders() {
         </div>
       )}
 
-      {/* --- Customization Popup (RADIO BUTTONS) --- */}
+      {/* --- Customization Popup (RADIO BUTTONS ONLY) --- */}
       {showCustomizationPopup && customizingDrink && (
         <div className="customization-popup" style={{
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
@@ -839,21 +831,9 @@ export default function Orders() {
               return (
                 <div key={cat} style={{ marginBottom: '1rem' }}>
                   <h4>{cat}</h4>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                     {groupedIngredients[cat]?.map((ing: any) => (
-                      <label
-                        key={ing.ingredient_ID}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          padding: '0.25rem 0.5rem',
-                          border: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '2px solid #007bff' : '1px solid #ccc',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          backgroundColor: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '#e6f0ff' : 'white'
-                        }}
-                      >
+                      <label key={ing.ingredient_ID} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
                         <input
                           type="radio"
                           name={cat}
@@ -872,7 +852,6 @@ export default function Orders() {
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
               <button
                 className="btn"
-                disabled={!allRequiredSelected}
                 onClick={confirmCustomization}
                 style={{ marginRight: '1rem' }}
               >
@@ -886,3 +865,4 @@ export default function Orders() {
     </div>
   );
 }
+
