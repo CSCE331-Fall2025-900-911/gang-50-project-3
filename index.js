@@ -115,6 +115,7 @@ app.get('/api/ingredients', async (_req, res) => {
         i.supply_level,
         i.expiration_date,
         i.ingredient_cost,
+        i.photo,
         i.vendor,
         i.category_id,
         ic.name AS ingredient_category_name
