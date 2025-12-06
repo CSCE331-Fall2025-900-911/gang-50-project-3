@@ -1142,23 +1142,23 @@ export default function Orders() {
       {/* RIGHT SIDEBAR / CART */}
       <div className="sidebar sidebar-right">
         <h2 className="order-title">Current Order</h2>
-        {[...cart, customizingDrink ? customizingDrink : null]
-          .filter(Boolean)
-          .map((d: any) => (
-            <div key={d.cart_id || 'customizing'} className="order-drink">
+        {cart.length === 0 ? (
+          <p className="empty muted">No items in cart</p>
+        ) : (
+          cart.map((d: any) => (
+            <div key={d.cart_id} className="order-drink">
               <div className="order-drink-header">
                 <strong>{d.item.item_name}</strong>
-                {d.cart_id && <button onClick={() => removeDrink(d.cart_id)}>×</button>}
+                <button onClick={() => removeDrink(d.cart_id)}>×</button>
               </div>
               <div className="order-ingredients">
                 {singleSelectCategories.map(cat => {
                   if (cat === 'Milk' && !requiresMilk(d.item)) return null;
                   const selected = d.ingredients[cat];
-                  // Always show whatever is selected, including default blue-filled radio
                   return selected ? (
                     <div key={cat} className="order-line">
                       <span>{cat}: {selected.ingredient_name}</span>
-                      {d.cart_id && <button onClick={() => removeIngredient(d.cart_id, cat, selected.ingredient_ID)}>×</button>}
+                      <button onClick={() => removeIngredient(d.cart_id, cat, selected.ingredient_ID)}>×</button>
                     </div>
                   ) : null;
                 })}
@@ -1166,12 +1166,13 @@ export default function Orders() {
                 {d.extras.map((e: any) => (
                   <div key={e.ingredient_ID} className="order-line">
                     <span>{e.ingredient_name}</span>
-                    {d.cart_id && <button onClick={() => removeIngredient(d.cart_id, 'extras', e.ingredient_ID)}>×</button>}
+                    <button onClick={() => removeIngredient(d.cart_id, 'extras', e.ingredient_ID)}>×</button>
                   </div>
                 ))}
               </div>
             </div>
-          ))}
+          ))
+        )}
 
         <div className="totals-card">
           <div className="totals-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
@@ -1179,13 +1180,7 @@ export default function Orders() {
           <div className="totals-row totals-row-total"><span>Total</span><span>${total.toFixed(2)}</span></div>
         </div>
 
-        <button
-          disabled={cart.length === 0 && !customizingDrink}
-          className="btn btn-checkout"
-          onClick={() => setShowCheckoutPopup(true)}
-        >
-          Checkout
-        </button>
+        <button disabled={cart.length === 0} className="btn btn-checkout" onClick={() => setShowCheckoutPopup(true)}>Checkout</button>
       </div>
 
       {/* --- Checkout Popup --- */}
@@ -1199,35 +1194,33 @@ export default function Orders() {
           }}>
             <h3 style={{ marginBottom: '1rem' }}>Review Your Order</h3>
 
-            {[...cart, customizingDrink ? customizingDrink : null]
-              .filter(Boolean)
-              .map((d: any) => (
-                <div key={d.cart_id || 'customizing'} style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
-                  <strong>{d.item.item_name}</strong> - ${d.item.item_cost.toFixed(2)}
-                  {containsGluten(d.item.item_name) && (
-                    <div style={{
-                      backgroundColor: '#ffe6e6',
-                      padding: '0.5rem',
-                      borderRadius: '6px',
-                      marginBottom: '0.25rem',
-                      color: '#b30000',
-                      fontWeight: 'bold',
-                      textAlign: 'center',
-                      fontSize: '0.9rem'
-                    }}>
-                      ⚠️ Contains Gluten
-                    </div>
-                  )}
-                  <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
-                    {singleSelectCategories.map(cat => {
-                      if (cat === 'Milk' && !requiresMilk(d.item)) return null;
-                      const selected = d.ingredients[cat];
-                      return selected ? <div key={cat}>{cat}: {selected.ingredient_name}</div> : null;
-                    })}
-                    {d.extras.map((e: any) => <div key={e.ingredient_ID}>{e.ingredient_name}</div>)}
+            {cart.map((d: any) => (
+              <div key={d.cart_id} style={{ borderBottom: '1px solid #ccc', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
+                <strong>{d.item.item_name}</strong> - ${d.item.item_cost.toFixed(2)}
+                {containsGluten(d.item.item_name) && (
+                  <div style={{
+                    backgroundColor: '#ffe6e6',
+                    padding: '0.5rem',
+                    borderRadius: '6px',
+                    marginBottom: '0.25rem',
+                    color: '#b30000',
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    fontSize: '0.9rem'
+                  }}>
+                    ⚠️ Contains Gluten
                   </div>
+                )}
+                <div style={{ paddingLeft: '1rem', marginTop: '0.25rem' }}>
+                  {singleSelectCategories.map(cat => {
+                    if (cat === 'Milk' && !requiresMilk(d.item)) return null;
+                    const selected = d.ingredients[cat];
+                    return selected ? <div key={cat}>{cat}: {selected.ingredient_name}</div> : null;
+                  })}
+                  {d.extras.map((e: any) => <div key={e.ingredient_ID}>{e.ingredient_name}</div>)}
                 </div>
-              ))}
+              </div>
+            ))}
 
             <div style={{ borderTop: '2px solid #000', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
@@ -1253,7 +1246,6 @@ export default function Orders() {
               >
                 Confirm
               </button>
-
               <button className="btn" onClick={() => setShowCheckoutPopup(false)}>Cancel</button>
             </div>
           </div>
@@ -1318,4 +1310,3 @@ export default function Orders() {
     </div>
   );
 }
-
