@@ -92,7 +92,7 @@ export default function Orders() {
       },
       extras: [] as any[],
     };
-     //setCart(prev => [...prev, newDrink]);
+    setCart(prev => [...prev, newDrink]);
     setCustomizingDrink(newDrink);
     setShowCustomizationPopup(true);
   };
