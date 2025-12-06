@@ -960,11 +960,8 @@ export default function Orders() {
     // Initialize ingredients as null for all single-select categories
     const ingredientsState: Record<string, any> = {};
     singleSelectCategories.forEach(cat => {
-      if (cat === 'Milk' && !requiresMilk(item)) {
-        ingredientsState[cat] = null;
-      } else {
-        ingredientsState[cat] = null; // No default, user must select
-      }
+     ingredientsState[cat] = groupedIngredients[cat]?.[groupedIngredients[cat].length - 1] || null;
+
     });
 
     const newDrink = {
