@@ -370,7 +370,8 @@
 //                     <button
 //                       key={ing.ingredient_ID}
 //                       onClick={() => setCustomizationOption(cat, ing)}
-//                       className={`btn ${customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? 'selected' : ''}`}
+//                       className={`btn ${customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? 'customization-btn-selected' : ''}`}
+//                       aria-pressed={customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID}
 //                     >
 //                       {ing.ingredient_name}
 //                     </button>
@@ -393,6 +394,7 @@
 
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
+import './Orders.css';
 
 export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -760,7 +762,6 @@ const total = subtotal + tax;
             backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
           }}>
             <h3 style={{ marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
-
             {singleSelectCategories.map(cat => {
               // Skip Milk if not required
               if (cat === 'Milk' && !requiresMilk(customizingDrink.item)) return null;
@@ -773,14 +774,8 @@ const total = subtotal + tax;
                       <button
                         key={ing.ingredient_ID}
                         onClick={() => setCustomizationOption(cat, ing)}
-                        className="btn"
+                        className={`btn ${customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? 'customization-btn-selected' : ''}`}
                         aria-pressed={customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID}
-                        style={{
-                          border: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '2px solid #000' : '1px solid #ccc',
-                          boxShadow: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '0 0 0 3px rgba(0,0,0,0.1)' : 'none',
-                          fontWeight: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? 'bold' : 'normal',
-                        }}
-                        title={ing.ingredient_name}
                       >
                         {ing.ingredient_name}
                       </button>
