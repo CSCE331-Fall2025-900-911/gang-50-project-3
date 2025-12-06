@@ -729,16 +729,15 @@ const total = subtotal + tax;
               <button
                 className="btn"
                 onClick={() => {
-                  const outOfStock = cart.filter((d: any) => !d.item.in_stock);
-                        if (outOfStock.length > 0) {
-                // List the names of out-of-stock items
-                const names = outOfStock.map((d: any) => d.item.item_name).join(', ');
-                alert(`The following item(s) are out of stock: ${names}. Please remove them from your order.`);
-             } else {
-                 alert("Thank you for your order! Have a nice day.");
-                  setCart([]);
-                  setShowCheckoutPopup(false);
-              }
+                  const outOfStock = cart.some((d: any) => !d.item.in_stock);
+                  if (outOfStock) {
+                    alert("Some items are out of stock. Please remove them from your order.");
+                  } else {
+                    alert("Thank you for your order! Have a nice day.");
+                    setCart([]);
+                    setShowCheckoutPopup(false);
+                   
+                  }
                 }}
                 style={{ marginRight: '1rem' }}
               >
@@ -774,7 +773,15 @@ const total = subtotal + tax;
                       <button
                         key={ing.ingredient_ID}
                         onClick={() => setCustomizationOption(cat, ing)}
-                        className={`btn ${customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? 'selected' : ''}`}
+                        // keep the existing btn class for app styles, but add an explicit visible border
+                        className="btn"
+                        aria-pressed={customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID}
+                        style={{
+                          // strong visible outline for the selected option
+                          border: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '2px solid #000' : undefined,
+                          boxShadow: customizingDrink.ingredients[cat]?.ingredient_ID === ing.ingredient_ID ? '0 0 0 3px rgba(0,0,0,0.06)' : undefined,
+                        }}
+                        title={ing.ingredient_name}
                       >
                         {ing.ingredient_name}
                       </button>
