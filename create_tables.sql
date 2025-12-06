@@ -83,6 +83,3 @@ CREATE TABLE Item_Ingredient(
     FOREIGN KEY (ingredient_ID) REFERENCES Ingredient(ingredient_ID)
 );
 
-
-ALTER TABLE Ingredient
-ADD COLUMN photo VARCHAR(255);
