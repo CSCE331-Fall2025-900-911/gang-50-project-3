@@ -877,7 +877,6 @@
 //   );
 // }
 
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -958,13 +957,13 @@ export default function Orders() {
     : items.filter((item: any) => item.category_id === selectedCategory);
 
   const addDrink = (item: any) => {
-    // Set default selections from first ingredient in each single-select category
+    // Initialize ingredients as null for all single-select categories
     const ingredientsState: Record<string, any> = {};
     singleSelectCategories.forEach(cat => {
       if (cat === 'Milk' && !requiresMilk(item)) {
         ingredientsState[cat] = null;
       } else {
-        ingredientsState[cat] = groupedIngredients[cat]?.[0] || null;
+        ingredientsState[cat] = null; // No default, user must select
       }
     });
 
@@ -1310,3 +1309,4 @@ export default function Orders() {
     </div>
   );
 }
+
