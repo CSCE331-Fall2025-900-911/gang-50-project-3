@@ -304,11 +304,11 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
-  app.get('/api/updatemenu/createnewitem/:newItemName/:newItemId/:newItemPrice/:newItemIsAvailable/:newItemSizes/:newItemPhotoPath/:newItemIsSeasonal/:newItemSeasonalTimeBegin/:newItemSeasonalTimeEnd', async (req, res) => {
+  app.get('/api/updatemenu/createnewitem/:newItemName/:newItemId/:newItemPrice/:newItemIsAvailable/:newItemSizes/:newItemPhotoPath/:newItemIsSeasonal/:newItemSeasonalTimeBegin/:newItemSeasonalTimeEnd/:newItemCategory', async (req, res) => {
     try {
-      const { newItemName, newItemId, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd,  } = req.params;
-      const result = await pool.query(`INSERT INTO Item (item_ID, item_name, item_cost, in_stock, size_options, photo, seasonal_item, seasonal_item_beginning_time, seasonal_item_ending_time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
-      [newItemId, newItemName, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd]);
+      const { newItemName, newItemId, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd, newItemCategory} = req.params;
+      const result = await pool.query(`INSERT INTO Item (item_ID, item_name, item_cost, in_stock, size_options, photo, seasonal_item, seasonal_item_beginning_time, seasonal_item_ending_time, category_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);`,
+      [newItemId, newItemName, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd, newItemCategory]);
       res.json(result.rows);
     } catch (err) {
       console.error('Error fetching item data:', err);
@@ -395,6 +395,74 @@ app.post('/api/orders', async (req, res) => {
     } catch (err) {
       console.error('Error fetching ingedient data:', err);
       res.status(500).json({ error: 'Failed to get ingedient data' });
+    }
+  });
+
+  app.get('/api/sales/by-date/:currentDate', async (req, res) => {
+    try {
+      const { currentDate } = req.params;
+
+      const result = await pool.query(
+        `
+          SELECT COALESCE(SUM(total_cost), 0) AS total_cost
+          FROM customer_order
+          WHERE time_ordered::date = $1
+        `,
+        [currentDate]
+      );
+
+      res.json(result.rows);
+
+    } catch (err) {
+      console.error('Error fetching sales by date:', err);
+      res.status(500).json({ error: 'Failed to fetch total sales SQL' });
+    }
+  });
+
+  app.get('/api/totalOrders/by-date/:currentDate', async (req, res) => {
+    try {
+      const { currentDate } = req.params;
+  
+      const result = await pool.query(
+        `
+          SELECT COALESCE(COUNT(order_id), 0) AS total_orders
+          FROM customer_order
+          WHERE time_ordered::date = $1
+        `,
+        [currentDate]
+      );
+  
+      res.json(result.rows);
+  
+    } catch (err) {
+      console.error('Error fetching orders by date:', err);
+      res.status(500).json({ error: 'Failed to fetch total orders SQL' });
+    }
+  });
+
+  
+  
+  app.get('/api/hourlySales/by-date/:currentDate', async (req, res) => {
+    try {
+      const { currentDate } = req.params;
+  
+      const result = await pool.query(
+        `
+          SELECT EXTRACT(HOUR FROM time_ordered) AS hour,
+          COALESCE(SUM(total_cost), 0) AS total_sales
+          FROM customer_order
+          WHERE time_ordered::date = $1
+            AND EXTRACT(HOUR FROM time_ordered) BETWEEN 8 AND 21
+          GROUP BY hour
+          ORDER BY hour
+        `,
+        [currentDate]
+      );
+  
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching hourly sales:', err);
+      res.status(500).json({ error: 'Failed to fetch hourly sales' });
     }
   });
 

@@ -503,6 +503,31 @@ html, body {
   transform: scale(1.05);
 }
 
+.Analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.reportButton {
+  background-color: #CF152D;
+  font-size: small;
+  border: none;
+  color: white;
+  font-weight: 600;
+  margin: 5px;
+  border-radius: 6px;
+  padding: 10px 10px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.1s ease;
+  width: 20%;
+}
+
+.reportButton:hover {
+  background-color: #a10f23;
+  transform: scale(1.02);
+}
+
 /* Discount Wheel */
 .wheel-container {
   display: flex;

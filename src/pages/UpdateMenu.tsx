@@ -17,6 +17,7 @@ export default function UpdateMenu() {
     const [itemSeasonalTimeEnd, setItemIsSeasonalTimeEnd] = useState("");
     const [itemIsAvailableTouched, setItemIsAvailableTouched] = useState(false);
     const [itemIsSeasonalTouched, setItemIsSeasonalTouched] = useState(false);
+    const [itemNewCategory, setItemNewCategory] = useState("");
     const headerRef = useRef<HTMLElement | null>(null);
     const [headerH, setHeaderH] = useState(64);
 
@@ -158,6 +159,7 @@ export default function UpdateMenu() {
         var targetSeasonal = itemIsSeasonal;
         var targetSeasonalStart = itemSeasonalTimeBegin.trim() + " 00:00:00";
         var targetSeasonalEnd = itemSeasonalTimeEnd.trim() + " 00:00:00";
+        var targetCategory = itemNewCategory.trim();
 
         const submitter = (e?.nativeEvent as any).submitter;
         const action = submitter?.value;
@@ -169,7 +171,7 @@ export default function UpdateMenu() {
         }
 
         if (action == "add") {
-            if (!targetName || !targetID || !targetPrice || !targetSizes || !targetPhoto || !targetSeasonalStart || !targetSeasonalEnd) {
+            if (!targetName || !targetID || !targetPrice || !targetSizes || !targetPhoto || !targetSeasonalStart || !targetSeasonalEnd || !targetCategory) {
                 setViewData("Verify all information is valid.");
                 return;
             }
@@ -192,7 +194,7 @@ export default function UpdateMenu() {
             }
 
             try {
-                const res = await fetch(`${API_URL}/updatemenu/createnewitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}`);
+                const res = await fetch(`${API_URL}/updatemenu/createnewitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}/${encodeURIComponent(targetCategory)}`);
                 const raw = await res.text();
 
                 if (!res.ok) {
@@ -254,6 +256,8 @@ export default function UpdateMenu() {
                 targetSizes = ids[0].size_options;
             if (!targetPhoto)// || targetExpirationDate == " 00:00:00")
                 targetPhoto = ids[0].photo;
+            if(!targetCategory)
+                targetCategory = ids[0].category_id;
             if(!targetSeasonalStart || targetSeasonalStart == " 00:00:00")
                 targetSeasonalStart = ids[0].seasonal_item_beginning_time;
             if(!ids[0].seasonal_item_beginning_time)
@@ -262,6 +266,7 @@ export default function UpdateMenu() {
                 targetSeasonalEnd = ids[0].seasonal_item_ending_time;
             if(!ids[0].seasonal_item_ending_time)
                targetSeasonalEnd = "1970-01-01 00:00:01";
+            
             
             if (itemIsAvailableTouched)
                 targetAvailability = itemIsAvailable;
@@ -287,7 +292,7 @@ export default function UpdateMenu() {
             }
           
             try {
-                const res = await fetch(`${API_URL}/updatemenu/updateitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}`);
+                const res = await fetch(`${API_URL}/updatemenu/updateitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}/${encodeURIComponent(targetCategory)}`);
                 const raw = await res.text();
 
                 if (!res.ok) {
@@ -503,6 +508,17 @@ return (
                                     style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
                                     value={itemSeasonalTimeEnd}
                                     onChange={(e) => setItemIsSeasonalTimeEnd(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="itemNewCategory" className="label-updateMenu" style={{ color: "#000000" }}>Item Category: </label>
+                                <input
+                                    id="itemNewCategory"
+                                    className={inputBase}
+                                    placeholder="ID"
+                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
+                                    value={itemNewCategory}
+                                    onChange={(e) => setItemNewCategory(e.target.value)}
                                 />
                             </div>
                             <div className="mt-auto flex items-center gap-2 pt-2">
