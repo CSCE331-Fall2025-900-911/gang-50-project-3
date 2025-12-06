@@ -611,7 +611,17 @@ export default function Orders() {
 
   const confirmCustomization = () => {
     if (!customizingDrink) return;
-    setCart(prev => [...prev, customizingDrink]);
+        // Create a new drink object to push to cart
+          // Push the currently selected ingredients into the cart
+      setCart(prev => [
+        ...prev,
+        {
+          ...customizingDrink,
+          ingredients: { ...customizingDrink.ingredients }, // copy the current selections
+        }
+      ]);
+      
+    // setCart(prev => [...prev, customizingDrink]);
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
   };
