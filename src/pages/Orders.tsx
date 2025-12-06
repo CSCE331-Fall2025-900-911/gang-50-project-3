@@ -480,7 +480,7 @@ export default function Orders() {
       },
       extras: [] as any[],
     };
-    setCart(prev => [...prev, newDrink]);
+     //setCart(prev => [...prev, newDrink]);
     setCustomizingDrink(newDrink);
     setShowCustomizationPopup(true);
   };
@@ -575,7 +575,7 @@ const total = subtotal + tax;
   const confirmCustomization = () => {
     if (!customizingDrink) return;
     if (!allRequiredSelected) return alert('Please select all required options before adding to cart.');
-    setCart(prev => prev.map(d => d.cart_id === customizingDrink.cart_id ? customizingDrink : d));
+    setCart(prev => [...prev, customizingDrink]);
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
   };
