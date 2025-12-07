@@ -354,6 +354,17 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
+  app.get('/api/weather', async (req, res) => {
+    const { lat, lon } = req.query;
+    const apiKey = process.env.WEATHER_API_KEY;
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`
+    );
+    const data = await response.json();
+    res.json(data);
+  });
+
+
   app.get('/api/inventorypage/deleteingredient/:ingredientId', async (req, res) => {
     try {
       const { ingredientId } = req.params;
