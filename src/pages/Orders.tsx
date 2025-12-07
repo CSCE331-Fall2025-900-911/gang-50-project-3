@@ -1837,7 +1837,8 @@ export default function Orders() {
     const ingredientsState: Record<string, any> = {};
 
     singleSelectCategories.forEach(cat => {
-      ingredientsState[cat] = groupedIngredients[cat]?.[groupedIngredients[cat].length - 1] || null;
+       ingredientsState[cat] = groupedIngredients[cat]
+     // ingredientsState[cat] = groupedIngredients[cat]?.[groupedIngredients[cat].length - 1] || null;
     });
 
     const newDrink = {
