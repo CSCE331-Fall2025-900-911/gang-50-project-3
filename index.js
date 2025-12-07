@@ -433,6 +433,71 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
+app.get('/api/salesreport/by-date-range', async (req, res) => {
+    try {
+      const { startDate, endDate } = req.query;
+  
+      if (!startDate || !endDate) {
+        return res.status(400).json({ error: 'startDate and endDate are required' });
+      }
+  
+      const result = await pool.query(
+        `
+          SELECT
+            time_ordered::date AS sale_date,
+            COALESCE(SUM(total_cost), 0) AS total_sales
+          FROM customer_order
+          WHERE time_ordered::date BETWEEN $1 AND $2
+          GROUP BY sale_date
+          ORDER BY sale_date
+        `,
+        [startDate, endDate]
+      );
+  
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error fetching sales by date range:', err);
+      res.status(500).json({ error: 'Failed to fetch sales by date range' });
+    }
+  });
+
+  app.get("/api/inventoryusage/by-date-range", async (req, res) => {
+    try {
+      const { startDate, endDate } = req.query;
+  
+      if (!startDate || !endDate) {
+        return res
+          .status(400)
+          .json({ error: "startDate and endDate are required" });
+      }
+  
+      const result = await pool.query(
+        `
+          SELECT 
+            ing.ingredient_id,
+            ing.ingredient_name,
+            COALESCE(SUM(oi.quantity), 0) AS total_items_using_ingredient
+          FROM order_items oi
+          JOIN customer_order co ON oi.order_id = co.order_id
+          JOIN item_ingredient ii ON oi.item_id = ii.item_id
+          JOIN ingredient ing ON ii.ingredient_id = ing.ingredient_id
+          WHERE co.time_ordered >= $1::date
+            AND co.time_ordered <  $2::date + INTERVAL '1 day'
+          GROUP BY ing.ingredient_id, ing.ingredient_name
+          ORDER BY ing.ingredient_id;
+        `,
+        [startDate, endDate]
+      );
+  
+      res.json(result.rows);
+    } catch (err) {
+      console.error("Error fetching inventory usage by date range:", err);
+      res
+        .status(500)
+        .json({ error: "Failed to fetch inventory usage by date range" });
+    }
+  });
+
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API route not found' });
