@@ -8,7 +8,6 @@ declare global {
   }
 }
 
-
 export default function KioskNavbar() {
 
   const navigate = useNavigate();
