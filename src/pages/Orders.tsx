@@ -956,25 +956,42 @@ export default function Orders() {
     ? []
     : items.filter((item: any) => item.category_id === selectedCategory);
 
-  const addDrink = (item: any) => {
-    // Initialize ingredients as null for all single-select categories
-    const ingredientsState: Record<string, any> = {};
-    singleSelectCategories.forEach(cat => {
-     ingredientsState[cat] = groupedIngredients[cat]?.[groupedIngredients[cat].length - 1] || null;
+  // const addDrink = (item: any) => {
+  //   // Initialize ingredients as null for all single-select categories
+  //   const ingredientsState: Record<string, any> = {};
+  //   singleSelectCategories.forEach(cat => {
+  //    ingredientsState[cat] = groupedIngredients[cat]?.[groupedIngredients[cat].length - 1] || null;
 
-    });
+  //   });
 
-    const newDrink = {
-      cart_id: Date.now(),
-      item,
-      quantity: 1,
-      ingredients: ingredientsState,
-      extras: [] as any[],
+  //   const newDrink = {
+  //     cart_id: Date.now(),
+  //     item,
+  //     quantity: 1,
+  //     ingredients: ingredientsState,
+  //     extras: [] as any[],
+  //   };
+  //   setCustomizingDrink(newDrink);
+  //   setShowCustomizationPopup(true);
+  // };
+   
+      const addDrink = (item: any) => {
+      const newDrink = {
+        cart_id: Date.now(),
+        item,
+        quantity: 1,
+        ingredients: {
+          Milk: null,
+          'Ice Level': null,
+          Sizes: null,
+          'Sweetness Level': null,
+        },
+        extras: [] as any[],
+      };
+      setCustomizingDrink(newDrink);
+      setShowCustomizationPopup(true);
     };
-    setCustomizingDrink(newDrink);
-    setShowCustomizationPopup(true);
-  };
-
+    
   const addIngredient = (ingRaw: any) => {
     const ing = ingRaw as any;
     const lastDrink = [...cart].reverse().find((d: any) => d.item);
