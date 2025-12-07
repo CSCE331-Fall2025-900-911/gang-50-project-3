@@ -1482,20 +1482,43 @@ export default function Orders() {
     });
   };
 
-  const confirmCustomization = () => {
-    if (!customizingDrink) return;
+  // const confirmCustomization = () => {
+  //   if (!customizingDrink) return;
 
-    setCart(prev => [
-      ...prev,
-      {
-        ...customizingDrink,
-        ingredients: { ...customizingDrink.ingredients }, // <-- updated selections
-      }
-    ]);
+  //   setCart(prev => [
+  //     ...prev,
+  //     {
+  //       ...customizingDrink,
+  //       ingredients: { ...customizingDrink.ingredients }, // <-- updated selections
+  //     }
+  //   ]);
 
-    setCustomizingDrink(null);
-    setShowCustomizationPopup(false);
-  };
+  //   setCustomizingDrink(null);
+  //   setShowCustomizationPopup(false);
+  // };
+
+      const confirmCustomization = () => {
+      if (!customizingDrink) return;
+
+      setCart(prev => {
+        const exists = prev.find(d => d.cart_id === customizingDrink.cart_id);
+        if (exists) {
+          // Replace existing drink
+          return prev.map(d =>
+            d.cart_id === customizingDrink.cart_id ? { ...customizingDrink, ingredients: { ...customizingDrink.ingredients } } : d
+          );
+        } else {
+          // Add new drink
+          return [
+            ...prev,
+            { ...customizingDrink, ingredients: { ...customizingDrink.ingredients } }
+          ];
+        }
+      });
+
+      setCustomizingDrink(null);
+      setShowCustomizationPopup(false);
+    };
 
   const cancelCustomization = () => {
     setCustomizingDrink(null);
