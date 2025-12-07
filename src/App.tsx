@@ -6,6 +6,7 @@ import UpdateMenu from './pages/UpdateMenu'
 import InventoryMenu from './pages/InventoryMenu'
 import Employee from './pages/Employee'
 import Analytics from './pages/Analytics' 
+import MenuBoard from './pages/MenuBoard'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/inventorymenu" element={<InventoryMenu />} />
         <Route path="/employee" element={<Employee />} />
         <Route path="/analytics" element={<Analytics />} />
+        <Route path="/menuboard" element={<MenuBoard />} />
       </Routes>
     </Router>
   )
