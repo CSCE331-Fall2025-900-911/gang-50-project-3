@@ -2270,9 +2270,11 @@ export default function Orders() {
     ? []
     : items.filter((item: any) => item.category_id === selectedCategory);
 
-  // --- Add new drink with defaults ---
+  // --- Add new drink ---
   const addDrink = (item: any) => {
     const ingredientsState: Record<string, any> = {};
+
+    // Set default ingredient (last in the list) for each single-select category
     singleSelectCategories.forEach(cat => {
       ingredientsState[cat] = groupedIngredients[cat]?.[groupedIngredients[cat].length - 1] || null;
     });
@@ -2285,8 +2287,37 @@ export default function Orders() {
       extras: [] as any[],
     };
 
+    // Open customization popup
     setCustomizingDrink(newDrink);
     setShowCustomizationPopup(true);
+  };
+
+  // --- Update customization selection ---
+  const setCustomizationOption = (category: string, ing: any) => {
+    if (!customizingDrink) return;
+
+    setCustomizingDrink((prev: any) => ({
+      ...prev,
+      ingredients: {
+        ...prev.ingredients,
+        [category]: ing,
+      },
+    }));
+  };
+
+  // --- Confirm customization ---
+  const confirmCustomization = () => {
+    if (!customizingDrink) return;
+
+    setCart(prev => [...prev, { ...customizingDrink }]);
+
+    setCustomizingDrink(null);
+    setShowCustomizationPopup(false);
+  };
+
+  const cancelCustomization = () => {
+    setCustomizingDrink(null);
+    setShowCustomizationPopup(false);
   };
 
   // --- Add extra ingredient ---
@@ -2351,49 +2382,6 @@ export default function Orders() {
     const list = groupedIngredients[catName];
     return list[0] && list[0].ingredient_category_name === 'Packaging';
   });
-
-  // --- Update customization selection ---
-  const setCustomizationOption = (category: string, ing: any) => {
-    if (!customizingDrink) return;
-
-    setCustomizingDrink((prev:any) => ({
-      ...prev,
-      ingredients: {
-        ...prev.ingredients,
-        [category]: ing,
-      },
-    }));
-  };
-
-  // --- Confirm customization and add/update cart ---
-  const confirmCustomization = () => {
-    if (!customizingDrink) return;
-
-    setCart(prev => {
-      const exists = prev.find(d => d.cart_id === customizingDrink.cart_id);
-      if (exists) {
-        return prev.map(d =>
-          d.cart_id === customizingDrink.cart_id ? { ...customizingDrink } : d
-        );
-      } else {
-        return [...prev, { ...customizingDrink }];
-      }
-    });
-
-    setCustomizingDrink(null);
-    setShowCustomizationPopup(false);
-  };
-
-  const cancelCustomization = () => {
-    setCustomizingDrink(null);
-    setShowCustomizationPopup(false);
-  };
-
-  // --- Re-customize existing cart item ---
-  const editCartItem = (drink: any) => {
-    setCustomizingDrink(drink);
-    setShowCustomizationPopup(true);
-  };
 
   return (
     <div className="orders-layout">
@@ -2473,10 +2461,7 @@ export default function Orders() {
             <div key={d.cart_id} className="order-drink">
               <div className="order-drink-header">
                 <strong>{d.item.item_name}</strong>
-                <div>
-                  <button onClick={() => editCartItem(d)}>✎</button>
-                  <button onClick={() => removeDrink(d.cart_id)}>×</button>
-                </div>
+                <button onClick={() => removeDrink(d.cart_id)}>×</button>
               </div>
               <div className="order-ingredients">
                 {singleSelectCategories.map(cat => {
@@ -2489,7 +2474,6 @@ export default function Orders() {
                     </div>
                   ) : null;
                 })}
-
                 {d.extras.map((e: any) => (
                   <div key={e.ingredient_ID} className="order-line">
                     <span>{e.ingredient_name}</span>
@@ -2635,3 +2619,4 @@ export default function Orders() {
     </div>
   );
 }
+
