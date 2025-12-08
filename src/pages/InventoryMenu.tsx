@@ -20,7 +20,6 @@ type IngredientCategory = {
 };
 
 export default function UpdateMenu() {
-  const [viewData, setViewData] = useState("");
   const [ingredientNewName, setIngredientNewName] = useState("");
   const [ingredientNewID, setIngredientNewID] = useState("");
   const [ingredientNewPrice, setIngredientNewPrice] = useState("");
@@ -120,7 +119,7 @@ export default function UpdateMenu() {
         ? String(ing.category_id)
         : ""
     );
-    setViewData(`Loaded ingredient #${ing.ingredient_id} into the form.`);
+    alert(`Loaded ingredient #${ing.ingredient_id} into the form.`);
   };
 
   const handleAddIngredient = async (e?: React.FormEvent) => {
@@ -151,7 +150,7 @@ export default function UpdateMenu() {
         !targetVendor ||
         !targetExpirationDate
       ) {
-        setViewData("Verify all information is valid.");
+        alert("Verify all information is valid.");
         return;
       }
 
@@ -172,7 +171,7 @@ export default function UpdateMenu() {
         const data = await res.json();
 
         if (!res.ok) {
-          setViewData(
+          alert(
             `Error ${res.status}\n${
               data.error || "Failed to create ingredient"
             }`
@@ -184,14 +183,14 @@ export default function UpdateMenu() {
         await loadIngredients();
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        setViewData(`Something happened -> ${message}`);
+        alert(`Something happened -> ${message}`);
       }
     }
 
     // ---------- UPDATE ----------
     if (action === "update") {
         if (!targetName) {
-            setViewData("Verify all information is valid (Name required).");
+            alert("Verify all information is valid (Name required).");
             return;
         }
 
@@ -212,7 +211,7 @@ export default function UpdateMenu() {
             const raw = await res.text();
 
             if (!res.ok) {
-                setViewData(`Error ${res.status}\n${raw}`);
+                alert(`Error ${res.status}\n${raw}`);
                 return;
             } 
 
@@ -221,7 +220,7 @@ export default function UpdateMenu() {
 
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
-            setViewData(`Something happened -> ${message}`);
+            alert(`Something happened -> ${message}`);
         }
     }
 
@@ -229,7 +228,7 @@ export default function UpdateMenu() {
     // ---------- DELETE ----------
     if (action === "delete") {
       if (!targetID) {
-        setViewData("Verify all information is valid (ID required).");
+        alert("Verify all information is valid (ID required).");
         return;
       }
 
@@ -242,7 +241,7 @@ export default function UpdateMenu() {
         const raw = await res.text();
 
         if (!res.ok) {
-          setViewData(
+          alert(
             `Error ${res.status}\n${
               raw || "Failed to delete ingredient"
             }`
@@ -257,7 +256,7 @@ export default function UpdateMenu() {
           else alert(stringVersion);
           await loadIngredients();
         } catch {
-          setViewData(`Non-JSON response from server:\n${raw}`);
+          alert(`Non-JSON response from server:\n${raw}`);
         }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
@@ -274,7 +273,7 @@ export default function UpdateMenu() {
     setIngredientExpirationDate("");
     setIngredientVendor("");
     setIngredientCategoryId("");
-    setViewData("Form cleared.");
+    alert("Form cleared.");
   };
 
   return (
