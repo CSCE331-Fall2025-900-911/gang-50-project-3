@@ -15,7 +15,8 @@ export default function Orders() {
   
 
   const API_URL = '/api';
-  const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level', 'Toppings'];
+  const singleSelectCategories = ['Sizes', 'Temperature', 'Milk', 'Ice Level', 'Sweetness Level'];
+  const multiSelectCategories = ['Toppings'];
 
   useEffect(() => {
     const load = async () => {
@@ -61,7 +62,7 @@ export default function Orders() {
     groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
   });
 
-  // Filter normal items (exclude Misc category)
+  // Filter normal items  
   const filteredItems = selectedCategory === 7
     ? []
     : items.filter((item: any) => item.category_id === selectedCategory);
@@ -72,6 +73,7 @@ export default function Orders() {
       cart_id: Date.now(),
       item,
       quantity: 1,
+      temperature: 'Iced',
       ingredients: {
         Milk: null,
         'Ice Level': null,
@@ -176,6 +178,7 @@ export default function Orders() {
   const openCustomizationForDrink = (drink: any) => {
     const copy = {
       ...drink,
+      temperature: drink.temperature || 'Iced',
       ingredients: { ...drink.ingredients },
       extras: [...drink.extras],
     };
@@ -184,9 +187,38 @@ export default function Orders() {
     setShowCustomizationPopup(true);
   };
 
+  const toggleTopping = (ing: any) => {
+    if (!customizingDrink) return;
+
+    const exists = customizingDrink.extras.some(
+      (e: any) => e.ingredient_id === ing.ingredient_id
+    );
+
+    const newExtras = exists
+      ? customizingDrink.extras.filter(
+          (e: any) => e.ingredient_id !== ing.ingredient_id
+        )
+      : [...customizingDrink.extras, ing];
+
+    setCustomizingDrink({
+      ...customizingDrink,
+      extras: newExtras,
+    });
+  };
+
+  const setTemperature = (temp: 'Hot' | 'Iced') => {
+    if (!customizingDrink) return;
+
+    setCustomizingDrink({
+      ...customizingDrink,
+      temperature: temp,
+    });
+  };
+
+
   return (
     <div className="orders-layout">
-      {/* LEFT SIDEBAR */}
+      {/* LEFT SidEBAR */}
       <div className="sidebar sidebar-left">
         <h2 className="section-title">Item Categories</h2>
         <div className="category-list">
@@ -222,9 +254,9 @@ export default function Orders() {
               <div className="item-grid">
                 {groupedIngredients[catName].map((item: any) => (
                   <button
-                    key={item.ingredient_ID}
+                    key={item.ingredient_id}
                     onClick={() => addIngredient(item)}
-                    className={`item-card ${cart.some((d: any) => d.extras.some((ex: any) => ex.ingredient_ID === item.ingredient_ID)) ? 'selected' : ''}`}
+                    className={`item-card ${cart.some((d: any) => d.extras.some((ex: any) => ex.ingredient_id === item.ingredient_id)) ? 'selected' : ''}`}
                   >
                     <div className="thumb">
                       {item.photo ? (
@@ -262,7 +294,7 @@ export default function Orders() {
         )}
       </div>
 
-      {/* RIGHT SIDEBAR / CART */}
+      {/* RIGHT SidEBAR / CART */}
       <div className="sidebar sidebar-right">
         <h2 className="order-title">Current Order</h2>
 
@@ -283,6 +315,11 @@ export default function Orders() {
                           <span>{ing.ingredient_name}</span>
                         </div>
                       ) : null
+                    ))}
+                    {d.extras.map((e: any) => (
+                      <div key={e.ingredient_id}>
+                        {e.ingredient_name} {e.ingredient_cost > 0 ? `(+$${e.ingredient_cost.toFixed(2)})` : ''}
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -395,8 +432,8 @@ export default function Orders() {
                             )
                         )}
                         {d.extras.map((e: any) => (
-                          <div key={e.ingredient_ID}>
-                            {e.ingredient_name}
+                          <div key={e.ingredient_id}>
+                            {e.ingredient_name} {e.ingredient_cost > 0 ? `(+$${e.ingredient_cost.toFixed(2)})` : ''}
                           </div>
                         ))}
                       </div>
@@ -466,23 +503,75 @@ export default function Orders() {
 
       {/* --- Customization Popup --- */}
       {showCustomizationPopup && customizingDrink && (
-        <div className="customization-popup" style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto'
-          }}>
-            <h3 className="section-title" style={{ textAlign: 'center', marginBottom: '1rem' }}>Customize {customizingDrink.item.item_name}</h3>
-              {singleSelectCategories.map(cat => (
+        <div
+          className="customization-popup"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              padding: '2rem',
+              borderRadius: '8px',
+              width: '500px',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+            }}
+          >
+            <h3
+              className="section-title"
+              style={{ textAlign: 'center', marginBottom: '1rem' }}
+            >
+              Customize {customizingDrink.item.item_name}
+            </h3>
+
+            <div>
+              <h4>Temperature</h4>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button
+                  className={`btn ${
+                    customizingDrink.temperature === 'Hot' ? 'active' : ''
+                  }`}
+                  onClick={() => setTemperature('Hot')}
+                >
+                  Hot
+                </button>
+                <button
+                  className={`btn ${
+                    customizingDrink.temperature === 'Iced' ? 'active' : ''
+                  }`}
+                  onClick={() => setTemperature('Iced')}
+                >
+                  Iced
+                </button>
+              </div>
+            </div>
+
+            {/* Single-select options */}
+            {singleSelectCategories.map((cat) => (
               <div key={cat} style={{ marginBottom: '1rem' }}>
                 <h4>{cat}</h4>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {groupedIngredients[cat]?.map((ing: any) => (
                     <button
-                      key={ing.ingredient_ID}
+                      key={ing.ingredient_id}
                       onClick={() => setCustomizationOption(cat, ing)}
-                      className={`btn ${customizingDrink.ingredients[cat]?.ingredient_id === ing.ingredient_id ? 'active' : ''}`}
+                      className={`btn ${
+                        customizingDrink.ingredients[cat]?.ingredient_id ===
+                        ing.ingredient_id
+                          ? 'active'
+                          : ''
+                      }`}
                     >
                       {ing.ingredient_name}
                     </button>
@@ -490,13 +579,46 @@ export default function Orders() {
                 </div>
               </div>
             ))}
+
+            {/* Multi-select toppings */}
+            {groupedIngredients['Toppings'] && (
+              <div style={{ marginBottom: '1rem' }}>
+                <h4>Toppings</h4>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {groupedIngredients['Toppings'].map((ing: any) => {
+                    const isSelected = customizingDrink.extras.some(
+                      (e: any) => e.ingredient_id === ing.ingredient_id
+                    );
+                    return (
+                      <button
+                        key={ing.ingredient_id}
+                        onClick={() => toggleTopping(ing)}
+                        className={`btn ${isSelected ? 'active' : ''}`}
+                      >
+                        {ing.ingredient_name} {ing.ingredient_cost > 0 ? `(+$${ing.ingredient_cost.toFixed(2)})` : ''}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-              <button className="logout" onClick={confirmCustomization} style={{ marginRight: '1rem' }}>Confirm</button>
-              <button className="btn" onClick={cancelCustomization}>Cancel</button>
+              <button
+                className="logout"
+                onClick={confirmCustomization}
+                style={{ marginRight: '1rem' }}
+              >
+                Confirm
+              </button>
+              <button className="btn" onClick={cancelCustomization}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }

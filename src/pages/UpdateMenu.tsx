@@ -390,8 +390,7 @@ export default function UpdateMenu() {
       try {
         const data = JSON.parse(raw);
         const stringVersion = JSON.stringify(data, null, 2);
-        if (stringVersion === "[]") alert("Item deleted!");
-        else alert(stringVersion);
+        alert("Item deleted!");
       } catch {
         alert(`Non-JSON response from server:\n${raw}`);
       }

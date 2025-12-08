@@ -11,7 +11,11 @@ export default function Kiosk() {
   const [error, setError] = useState<string | null>(null);
 
   const API_URL = '/api';
-  const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level', 'Toppings'];
+
+  // Single-select ingredient categories
+  const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
+  // Multi-select category for toppings
+  const multiSelectCategories = ['Toppings'];
 
   // Checkout & discount state
   const [showCheckoutPopup, setShowCheckoutPopup] = useState(false);
@@ -49,7 +53,9 @@ export default function Kiosk() {
         <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
           <h2>Something went wrong</h2>
           <p>{error}</p>
-          <button onClick={() => window.location.reload()} className="btn">Retry</button>
+          <button onClick={() => window.location.reload()} className="btn">
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -74,19 +80,23 @@ export default function Kiosk() {
     ? items.filter((item: any) => item.category_id === selectedCategory)
     : [];
 
+  const selectedCategoryName =
+    categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items';
+
   // Add drink and immediately open customization
   const addDrink = (item: any) => {
     const newDrink = {
       cart_id: Date.now() + Math.random(),
       item,
       quantity: 1,
+      temperature: 'Iced', // NEW: default temperature
       ingredients: {
         Milk: null,
         'Ice Level': null,
         Sizes: null,
         'Sweetness Level': null,
       },
-      extras: [] as any[], // reserved if you want add-ons later
+      extras: [] as any[], // toppings + other add-ons
     };
 
     setCart(prev => [...prev, newDrink]);
@@ -108,7 +118,7 @@ export default function Kiosk() {
     );
   };
 
-  // --- Pricing (includes extra cost if you ever add extras) ---
+  // --- Pricing (includes extra cost) ---
   const subtotal = cart.reduce((sum: number, d: any) => {
     const extrasCost = d.extras.reduce(
       (s: number, e: any) => s + e.ingredient_cost,
@@ -122,15 +132,15 @@ export default function Kiosk() {
   const discountedTax = discountedSubtotal * 0.08;
   const discountedTotal = discountedSubtotal + discountedTax;
 
-  const selectedCategoryName =
-    categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items';
-
   // --- Customization Handlers ---
+
+  // Single-select options (Sizes, Milk, Ice, Sweetness)
   const setCustomizationOption = (category: string, ing: any) => {
     if (!customizingDrink) return;
 
     const current = customizingDrink.ingredients[category];
-    const isSame = current && current.ingredient_id === ing.ingredient_id;
+    const isSame =
+      current && current.ingredient_id === ing.ingredient_id;
 
     setCustomizingDrink({
       ...customizingDrink,
@@ -138,6 +148,35 @@ export default function Kiosk() {
         ...customizingDrink.ingredients,
         [category]: isSame ? null : ing,
       },
+    });
+  };
+
+  // Temperature handler
+  const setTemperature = (temp: 'Hot' | 'Iced') => {
+    if (!customizingDrink) return;
+    setCustomizingDrink({
+      ...customizingDrink,
+      temperature: temp,
+    });
+  };
+
+  // Multi-select toppings -> stored in extras
+  const toggleTopping = (ing: any) => {
+    if (!customizingDrink) return;
+
+    const exists = customizingDrink.extras.some(
+      (e: any) => e.ingredient_id === ing.ingredient_id
+    );
+
+    const newExtras = exists
+      ? customizingDrink.extras.filter(
+          (e: any) => e.ingredient_id !== ing.ingredient_id
+        )
+      : [...customizingDrink.extras, ing];
+
+    setCustomizingDrink({
+      ...customizingDrink,
+      extras: newExtras,
     });
   };
 
@@ -156,9 +195,9 @@ export default function Kiosk() {
   };
 
   const openCustomizationForDrink = (drink: any) => {
-    // make a shallow copy so edits don't affect the cart until confirmed
     const copy = {
       ...drink,
+      temperature: drink.temperature || 'Iced',
       ingredients: { ...drink.ingredients },
       extras: [...drink.extras],
     };
@@ -169,7 +208,7 @@ export default function Kiosk() {
   // ---------- UI ----------
   return (
     <div className="orders-layout">
-      {/* LEFT SIDEBAR */}
+      {/* LEFT SidEBAR */}
       <div className="sidebar sidebar-left">
         <h2 className="section-title">Item Categories</h2>
         <div className="category-list">
@@ -215,7 +254,7 @@ export default function Kiosk() {
         )}
       </div>
 
-      {/* RIGHT SIDEBAR / CART */}
+      {/* RIGHT SidEBAR / CART */}
       <div className="sidebar sidebar-right">
         <h2 className="order-title">Current Order</h2>
 
@@ -233,6 +272,11 @@ export default function Kiosk() {
                 <div>
                   <div className="order-line-title">{d.item.item_name}</div>
                   <div className="order-line-sub">
+                    {d.temperature && (
+                      <div>
+                        <span>{d.temperature}</span>
+                      </div>
+                    )}
                     {Object.entries(d.ingredients).map(
                       ([cat, ing]: [string, any]) =>
                         ing ? (
@@ -240,6 +284,15 @@ export default function Kiosk() {
                             <span>{ing.ingredient_name}</span>
                           </div>
                         ) : null
+                    )}
+                    {d.extras.length > 0 && (
+                      <div>
+                        {d.extras.map((e: any) => (
+                          <span key={e.ingredient_id}>
+                            {e.ingredient_name} (+${e.ingredient_cost.toFixed(2)}), {' '}
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -377,6 +430,9 @@ export default function Kiosk() {
                       </span>
 
                       <div className="checkout-line-ingredients">
+                        {d.temperature && (
+                          <div>{d.temperature}</div>
+                        )}
                         {Object.entries(d.ingredients).map(
                           ([cat, ing]: [string, any]) =>
                             ing && (
@@ -386,8 +442,8 @@ export default function Kiosk() {
                             )
                         )}
                         {d.extras.map((e: any) => (
-                          <div key={e.ingredient_ID}>
-                            {e.ingredient_name}
+                          <div key={e.ingredient_id}>
+                            {e.ingredient_name} (+${e.ingredient_cost.toFixed(2)})
                           </div>
                         ))}
                       </div>
@@ -557,6 +613,36 @@ export default function Kiosk() {
               Customize {customizingDrink.item.item_name}
             </h3>
 
+            {/* Temperature */}
+            <div style={{ marginBottom: '1rem' }}>
+              <h4>Temperature</h4>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '0.5rem',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <button
+                  className={`btn ${
+                    customizingDrink.temperature === 'Hot' ? 'active' : ''
+                  }`}
+                  onClick={() => setTemperature('Hot')}
+                >
+                  Hot
+                </button>
+                <button
+                  className={`btn ${
+                    customizingDrink.temperature === 'Iced' ? 'active' : ''
+                  }`}
+                  onClick={() => setTemperature('Iced')}
+                >
+                  Iced
+                </button>
+              </div>
+            </div>
+
+            {/* Single-select ingredient groups */}
             {singleSelectCategories.map((cat) => (
               <div key={cat} style={{ marginBottom: '1rem' }}>
                 <h4>{cat}</h4>
@@ -584,6 +670,35 @@ export default function Kiosk() {
                 </div>
               </div>
             ))}
+
+            {/* Multi-select toppings */}
+            {groupedIngredients['Toppings'] && (
+              <div style={{ marginBottom: '1rem' }}>
+                <h4>Toppings</h4>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '0.5rem',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  {groupedIngredients['Toppings'].map((ing: any) => {
+                    const isSelected = customizingDrink.extras.some(
+                      (e: any) => e.ingredient_id === ing.ingredient_id
+                    );
+                    return (
+                      <button
+                        key={ing.ingredient_id}
+                        onClick={() => toggleTopping(ing)}
+                        className={`btn ${isSelected ? 'active' : ''}`}
+                      >
+                        {ing.ingredient_name} (+${ing.ingredient_cost.toFixed(2)})
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
               <button
