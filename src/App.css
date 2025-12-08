@@ -606,7 +606,7 @@ body {
 
 /* Button variants for modal */
 .btn-primary {
-  background: #dc2626;
+  background: #CF152D;
   color: #fff;
   border: none;
   padding: 10px 28px;
@@ -865,7 +865,6 @@ body {
 }
 
 .employee-page {
-  min-height: 100vh;
   background-color: #f3f4f6;
   color: #111827;
 }
@@ -1001,9 +1000,10 @@ body {
   font-weight: 600;
   border-radius: 999px;
   border: none;
-  background-color: #cf152d;
+  background-color: #CF152D;
   color: #ffffff;
   cursor: pointer;
+  width: 170px; 
   transition: background-color 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease;
   white-space: nowrap;
 }
@@ -1022,7 +1022,7 @@ body {
 /* subtle / outline variants for actions */
 .btn-Employee--ghost {
   background-color: #ffffff;
-  color: #cf152d;
+  color: #CF152D;
   border: 1px solid #fca5a5;
 }
 
@@ -1122,4 +1122,349 @@ body {
   .employee-actions-col {
     width: auto;
   }
+}
+
+
+.update-page {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.update-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-top: 50px;
+  padding: 1.5rem 1.5rem 2rem;
+  box-sizing: border-box;
+}
+
+.update-header {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.update-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.update-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+/* Grid with three cards */
+.update-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.1fr 1.3fr;
+  gap: 1.5rem;
+}
+
+/* Card styling (similar to employee-card) */
+.update-card {
+  background-color: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+  padding: 1.2rem 1.3rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.update-card-header {
+  margin-bottom: 0.75rem;
+}
+
+.update-card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.update-card-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* Forms & fields */
+.update-form,
+.update-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.update-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1rem;
+  align-content: flex-start;
+}
+
+.update-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.update-label {
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.update-input {
+  display: block;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid #d1d5db;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.9rem;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.update-input:focus {
+  outline: none;
+  border-color: #f97373;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+
+.update-input::placeholder {
+  color: #d1d5db;
+}
+
+.update-input:focus {
+  outline: none;
+  border-color: #CF152D;
+  box-shadow: 0 0 0 2px rgba(207, 21, 45, 0.15);
+}
+
+/* Buttons */
+.btn-update {
+  padding: 0.55rem 1.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: none;
+  background-color: #CF152D;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.05s ease,
+    box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-update:hover {
+  background-color: #a10f23;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+}
+
+.btn-update:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn-update--outline {
+  background-color: #ffffff;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+
+.btn-update--outline:hover {
+  background-color: #f3f4f6;
+}
+
+.btn-update--danger {
+  background-color: #b91c1c;
+}
+
+.btn-update--danger:hover {
+  background-color: #991b1b;
+}
+
+/* Footer (for view card button) */
+.update-card-footer {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Output textarea card */
+.update-card--output {
+  display: flex;
+  flex-direction: column;
+}
+
+.update-output-wrapper {
+  flex: 1;
+  margin-top: 0.5rem;
+}
+
+/* Actions row (Add/Update/Delete) */
+.update-actions-row {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .update-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .update-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .update-actions-row {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+/* table card */
+.update-table-card {
+  background-color: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+  padding: 1.25rem 1.4rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.update-table-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+/* scrollable table */
+.update-table-wrapper {
+  border-radius: 0.9rem;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+
+  max-height: 320px; /* adjust if you want taller/shorter */
+  overflow-y: auto;
+}
+
+.update-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.update-table thead {
+  background-color: #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.update-table th,
+.update-table td {
+  padding: 0.6rem 0.9rem;
+  text-align: left;
+}
+
+.update-table th {
+  font-weight: 600;
+  color: #111827;
+}
+
+.update-table tbody tr:nth-child(even) {
+  background-color: #f3f4f6;
+}
+
+.update-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.update-empty {
+  text-align: center;
+  color: #6b7280;
+}
+
+.update-actions-col {
+  width: 140px;
+}
+
+.update-actions-cell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Two-column layout: table | form */
+.update-two-col {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+/* Status box under form */
+.update-status {
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  font-size: 0.8rem;
+  color: #374151;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.update-status pre {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* Responsive: stack vertically on smaller screens */
+@media (max-width: 1024px) {
+  .update-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ONE BIG CARD */
+.update-card-big {
+  background-color: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+  padding: 1.25rem 1.4rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Status box */
+.update-status {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  font-size: 0.85rem;
+  color: #374151;
+  max-height: 200px;
+  overflow-y: auto;
 }

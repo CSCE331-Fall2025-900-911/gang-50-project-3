@@ -96,6 +96,7 @@ export default function EmployeePage() {
       setNewId('')
       setNewManager(false)
       await loadEmployees()
+      alert("Added new employee!");
     } catch (err) {
       console.error(err)
       setError('Failed to add employee')
@@ -127,6 +128,7 @@ export default function EmployeePage() {
       })
       if (!res.ok) throw new Error('Failed to update employee')
       await loadEmployees()
+      alert("Changed employee role!");
     } catch (err) {
       console.error(err)
       setError('Failed to update employee')
@@ -208,7 +210,7 @@ export default function EmployeePage() {
 
           {/* Add employee inline form */}
           <div className="employee-add-row">
-            <h3 className="employee-add-title">Add Employee</h3>
+            <h2>Add Employee</h2>
             <div className="employee-add-fields">
               <div className="employee-field">
                 <label className="label-Employee">First Name</label>

@@ -306,6 +306,31 @@ app.post('/api/orders', async (req, res) => {
   });
 
 
+  app.get('/api/inventorypage/ingredients', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        i.ingredient_id,
+        i.ingredient_name,
+        i.supply_level,
+        i.expiration_date,
+        i.ingredient_cost,
+        i.vendor,
+        i.category_id,
+        ic.name AS ingredient_category_name
+      FROM ingredient i
+      LEFT JOIN ingredient_category ic ON i.category_id = ic.category_id
+      ORDER BY i.ingredient_id ASC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching ingredients:', err);
+    res.status(500).json({ error: 'Failed to fetch ingredients' });
+  }
+});
+
+
   app.get('/api/inventorypage/viewingredientdata/:ingredientName', async (req, res) => {
     try {
       const { ingredientName } = req.params;
@@ -317,29 +342,108 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
-  app.get('/api/inventorypage/createnewingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor', async (req, res) => {
-    try {
-      const { newIngredientId, newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor } = req.params;
-      const result = await pool.query(`INSERT INTO ingredient (ingredient_id, ingredient_name, supply_level, expiration_date, ingredient_cost, vendor) VALUES ($1, $2, $3, $4, $5, $6)`,
-      [newIngredientId, newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor]);
-      res.json(result.rows);
-    } catch (err) {
-      console.error('Error fetching item data:', err);
-      res.status(500).json({ error: 'Failed to get item data' });
-    }
-  });
+  // Update ingredient by name (no ID required)
+app.patch('/api/inventorypage/ingredient', async (req, res) => {
+  try {
+    const {
+      ingredient_name,
+      supply_level,
+      expiration_date,
+      ingredient_cost,
+      vendor,
+      category_id,
+    } = req.body;
 
-  app.get('/api/inventorypage/updateingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor', async (req, res) => {
-    try {
-      const { newIngredientId, newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor } = req.params;
-      const result = await pool.query(`UPDATE ingredient SET ingredient_name = $1, supply_level = $2, expiration_date = $3, ingredient_cost = $4, vendor = $5 WHERE ingredient_id = $6 RETURNING *;`,
-      [newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor, newIngredientId]);
-      res.json(result.rows);
-    } catch (err) {
-      console.error('Error fetching item data:', err);
-      res.status(500).json({ error: 'Failed to get item data' });
+    if (!ingredient_name) {
+      return res
+        .status(400)
+        .json({ error: 'ingredient_name is required to update' });
     }
-  });
+
+    const result = await pool.query(
+      `
+      UPDATE ingredient
+      SET
+        supply_level    = COALESCE($2, supply_level),
+        expiration_date = COALESCE($3, expiration_date),
+        ingredient_cost = COALESCE($4, ingredient_cost),
+        vendor          = COALESCE($5, vendor),
+        category_id     = COALESCE($6, category_id)
+      WHERE ingredient_name = $1
+      RETURNING *;
+      `,
+      [
+        ingredient_name,
+        supply_level ?? null,
+        expiration_date ?? null,
+        ingredient_cost ?? null,
+        vendor ?? null,
+        category_id ?? null,
+      ]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Ingredient not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating ingredient:', err);
+    res.status(500).json({ error: 'Failed to update ingredient' });
+  }
+});
+
+
+
+  
+
+app.post('/api/inventorypage/ingredients', async (req, res) => {
+  try {
+    const {
+      ingredient_name,
+      supply_level,
+      expiration_date,
+      ingredient_cost,
+      vendor,
+      category_id,
+    } = req.body;
+
+    const result = await pool.query(
+      `
+      INSERT INTO ingredient (
+        ingredient_name,
+        supply_level,
+        expiration_date,
+        ingredient_cost,
+        vendor,
+        category_id
+      )
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING ingredient_id,
+                ingredient_name,
+                supply_level,
+                expiration_date,
+                ingredient_cost,
+                vendor,
+                category_id
+      `,
+      [
+        ingredient_name,
+        supply_level,
+        expiration_date,
+        ingredient_cost,
+        vendor,
+        category_id ?? null,
+      ]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("Error creating ingredient:", err);
+    res.status(500).json({ error: "Failed to create ingredient" });
+  }
+});
+
 
   app.get('/api/weather', async (req, res) => {
     const { lat, lon } = req.query;
