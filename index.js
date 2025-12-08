@@ -144,19 +144,6 @@ app.get('/api/ingredient-categories', async (_req, res) => {
   }
 });
 
-// Employees
-app.get('/api/employees', async (_req, res) => {
-  try {
-    const result = await pool.query(
-      'SELECT employee_id, first_name, last_name, ismanager FROM Employee ORDER BY first_name'
-    );
-    res.json(result.rows);
-  } catch (err) {
-    console.error('Error fetching employees:', err);
-    res.status(500).json({ error: 'Failed to fetch employees' });
-  }
-});
-
 // Create orders
 app.post('/api/orders', async (req, res) => {
   const client = await pool.connect();
@@ -197,7 +184,7 @@ app.post('/api/orders', async (req, res) => {
   app.get('/api/employees', async (req, res) => {
     try {
       const result = await pool.query(
-        'SELECT employee_id, first_name, last_name, ismanager FROM Employee ORDER BY first_name'
+        'SELECT * FROM employee ORDER BY employee_id ASC'
       );
       res.json(result.rows);
     } catch (err) {
@@ -209,13 +196,13 @@ app.post('/api/orders', async (req, res) => {
   // Create employee
   app.post('/api/employees', async (req, res) => {
     try {
-      const { employee_id, first_name, last_name, ismanager } = req.body;
+      const { first_name, last_name, ismanager } = req.body;
 
       const result = await pool.query(
-        `INSERT INTO Employee (employee_id, first_name, last_name, ismanager)
-        VALUES ($1, $2, $3, $4)
-        RETURNING employee_id, first_name, last_name, ismanager`,
-        [employee_id, first_name, last_name, ismanager]
+        `INSERT INTO Employee (first_name, last_name, ismanager)
+        VALUES ($1, $2, $3)
+        RETURNING first_name, last_name, ismanager`,
+        [first_name, last_name, ismanager]
       );
 
       res.json(result.rows[0]);
