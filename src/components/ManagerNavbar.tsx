@@ -109,7 +109,7 @@ export default function ManagerNavbar() {
     <nav>
       <div className="leftSideNav">
         <div>
-          <img className="navLogo" src="/sharetealogo.png" alt="Share Tea Logo"/>
+          <img className="navLogo" src="/FifteaLogo.png" alt="FifTea Logo"/>
         </div>
         <div className="pageItem">
           <a href="/Analytics">Analytics</a>
