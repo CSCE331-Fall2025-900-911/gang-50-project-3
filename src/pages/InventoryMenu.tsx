@@ -119,7 +119,6 @@ export default function UpdateMenu() {
         ? String(ing.category_id)
         : ""
     );
-    alert(`Loaded ingredient #${ing.ingredient_id} into the form.`);
   };
 
   const handleAddIngredient = async (e?: React.FormEvent) => {
