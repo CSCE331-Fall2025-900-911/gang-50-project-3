@@ -21,7 +21,7 @@ export default function Orders() {
     const load = async () => {
       try {
         const c = await fetch(`${API_URL}/categories`).then(r => r.json());
-        const i = await fetch(`${API_URL}/items`).then(r => r.json());
+        const i = await fetch(`${API_URL}/admin/items`).then(r => r.json());
         const g = await fetch(`${API_URL}/ingredients`).then(r => r.json());
 
         setCategories(c);

@@ -159,7 +159,7 @@ export default function EmployeePage() {
                   <th>ID</th>
                   <th>First Name</th>
                   <th>Last Name</th>
-                  <th>Is Manager?</th>
+                  <th>Position</th>
                   <th className="employee-actions-col">Actions</th>
                 </tr>
               </thead>

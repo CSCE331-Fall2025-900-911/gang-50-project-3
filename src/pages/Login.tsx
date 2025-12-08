@@ -25,6 +25,8 @@ export default function Login() {
     navigate("/orders")
   } else if (role === "manager") {
     navigate("/analytics")
+  } else if (role === "menuboard") {
+    navigate("/menuboard")
   }
 }
 
@@ -46,10 +48,14 @@ export default function Login() {
             <button className="roleButton" onClick={() => handleRoleSelect("manager")}>
               Manager
             </button>
+
+            <button className="roleButton" onClick={() => handleRoleSelect("menuboard")}>
+              Menu Board
+            </button>
           </div>
 
           <h2 className="orDivider">
-            ─────────────────── OR ───────────────────
+            ────── OR ──────
           </h2>
 
           <div className="googleButton">

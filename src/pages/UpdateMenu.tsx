@@ -1,540 +1,573 @@
 import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
 import ManagerNavbar from "../components/ManagerNavbar";
 
-export default function UpdateMenu() {
-    const [viewItemId, setViewItemId] = useState("");
-    const [viewData, setViewData] = useState("");
-    //const [updateItemId, setUpdateItemId] = useState("");
-    //const [updatePrice, setUpdatePrice] = useState("");
-    const [itemNewName, setItemNewName] = useState("");
-    const [itemNewID, setItemNewID] = useState("");
-    const [itemNewPrice, setItemNewPrice] = useState("");
-    const [itemIsAvailable, setItemIsAvailable] = useState(false);
-    const [itemSizes, setItemSizes] = useState("");
-    const [itemPhotoPath, setItemPhotoPath] = useState("");
-    const [itemIsSeasonal, setItemIsSeasonal] = useState(false);
-    const [itemSeasonalTimeBegin, setItemIsSeasonalTimeBegin] = useState("");
-    const [itemSeasonalTimeEnd, setItemIsSeasonalTimeEnd] = useState("");
-    const [itemIsAvailableTouched, setItemIsAvailableTouched] = useState(false);
-    const [itemIsSeasonalTouched, setItemIsSeasonalTouched] = useState(false);
-    const [itemNewCategory, setItemNewCategory] = useState("");
-    const headerRef = useRef<HTMLElement | null>(null);
-    const [headerH, setHeaderH] = useState(64);
+const API_URL = "/api";
 
-    useLayoutEffect(() => {
-        const el = headerRef.current;
-        if (!el) return;
-        const update = () => setHeaderH(el.getBoundingClientRect().height);
-        update();
-        const ro = new ResizeObserver(update);
-        ro.observe(el);
-        window.addEventListener("resize", update);
-        return () => {
-            ro.disconnect();
-            window.removeEventListener("resize", update);
-        };
-    }, []);
-
-    useEffect(() => {
-        const prev = document.body.style.overflowY;
-        document.body.style.overflowY = "auto";     // allow scroll on this page
-        return () => { document.body.style.overflowY = prev || "hidden"; }; // restore for others
-    }, []);
-
-    const inputBase = "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
-    const API_URL = '/api';
-
-    const handleViewSubmit = async (e?: React.FormEvent) => {
-        e?.preventDefault();
-        const trimmed = viewItemId.trim();
-        if (!trimmed) {
-            setViewData("Please enter a valid item ID.");
-            return;
-        }
-
-        try {
-            const res = await fetch(`${API_URL}/updatemenu/viewitemdata/${encodeURIComponent(trimmed)}`);
-            const raw = await res.text();
-
-            if (!res.ok) {
-                setViewData(
-                    `Error ${res.status}\n${raw || "Failed to fetch item data"}`
-                );
-                return;
-            }
-
-            try {
-                const data = JSON.parse(raw);
-                const stringVersion = JSON.stringify(data, null, 2)
-                if (stringVersion == "[]")
-                    setViewData("Result is empty!");
-                else {
-                    const out = data.map((item: any) => {
-                        return [
-                            `Pulled Data -->`,
-                            `Item ID: ${item.item_id}`,
-                            `Name: ${item.item_name}`,
-                            `Cost: $${item.item_cost}`,
-                            `In stock: ${item.in_stock ? "Yes" : "No"}`,
-                            `Sizes: ${item.size_options}`,
-                            `Photo: ${item.photo}`,
-                            `Seasonal: ${item.seasonal_item ? "Yes" : "No"}`,
-                            item.seasonal_item_beginning_time && `  From: ${item.seasonal_item_beginning_time}`,
-                            item.seasonal_item_ending_time && `  To:   ${item.seasonal_item_ending_time}`,
-                            `Category ID: ${item.category_id}`,
-                        ]
-                            .filter(Boolean)         // drop empty lines
-                            .join("\n");
-                    })
-                    setViewData(out);
-                }
-            } catch {
-                setViewData(`Non-JSON response from server:\n${raw}`);
-            }
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : String(err);
-            setViewData(`Something happend!! -> : ${message}`);
-        }
-    };
-
-    /*const handleUpdatePrice = async (e?: React.FormEvent) => {
-        e?.preventDefault();
-        const targetID = updateItemId.trim();
-        const targetPrice = updatePrice.trim();
-        if (!targetID) {
-            setViewData("Please enter a valid item ID.");
-            return;
-        }
-        if (!targetPrice) {
-            setViewData("Please enter a valid item price.");
-            return;
-        }
-
-        const idNum = Number(targetID);
-        if (!Number.isInteger(idNum) || idNum <= 0) {
-            setViewData("Item ID must be a positive whole number.");
-            return;
-        }
-
-        const priceNum = Number(targetPrice);
-        if (!Number.isFinite(priceNum) || priceNum < 0) {
-            setViewData("Price must be a non-negative number.");
-            return;
-        }
-
-        try {
-            const res = await fetch(`${API_URL}/updatemenu/updateitemprice/${encodeURIComponent(idNum)}/${encodeURIComponent(priceNum)}`);
-            const raw = await res.text();
-
-            if (!res.ok) {
-                setViewData(
-                    `Error ${res.status}\n${raw || "Failed to fetch item data"}`
-                );
-                return;
-            }
-
-            try {
-                const data = JSON.parse(raw);
-                const stringVersion = JSON.stringify(data, null, 2)
-                if (stringVersion == "[]")
-                    setViewData("Action successful!");
-                else
-                    setViewData(stringVersion);
-            } catch {
-                setViewData(`Non-JSON response from server:\n${raw}`);
-            }
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : String(err);
-            setViewData(`Something happend!! -> : ${message}`);
-        }
-    };*/
-    const handleAddItem = async (e?: React.FormEvent) => {
-        e?.preventDefault();
-        var targetName = itemNewName.trim();
-        var targetID = itemNewID.trim();
-        var targetPrice = itemNewPrice.trim();
-        var targetAvailability = itemIsAvailable;
-        var targetSizes = itemSizes.trim();
-        var targetPhoto = itemPhotoPath.trim();
-        var targetSeasonal = itemIsSeasonal;
-        var targetSeasonalStart = itemSeasonalTimeBegin.trim() + " 00:00:00";
-        var targetSeasonalEnd = itemSeasonalTimeEnd.trim() + " 00:00:00";
-        var targetCategory = itemNewCategory.trim();
-
-        const submitter = (e?.nativeEvent as any).submitter;
-        const action = submitter?.value;
-
-        if(!targetID)
-        {
-            setViewData("Missing target item id!");
-            return;
-        }
-
-        if (action == "add") {
-            if (!targetName || !targetID || !targetPrice || !targetSizes || !targetPhoto || !targetSeasonalStart || !targetSeasonalEnd || !targetCategory) {
-                setViewData("Verify all information is valid.");
-                return;
-            }
-
-            const idNum = Number(targetID);
-            if (!Number.isInteger(idNum) || idNum <= 0) {
-                setViewData("Item ID must be a positive whole number.");
-                return;
-            }
-
-            const priceNum = Number(targetPrice);
-            if (!Number.isFinite(priceNum) || priceNum < 0) {
-                setViewData("Price must be a non-negative number.");
-                return;
-            }
-
-            if (!targetSeasonal) {
-                targetSeasonalStart = "1970-01-01 00:00:01";
-                targetSeasonalEnd = "1970-01-01 00:00:01";
-            }
-
-            try {
-                const res = await fetch(`${API_URL}/updatemenu/createnewitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}/${encodeURIComponent(targetCategory)}`);
-                const raw = await res.text();
-
-                if (!res.ok) {
-                    setViewData(
-                        `Error ${res.status}\n${raw || "Failed to fetch item data"}`
-                    );
-                    return;
-                }
-
-                try {
-                    const data = JSON.parse(raw);
-                    const stringVersion = JSON.stringify(data, null, 2)
-                    if (stringVersion == "[]")
-                        setViewData("Action successful!");
-                    else
-                        setViewData(stringVersion);
-                } catch {
-                    setViewData(`Non-JSON response from server:\n${raw}`);
-                }
-            } catch (err: unknown) {
-                const message = err instanceof Error ? err.message : String(err);
-                setViewData(`Something happend!! -> : ${message}`);
-            }
-        }
-
-        if (action == "update") {
-            const res = await fetch(`${API_URL}/updatemenu/viewitemdata/${encodeURIComponent(targetID)}`);
-            const raw = await res.text();
-
-            if (!res.ok) {
-                setViewData(
-                    `Error ${res.status}\n${raw || "Failed to fetch item data"}`
-                );
-                return;
-            }
-            var ids;
-            try {
-                try {
-                    const data = JSON.parse(raw);
-                    const stringVersion = JSON.stringify(data, null, 2)
-                    if (stringVersion == "[]")
-                        setViewData("Result is empty!");
-                    else {
-                        ids = data.map((item: any) => item);
-                    }
-                } catch {
-                    setViewData(`Non-JSON response from server:\n${raw}`);
-                }
-            } catch (err: unknown) {
-                const message = err instanceof Error ? err.message : String(err);
-                setViewData(`Something happend!! -> : ${message}`);
-            }
-          
-            if (!targetName)
-                targetName = ids[0].item_name;
-            if (!targetPrice)
-                targetPrice = ids[0].item_cost;
-            if (!targetSizes)
-                targetSizes = ids[0].size_options;
-            if (!targetPhoto)// || targetExpirationDate == " 00:00:00")
-                targetPhoto = ids[0].photo;
-            if(!targetCategory)
-                targetCategory = ids[0].category_id;
-            if(!targetSeasonalStart || targetSeasonalStart == " 00:00:00")
-                targetSeasonalStart = ids[0].seasonal_item_beginning_time;
-            if(!ids[0].seasonal_item_beginning_time)
-                targetSeasonalStart = "1970-01-01 00:00:01";
-            if(!targetSeasonalEnd || targetSeasonalEnd == " 00:00:00")
-                targetSeasonalEnd = ids[0].seasonal_item_ending_time;
-            if(!ids[0].seasonal_item_ending_time)
-               targetSeasonalEnd = "1970-01-01 00:00:01";
-            
-            
-            if (itemIsAvailableTouched)
-                targetAvailability = itemIsAvailable;
-            else
-            {
-                if(!ids[0].in_stock)
-                    targetAvailability = false;
-                else
-                    targetAvailability = ids[0].in_stock;
-            }
-            
-            if(!ids[0].in_stock)
-                targetAvailability = false;
-            
-            if (itemIsSeasonalTouched)
-                targetSeasonal = itemIsSeasonal;
-            else
-            {
-                if(!ids[0].seasonal_item)
-                    targetSeasonal = false;
-                else
-                    targetSeasonal = ids[0].seasonal_item;
-            }
-          
-            try {
-                const res = await fetch(`${API_URL}/updatemenu/updateitem/${encodeURIComponent(targetName)}/${encodeURIComponent(targetID)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(targetSeasonalEnd)}/${encodeURIComponent(targetCategory)}`);
-                const raw = await res.text();
-
-                if (!res.ok) {
-                    setViewData(
-                        `Error ${res.status}\n${raw || "Failed to fetch item data"}`
-                    );
-                    return;
-                }
-
-                try {
-                    const data = JSON.parse(raw);
-                    const stringVersion = JSON.stringify(data, null, 2)
-                    if (stringVersion == "[]")
-                        setViewData("Result is empty!");
-                    else {
-                        const out = data.map((item: any) => {
-                            return [
-                            `Updated Item -->`,
-                            `Item ID: ${item.item_id}`,
-                            `Name: ${item.item_name}`,
-                            `Cost: $${item.item_cost}`,
-                            `In stock: ${item.in_stock ? "Yes" : "No"}`,
-                            `Sizes: ${item.size_options}`,
-                            `Photo: ${item.photo}`,
-                            `Seasonal: ${item.seasonal_item ? "Yes" : "No"}`,
-                            item.seasonal_item_beginning_time && `  From: ${item.seasonal_item_beginning_time}`,
-                            item.seasonal_item_ending_time && `  To:   ${item.seasonal_item_ending_time}`,
-                            `Category ID: ${item.category_id}`,
-                        ]
-                            .filter(Boolean)         // drop empty lines
-                            .join("\n");
-                    })
-                        setViewData(out);
-                    }
-                } catch {
-                    setViewData(`Non-JSON response from server:\n${raw}`);
-                }
-            } catch (err: unknown) {
-                const message = err instanceof Error ? err.message : String(err);
-                setViewData(`Something happend!! -> : ${message}`);
-            }
-        }
-        if (action == "delete") {
-            if (!targetID) {
-                setViewData("Verify all information is valid.");
-                return;
-            }
-            try {
-                const res = await fetch(`${API_URL}/updatemenu/deleteitem/${encodeURIComponent(targetID)}`);
-                const raw = await res.text();
-
-                if (!res.ok) {
-                    setViewData(
-                        `Error ${res.status}\n${raw || "Failed to fetch item data"}`
-                    );
-                    return;
-                }
-
-                try {
-                    const data = JSON.parse(raw);
-                    const stringVersion = JSON.stringify(data, null, 2)
-                    if (stringVersion == "[]")
-                        setViewData("Action successful!");
-                    else
-                        setViewData(stringVersion);
-                } catch {
-                    setViewData(`Non-JSON response from server:\n${raw}`);
-                }
-            } catch (err: unknown) {
-                const message = err instanceof Error ? err.message : String(err);
-                setViewData(`Something happend!! -> : ${message}`);
-            }
-        }
+type Item = {
+  item_id: number;
+  item_name: string;
+  item_cost: number;
+  in_stock: boolean;
+  size_options: string | null;
+  photo: string | null;
+  seasonal_item: boolean;
+  seasonal_item_beginning_time: string | null;
+  seasonal_item_ending_time: string | null;
+  category_id: number | null;
+  category_name?: string | null;
 };
 
-return (
-    <div id="rootPane" className="min-h-screen flex flex-col bg-white text-gray-900">
-        <nav ref={headerRef as any} className="cashier-nav">
-            <ManagerNavbar />
-        </nav>
+type ItemCategory = {
+  category_id: number;
+  name: string;
+};
 
-        <div style={{ paddingTop: headerH }} className="flex-1">
-            <div className="mx-auto max-w-6xl p-6">
-                <div className="update-menu-grid">
-                    <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-                        <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>View Item Data</h2>
-                        <form onSubmit={handleViewSubmit} className="space-y-3 flex-1">
-                            <label htmlFor="viewItemDataField" className="label-updateMenu" style={{ color: "#000000" }}>Item ID: </label>
-                            <input
-                                id="viewItemDataField"
-                                className={inputBase}
-                                placeholder="Item ID"
-                                style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                value={viewItemId}
-                                onChange={(e) => setViewItemId(e.target.value)}
-                            />
-                            <div className="mt-auto pt-2">
-                                <button id="viewDataSubmitButton" type="submit" className="btn-updateMenu">
-                                    Submit
-                                </button>
-                            </div>
-                        </form>
-                    </section>
+type Ingredient = {
+  ingredient_id: number;
+  ingredient_name: string;
+};
 
-                    <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-                        <h2 className="mb-2 text-base font-semibold text-center text-black" style={{ color: "#000000" }}>Output</h2>
-                        <textarea
-                            id="viewDataTextArea"
-                            className="w-full resize-none rounded-xl border border-gray-300 p-3"
-                            value={viewData}
-                            readOnly
-                            style={{ height: "300px", width: "300px", resize: "none", backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                            placeholder="Waiting..." />
-                    </section>
+export default function UpdateMenu() {
+  // table + status
+  const [items, setItems] = useState<Item[]>([]);
+  const [loadingItems, setLoadingItems] = useState(false);
+  const [error, setError] = useState("");
 
-                    <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-                        <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>Add/Update Item</h2>
-                        <form onSubmit={handleAddItem} className="grid grid-cols-1 gap-4 flex-1">
-                            <div>
-                                <label htmlFor="itemNewName" className="label-updateMenu" style={{ color: "#000000" }}>Name: </label>
-                                <input
-                                    id="itemNewName"
-                                    className={inputBase}
-                                    placeholder="Name"
-                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    value={itemNewName}
-                                    onChange={(e) => setItemNewName(e.target.value)}
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="itemNewID" className="label-updateMenu" style={{ color: "#000000" }}>Item ID (Primary): </label>
-                                <input
-                                    id="itemNewID"
-                                    className={inputBase}
-                                    placeholder="ID"
-                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    value={itemNewID}
-                                    onChange={(e) => setItemNewID(e.target.value)}
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="itemNewPrice" className="label-updateMenu" style={{ color: "#000000" }}>Price: </label>
-                                <input
-                                    id="itemNewPrice"
-                                    className={inputBase}
-                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    placeholder="0.00"
-                                    value={itemNewPrice}
-                                    onChange={(e) => setItemNewPrice(e.target.value)}
-                                />
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    id="itemIsAvailable"
-                                    type="checkbox"
-                                    checked={itemIsAvailable}
-                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    onChange={(e) => {setItemIsAvailable(e.target.checked); setItemIsAvailableTouched(true);}}
-                                    className="h-4 w-4"
-                                />
-                                <label htmlFor="itemIsAvailable" className="label-updateMenu" style={{ color: "#000000" }}>In stock: </label>
-                            </div>
-                            <div>
-                                <label htmlFor="itemSizes" className="label-updateMenu" style={{ color: "#000000" }}>Sizes: </label>
-                                <input
-                                    id="itemSizes"
-                                    className={inputBase}
-                                    placeholder="S/M/L"
-                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    value={itemSizes}
-                                    onChange={(e) => setItemSizes(e.target.value)}
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="itemPhotoPath" className="label-updateMenu" style={{ color: "#000000" }}>Photo: </label>
-                                <input
-                                    id="itemPhotoPath"
-                                    className={inputBase}
-                                    placeholder="/tmp/photo"
-                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    value={itemPhotoPath}
-                                    onChange={(e) => setItemPhotoPath(e.target.value)}
-                                />
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    id="itemIsSeasonal"
-                                    type="checkbox"
-                                    checked={itemIsSeasonal}
-                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    onChange={(e) => {setItemIsSeasonal(e.target.checked); setItemIsSeasonalTouched(true);}}
-                                    className="h-4 w-4"
-                                />
-                                <label htmlFor="isSeasonal" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal item: </label>
-                            </div>
-                            <div>
-                                <label htmlFor="itemSeasonalTimeBegin" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal time begin: </label>
-                                <input
-                                    id="itemSeasonalTimeBegin"
-                                    className={inputBase}
-                                    placeholder="YYYY-MM-DD"
-                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    value={itemSeasonalTimeBegin}
-                                    onChange={(e) => setItemIsSeasonalTimeBegin(e.target.value)}
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="itemSeasonalTimeEnd" className="label-updateMenu" style={{ color: "#000000" }}>Seasonal time end: </label>
-                                <input
-                                    id="itemSeasonalTimeEnd"
-                                    className={inputBase}
-                                    placeholder="YYYY-MM-DD"
-                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    value={itemSeasonalTimeEnd}
-                                    onChange={(e) => setItemIsSeasonalTimeEnd(e.target.value)}
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="itemNewCategory" className="label-updateMenu" style={{ color: "#000000" }}>Item Category: </label>
-                                <input
-                                    id="itemNewCategory"
-                                    className={inputBase}
-                                    placeholder="ID"
-                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    value={itemNewCategory}
-                                    onChange={(e) => setItemNewCategory(e.target.value)}
-                                />
-                            </div>
-                            <div className="mt-auto flex items-center gap-2 pt-2">
-                                <button type="submit" value="add" className="btn-updateMenu">Add</button>
-                            </div>
-                            <div className="mt-auto flex items-center gap-2 pt-2">
-                                <button type="submit" value="update" className="btn-updateMenu">Update</button>
-                            </div>
-                            <div className="mt-auto flex items-center gap-2 pt-2">
-                                <button type="submit" value="delete" className="btn-updateMenu">Delete</button>
-                            </div>
-                        </form>
-                    </section>
-                </div>
+  // form state
+  const [itemNewName, setItemNewName] = useState("");
+  const [itemNewID, setItemNewID] = useState(""); // hidden, used for editing
+  const [itemNewPrice, setItemNewPrice] = useState("");
+  const [itemNewCategory, setItemNewCategory] = useState("");
+  const [itemPhotoPath, setItemPhotoPath] = useState("");
+
+  const [categories, setCategories] = useState<ItemCategory[]>([]);
+  const [allIngredients, setAllIngredients] = useState<Ingredient[]>([]);
+  const [selectedIngredientIds, setSelectedIngredientIds] = useState<number[]>([]);
+
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [headerH, setHeaderH] = useState(64);
+
+  useLayoutEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const update = () => setHeaderH(el.getBoundingClientRect().height);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener("resize", update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
+  useEffect(() => {
+    const prev = document.body.style.overflowY;
+    document.body.style.overflowY = "auto";
+    return () => {
+      document.body.style.overflowY = prev || "hidden";
+    };
+  }, []);
+
+  // ----------------- data loaders -----------------
+
+  const loadItems = async () => {
+    try {
+      setLoadingItems(true);
+      setError("");
+      const res = await fetch(`${API_URL}/admin/items`);
+      if (!res.ok) throw new Error("Failed to load items");
+      const data: Item[] = await res.json();
+      data.sort((a, b) => a.item_id - b.item_id);
+      setItems(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load items");
+    } finally {
+      setLoadingItems(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const res = await fetch(`${API_URL}/categories`);
+      if (!res.ok) throw new Error("Failed to load categories");
+      const data: ItemCategory[] = await res.json();
+      setCategories(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load categories");
+    }
+  };
+
+  const loadAllIngredients = async () => {
+    try {
+      const res = await fetch(`${API_URL}/inventorypage/ingredients`);
+      if (!res.ok) throw new Error("Failed to load ingredients");
+      const data = await res.json();
+
+      const mapped: Ingredient[] = data.map((row: any) => ({
+        ingredient_id: row.ingredient_id,
+        ingredient_name: row.ingredient_name,
+      }));
+
+      mapped.sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name));
+      setAllIngredients(mapped);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load ingredients");
+    }
+  };
+
+  useEffect(() => {
+    loadItems();
+    loadCategories();
+    loadAllIngredients();
+  }, []);
+
+  // ----------------- helpers -----------------
+
+  const getNextItemId = () => {
+    if (!items.length) return 1;
+    const maxId = Math.max(...items.map((i) => i.item_id));
+    return maxId + 1;
+  };
+
+  const clearForm = () => {
+    setItemNewName("");
+    setItemNewID("");
+    setItemNewPrice("");
+    setItemNewCategory("");
+    setItemPhotoPath("");
+    setSelectedIngredientIds([]);
+  };
+
+  const handleRowSelect = (item: Item) => {
+    setItemNewID(String(item.item_id));
+    setItemNewName(item.item_name);
+    setItemNewPrice(String(item.item_cost));
+    setItemNewCategory(item.category_id != null ? String(item.category_id) : "");
+    setItemPhotoPath(item.photo || "");
+    loadItemIngredients(item.item_id);
+  };
+
+  const handleIngredientToggle = (id: number, checked: boolean) => {
+    setSelectedIngredientIds((prev) => {
+      if (checked) {
+        if (prev.includes(id)) return prev;
+        return [...prev, id];
+      } else {
+        return prev.filter((x) => x !== id);
+      }
+    });
+  };
+
+  const loadItemIngredients = async (itemId: number) => {
+    try {
+      const res = await fetch(`${API_URL}/items/${itemId}/ingredients`);
+      if (!res.ok) throw new Error("Failed to load item ingredients");
+      const data = await res.json();
+      setSelectedIngredientIds(data.map((row: any) => row.ingredient_id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load item ingredients.");
+    }
+  };
+
+  const saveItemIngredients = async (itemId: number) => {
+    try {
+      const res = await fetch(`${API_URL}/items/${itemId}/ingredients`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ingredient_ids: selectedIngredientIds }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(
+          `Ingredient update error: ${
+            data.error || "Failed to update item ingredients"
+          }`
+        );
+      }
+    } catch (err: any) {
+      alert(
+        `Ingredient update error: ${err?.message ?? String(err)}`
+      );
+    }
+  };
+
+  // ----------------- add / update / delete -----------------
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const submitter = (e.nativeEvent as any).submitter;
+    const action = submitter?.value as "add" | "update";
+
+    let targetName = itemNewName.trim();
+    let targetPrice = itemNewPrice.trim();
+    let targetCategory = itemNewCategory.trim();
+
+    // ---------- ADD ----------
+    if (action === "add") {
+      if (!targetName || !targetPrice || !targetCategory) {
+        alert("Please fill out Name, Category, and Cost.");
+        return;
+      }
+
+      const priceNum = Number(targetPrice);
+      if (!Number.isFinite(priceNum) || priceNum < 0) {
+        alert("Price must be a non-negative number.");
+        return;
+      }
+
+      // backend still expects all params, so we send sensible defaults
+      const targetSizes = "Regular";
+      const targetPhoto = "/images/default-drink.png";
+      const targetAvailability = false;
+      const targetSeasonal = false;
+      const targetSeasonalStart = "1970-01-01 00:00:01";
+      const targetSeasonalEnd = "1970-01-01 00:00:01";
+
+      const nextId = getNextItemId();
+      const targetID = String(nextId);
+
+      try {
+        const res = await fetch(
+          `${API_URL}/updatemenu/createnewitem/${encodeURIComponent(
+            targetName
+          )}/${encodeURIComponent(targetID)}/${encodeURIComponent(
+            targetPrice
+          )}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(
+            targetSizes
+          )}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(
+            targetSeasonal
+          )}/${encodeURIComponent(
+            targetSeasonalStart
+          )}/${encodeURIComponent(
+            targetSeasonalEnd
+          )}/${encodeURIComponent(targetCategory)}`
+        );
+
+        const raw = await res.text();
+
+        if (!res.ok) {
+          alert(`Error ${res.status}\n${raw || "Failed to create item"}`);
+          return;
+        }
+
+        try {
+          const data = JSON.parse(raw);
+          const stringVersion = JSON.stringify(data, null, 2);
+          if (stringVersion === "[]") {
+            alert("Item created!");
+          } else {
+            alert(stringVersion);
+          }
+        } catch {
+          alert(`Non-JSON response from server:\n${raw}`);
+        }
+
+        await loadItems();
+        await saveItemIngredients(nextId);
+        clearForm();
+      } catch (err: any) {
+        alert(`Something happened -> ${err?.message ?? String(err)}`);
+      }
+    }
+
+    // ---------- UPDATE ----------
+    if (action === "update") {
+        const targetID = itemNewID.trim();
+        if (!targetID) {
+            alert("Select an item from the table to edit first.");
+            return;
+        }
+
+        // fetch current values for any missing fields
+        let existing: Item;   // <-- not nullable
+        try {
+        const res = await fetch(
+            `${API_URL}/updatemenu/viewitemdata/${encodeURIComponent(targetID)}`
+        );
+        const raw = await res.text();
+        if (!res.ok) {
+            alert(
+            `Error ${res.status}\n${raw || "Failed to fetch item data"}`
+            );
+            return;
+        }
+        const data = JSON.parse(raw);
+        if (!data.length) {
+            alert("Item not found.");
+            return;
+        }
+        existing = data[0] as Item;
+        } catch (err: any) {
+            alert(`Something happened -> ${err.message ?? String(err)}`);
+            return;
+        }
+
+      if (!targetName) targetName = existing.item_name;
+      if (!targetPrice) targetPrice = String(existing.item_cost);
+      if (!targetCategory)
+        targetCategory =
+          existing.category_id != null ? String(existing.category_id) : "";
+
+      const priceNum = Number(targetPrice);
+      if (!Number.isFinite(priceNum) || priceNum < 0) {
+        alert("Price must be a non-negative number.");
+        return;
+      }
+
+      // preserve "hidden" fields from existing item
+      const targetSizes = existing.size_options || "Regular";
+      const targetPhoto = existing.photo || "/images/default-drink.png";
+      const targetAvailability = existing.in_stock;
+      const targetSeasonal = existing.seasonal_item;
+      const targetSeasonalStart =
+        existing.seasonal_item_beginning_time || "1970-01-01 00:00:01";
+      const targetSeasonalEnd =
+        existing.seasonal_item_ending_time || "1970-01-01 00:00:01";
+
+      try {
+        const res = await fetch(
+          `${API_URL}/updatemenu/updateitem/${encodeURIComponent(
+            targetName
+          )}/${encodeURIComponent(targetID)}/${encodeURIComponent(
+            targetPrice
+          )}/${encodeURIComponent(
+            targetAvailability
+          )}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(
+            targetPhoto
+          )}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(
+            targetSeasonalStart
+          )}/${encodeURIComponent(
+            targetSeasonalEnd
+          )}/${encodeURIComponent(targetCategory)}`
+        );
+        const raw = await res.text();
+
+        if (!res.ok) {
+          alert(`Error ${res.status}\n${raw || "Failed to update item"}`);
+          return;
+        }
+
+        try {
+          const data = JSON.parse(raw);
+          const stringVersion = JSON.stringify(data, null, 2);
+          if (stringVersion === "[]") {
+            alert("Item updated!");
+          } else {
+            alert("Item updated!\n\n" + stringVersion);
+          }
+        } catch {
+          alert(`Non-JSON response from server:\n${raw}`);
+        }
+
+        await loadItems();
+        await saveItemIngredients(Number(targetID));
+      } catch (err: any) {
+        alert(`Something happened -> ${err?.message ?? String(err)}`);
+      }
+    }
+  };
+
+  const handleDeleteItem = async (id: number) => {
+    if (!window.confirm("Delete this item?")) return;
+
+    try {
+      const res = await fetch(
+        `${API_URL}/updatemenu/deleteitem/${encodeURIComponent(id)}`
+      );
+      const raw = await res.text();
+
+      if (!res.ok) {
+        alert(`Error ${res.status}\n${raw || "Failed to delete item"}`);
+        return;
+      }
+
+      try {
+        const data = JSON.parse(raw);
+        const stringVersion = JSON.stringify(data, null, 2);
+        if (stringVersion === "[]") alert("Item deleted!");
+        else alert(stringVersion);
+      } catch {
+        alert(`Non-JSON response from server:\n${raw}`);
+      }
+
+      await loadItems();
+      if (itemNewID === String(id)) clearForm();
+    } catch (err: any) {
+      alert(`Something happened -> ${err?.message ?? String(err)}`);
+    }
+  };
+
+  // ----------------- UI -----------------
+
+  return (
+    <div className="menu-update-page">
+      <nav ref={headerRef as any}>
+        <ManagerNavbar />
+      </nav>
+
+      <main className="menu-update-main" style={{ paddingTop: headerH }}>
+        {error && <div className="employee-error-banner">{error}</div>}
+
+        <section className="menu-admin-card">
+          <div className="update-table-header-row">
+            <h2>Menu Items</h2>
+          </div>
+
+          <div className="menu-admin-content">
+            <div className="menu-admin-left">
+              <div className="update-table-wrapper">
+                <table className="update-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Category</th>
+                      <th>Cost</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.length === 0 && !loadingItems ? (
+                      <tr>
+                        <td colSpan={5} className="update-empty">
+                          No items found.
+                        </td>
+                      </tr>
+                    ) : (
+                      items.map((item) => (
+                        <tr key={item.item_id}>
+                          <td>{item.item_id}</td>
+                          <td>{item.item_name}</td>
+                          <td>{item.category_name || ""}</td>
+                          <td>{item.item_cost}</td>
+                          <td className="update-actions-cell">
+                            <button
+                              className="btn-update btn-update--outline"
+                              onClick={() => handleRowSelect(item)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="btn-update btn-update--danger"
+                              onClick={() => handleDeleteItem(item.item_id)}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-        </div>
+
+            <div className="menu-admin-right">
+              <div className="menu-photo-box">
+                {itemPhotoPath ? (
+                  <img
+                    src={itemPhotoPath}
+                    alt={itemNewName || "Item photo"}
+                  />
+                ) : (
+                  <span>photo</span>
+                )}
+              </div>
+
+              <form onSubmit={handleSubmit} className="menu-form">
+                <div className="menu-field">
+                  <input
+                    className="menu-input"
+                    placeholder="Name"
+                    value={itemNewName}
+                    onChange={(e) => setItemNewName(e.target.value)}
+                  />
+                </div>
+
+                <div className="menu-field">
+                  <select
+                    className="menu-input"
+                    value={itemNewCategory}
+                    onChange={(e) => setItemNewCategory(e.target.value)}
+                  >
+                    <option value="">Category</option>
+                    {categories.map((c) => (
+                      <option key={c.category_id} value={c.category_id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="menu-field">
+                  <input
+                    className="menu-input"
+                    placeholder="Cost"
+                    value={itemNewPrice}
+                    onChange={(e) => setItemNewPrice(e.target.value)}
+                  />
+                </div>
+
+                <div className="menu-field">
+                  <div className="menu-ingredients-label">Ingredients</div>
+                  <div className="menu-ingredients-list">
+                    {allIngredients.map((ing) => (
+                      <label
+                        key={ing.ingredient_id}
+                        className="menu-ingredient-row"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedIngredientIds.includes(
+                            ing.ingredient_id
+                          )}
+                          onChange={(e) =>
+                            handleIngredientToggle(
+                              ing.ingredient_id,
+                              e.target.checked
+                            )
+                          }
+                        />
+                        <span>{ing.ingredient_name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="menu-form-actions">
+                  <button
+                    type="submit"
+                    value="add"
+                    className="btn-menu-primary"
+                  >
+                    Add
+                  </button>
+                  <button
+                    type="submit"
+                    value="update"
+                    className="btn-menu-secondary"
+                  >
+                    Update
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-menu-secondary"
+                    onClick={clearForm}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
-);
+  );
 }

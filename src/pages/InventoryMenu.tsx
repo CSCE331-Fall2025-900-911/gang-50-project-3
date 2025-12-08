@@ -288,7 +288,7 @@ export default function UpdateMenu() {
 
         <section className="update-card-big">
           {/* ---------- TABLE ---------- */}
-          <div className="update-table-header-row">
+          <div>
             <h2>Ingredient List</h2>
           </div>
 
