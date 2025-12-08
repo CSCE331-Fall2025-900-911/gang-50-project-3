@@ -113,28 +113,6 @@ export default function Orders() {
     }));
   };
 
-  // Remove ingredient
-  const removeIngredient = (drinkId: any, catName: any, ingId: any) => {
-    setCart(prev => prev.map((d: any) => {
-      if (d.cart_id !== drinkId) return d;
-
-      if (singleSelectCategories.includes(catName)) {
-        return {
-          ...d,
-          ingredients: {
-            ...d.ingredients,
-            [catName]: null,
-          },
-        };
-      }
-
-      return {
-        ...d,
-        extras: d.extras.filter((e: any) => e.ingredient_ID !== ingId),
-      };
-    }));
-  };
-
   const removeDrink = (drinkId: any) => {
     setCart(prev => prev.filter((d: any) => d.cart_id !== drinkId));
   };

@@ -19,7 +19,6 @@ export default function EmployeePage() {
   // add form
   const [newFirst, setNewFirst] = useState('')
   const [newLast, setNewLast] = useState('')
-  const [newId, setNewId] = useState('')
   const [newManager, setNewManager] = useState(false)
 
   const headerRef = useRef<HTMLElement | null>(null)
@@ -93,7 +92,6 @@ export default function EmployeePage() {
       if (!res.ok) throw new Error('Failed to add employee')
       setNewFirst('')
       setNewLast('')
-      setNewId('')
       setNewManager(false)
       await loadEmployees()
       alert("Added new employee!");
