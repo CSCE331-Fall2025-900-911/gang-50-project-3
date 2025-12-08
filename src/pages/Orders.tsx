@@ -580,28 +580,36 @@ export default function Orders() {
               </div>
             ))}
 
-            {/* Multi-select toppings */}
-            {groupedIngredients['Toppings'] && (
-              <div style={{ marginBottom: '1rem' }}>
-                <h4>Toppings</h4>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {groupedIngredients['Toppings'].map((ing: any) => {
-                    const isSelected = customizingDrink.extras.some(
-                      (e: any) => e.ingredient_id === ing.ingredient_id
-                    );
-                    return (
-                      <button
-                        key={ing.ingredient_id}
-                        onClick={() => toggleTopping(ing)}
-                        className={`btn ${isSelected ? 'active' : ''}`}
-                      >
-                        {ing.ingredient_name} {ing.ingredient_cost > 0 ? `(+$${ing.ingredient_cost.toFixed(2)})` : ''}
-                      </button>
-                    );
-                  })}
+           {/* Multi-select categories */}
+            {multiSelectCategories.map((cat) => (
+              groupedIngredients[cat] ? (
+                <div key={cat} style={{ marginBottom: '1rem' }}>
+                  <h4>{cat}</h4>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '0.5rem',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    {groupedIngredients[cat].map((ing: any) => {
+                      const isSelected = customizingDrink.extras.some(
+                        (e: any) => e.ingredient_id === ing.ingredient_id
+                      );
+                      return (
+                        <button
+                          key={ing.ingredient_id}
+                          onClick={() => toggleTopping(ing)}
+                          className={`btn ${isSelected ? 'active' : ''}`}
+                        >
+                          {ing.ingredient_name} {ing.ingredient_cost ? `(+${ing.ingredient_cost.toFixed(2)})` : ''}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              ) : null
+            ))}
 
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
               <button

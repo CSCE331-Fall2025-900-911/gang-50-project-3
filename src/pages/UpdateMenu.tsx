@@ -373,34 +373,43 @@ export default function UpdateMenu() {
     }
   };
 
-  const handleDeleteItem = async (id: number) => {
-    if (!window.confirm("Delete this item?")) return;
-
-    try {
-      const res = await fetch(
-        `${API_URL}/updatemenu/deleteitem/${encodeURIComponent(id)}`
-      );
-      const raw = await res.text();
-
-      if (!res.ok) {
-        alert(`Error ${res.status}\n${raw || "Failed to delete item"}`);
-        return;
-      }
+   const handleDeleteItem = async (id: number) => {
+      if (!window.confirm("Delete this item?")) return;
 
       try {
-        const data = JSON.parse(raw);
-        const stringVersion = JSON.stringify(data, null, 2);
-        alert("Item deleted!");
-      } catch {
-        alert(`Non-JSON response from server:\n${raw}`);
-      }
+        const res = await fetch(
+          `${API_URL}/updatemenu/deleteitem/${encodeURIComponent(id)}`
+        );
+        const raw = await res.text();
 
-      await loadItems();
-      if (itemNewID === String(id)) clearForm();
-    } catch (err: any) {
-      alert(`Something happened -> ${err?.message ?? String(err)}`);
-    }
-  };
+        if (!res.ok) {
+          alert(`Error ${res.status}\n${raw || "Failed to delete item"}`);
+          return;
+        }
+
+        // Safely handle server response
+        let data;
+        try {
+          data = raw ? JSON.parse(raw) : null;
+        } catch {
+          data = null; // raw is not valid JSON
+        }
+
+        if (!data) {
+          // raw was empty or not JSON
+          alert("Item deleted!");
+        } else {
+          alert("Item deleted!\n" + JSON.stringify(data, null, 2));
+        }
+
+        await loadItems();
+
+        if (itemNewID === String(id)) clearForm();
+      } catch (err: any) {
+        alert(`Something happened -> ${err?.message ?? String(err)}`);
+      }
+};
+
 
   // ----------------- UI -----------------
 
