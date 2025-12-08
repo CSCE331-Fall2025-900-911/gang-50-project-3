@@ -1,20 +1,31 @@
 import { useState, useRef, useLayoutEffect, useEffect } from 'react'
 import ManagerNavbar from '../components/ManagerNavbar'
 
-export default function Employee() {
-  const [employeeId, setEmployeeId] = useState('')
-  const [employeeData, setEmployeeData] = useState<any>(null)
+type Employee = {
+  employee_id: number
+  first_name: string
+  last_name: string
+  ismanager: boolean
+  hours_worked?: number
+  total_sales?: number
+  items_sold?: number
+}
+
+export default function EmployeePage() {
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // add form
   const [newFirst, setNewFirst] = useState('')
   const [newLast, setNewLast] = useState('')
   const [newId, setNewId] = useState('')
   const [newManager, setNewManager] = useState(false)
-  const [deleteId, setDeleteId] = useState('')
-  const [updateId, setUpdateId] = useState('')
-  const [updateManager, setUpdateManager] = useState(false)
+
   const headerRef = useRef<HTMLElement | null>(null)
   const [headerH, setHeaderH] = useState(64)
 
+  /* keep navbar height + body scroll handling */
   useLayoutEffect(() => {
     const el = headerRef.current
     if (!el) return
@@ -30,251 +41,212 @@ export default function Employee() {
   }, [])
 
   useEffect(() => {
-    const prev = document.body.style.overflowY;
-    document.body.style.overflowY = "auto";     
-    return () => { document.body.style.overflowY = prev || "hidden"; };
-}, []);
+    const prev = document.body.style.overflowY
+    document.body.style.overflowY = 'auto'
+    return () => {
+      document.body.style.overflowY = prev || 'hidden'
+    }
+  }, [])
 
-  const fetchEmployeeData = async () => {
+  // ---------------- API helpers ----------------
+
+  const loadEmployees = async () => {
     try {
+      setLoading(true)
       setError('')
-      setEmployeeData(null)
-
-      const res = await fetch(`/api/employees`)
+      const res = await fetch('/api/employees')
+      if (!res.ok) throw new Error('Failed to load employees')
       const data = await res.json()
-
-      const found = data.find((emp: any) => emp.employee_id == employeeId)
-      if (!found) {
-        setError('Employee not found')
-        return
-      }
-
-      setEmployeeData(found)
+      setEmployees(data)
     } catch (err) {
       console.error(err)
-      setError('Failed to fetch employee data')
+      setError('Failed to load employees')
+    } finally {
+      setLoading(false)
     }
   }
+
+  useEffect(() => {
+    loadEmployees()
+  }, [])
 
   const addEmployee = async () => {
-    console.log("Add employee:", {
-      first_name: newFirst,
-      last_name: newLast,
-      employee_id: newId,
-      ismanager: newManager
-    })
+    if (!newFirst || !newLast ) {
+      setError('Please fill out all fields for the new employee.')
+      return
+    }
 
-    setError("");
     try {
+      setError('')
       const body = {
-        employee_id: Number(newId),
         first_name: newFirst,
         last_name: newLast,
-        ismanager: newManager
-      };
+        ismanager: newManager,
+      }
 
-      const res = await fetch("/api/employees", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
-      });
+      })
 
-      if (!res.ok) throw new Error("Failed to add employee");
-
-      alert("Employee added successfully!");
+      if (!res.ok) throw new Error('Failed to add employee')
+      setNewFirst('')
+      setNewLast('')
+      setNewId('')
+      setNewManager(false)
+      await loadEmployees()
     } catch (err) {
-      console.error(err);
-      setError("Failed to add employee");
+      console.error(err)
+      setError('Failed to add employee')
     }
   }
 
-  const deleteEmployee = async () => {
-    console.log("Delete employee:", deleteId)
-
-    setError("");
+  const deleteEmployee = async (id: number) => {
+    if (!window.confirm('Delete this employee?')) return
     try {
-      const res = await fetch(`/api/employees/${Number(deleteId)}`, {
-        method: "DELETE"
-      });
-
-      if (!res.ok) throw new Error("Failed to delete employee");
-
-      alert("Employee deleted successfully!");
+      setError('')
+      const res = await fetch(`/api/employees/${id}`, {
+        method: 'DELETE',
+      })
+      if (!res.ok) throw new Error('Failed to delete employee')
+      await loadEmployees()
     } catch (err) {
-      console.error(err);
-      setError("Failed to delete employee");
+      console.error(err)
+      setError('Failed to delete employee')
     }
   }
 
-  const updateEmployee = async () => {
-    console.log("Update employee:", {employee_id: updateId, ismanager: updateManager})
-
-    setError("");
+  const toggleManager = async (emp: Employee) => {
     try {
-      const res = await fetch(`/api/employees/${Number(updateId)}/manager`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ismanager: updateManager }),
-      });
-
-      if (!res.ok) throw new Error("Failed to update employee");
-
-      alert("Employee updated successfully!");
+      setError('')
+      const res = await fetch(`/api/employees/${emp.employee_id}/manager`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ismanager: !emp.ismanager }),
+      })
+      if (!res.ok) throw new Error('Failed to update employee')
+      await loadEmployees()
     } catch (err) {
-      console.error(err);
-      setError("Failed to update employee");
+      console.error(err)
+      setError('Failed to update employee')
     }
   }
 
-  const inputBase = "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  // ---------------- JSX ----------------
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
-
-      <nav ref={headerRef as any} className="cashier-nav fixed top-0 left-0 right-0 z-50">
+    <div className="employee-page">
+      <nav ref={headerRef as any}>
         <ManagerNavbar />
       </nav>
 
-      <main style={{ paddingTop: headerH }} className="p-6 max-w-7xl mx-auto overflow-y-auto">
+      <main className="employee-main" style={{ paddingTop: headerH }}>
 
-        <h1 className="text-2xl font-bold mb-6">Employee Management</h1>
+        {error && <div className="employee-error-banner">{error}</div>}
 
-        <div className="Employee-grid">
+        <section className="employee-table-card">
+          <div className="employee-table-header-row">
+            <h2>Employee List</h2>
+          </div>
 
-          {/* Column 1: Lookup Employee */}
-          <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-            <h2 className="mb-3 text-lg font-bold text-center text-black">Lookup Employee</h2>
+          <div className="employee-table-wrapper">
+            <table className="employee-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Is Manager?</th>
+                  <th className="employee-actions-col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {employees.length === 0 && !loading && (
+                  <tr>
+                    <td colSpan={5} className="employee-empty">
+                      No employees found.
+                    </td>
+                  </tr>
+                )}
 
-            <label className="label-Employee">Employee ID:</label>
-            <input
-              value={employeeId}
-              onChange={(e) => setEmployeeId(e.target.value)}
-              className={inputBase}
-              placeholder="Enter Employee ID"
-            />
+                {employees.map((emp) => (
+                  <tr key={emp.employee_id}>
+                    <td>{emp.employee_id}</td>
+                    <td>{emp.first_name}</td>
+                    <td>{emp.last_name}</td>
+                    <td>
+                      <span
+                        className={
+                          emp.ismanager
+                            ? 'employee-role-pill employee-role-manager'
+                            : 'employee-role-pill employee-role-cashier'
+                        }
+                      >
+                        {emp.ismanager ? 'Manager' : 'Cashier'}
+                      </span>
+                    </td>
+                    <td className="employee-actions-cell">
+                      <button
+                        className="btn-Employee btn-Employee--outline"
+                        onClick={() => toggleManager(emp)}
+                      >
+                        {emp.ismanager ? 'Set Cashier' : 'Set Manager'}
+                      </button>
+                      <button
+                        className="btn-Employee btn-Employee--danger-outline"
+                        onClick={() => deleteEmployee(emp.employee_id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-            <div className="mt-auto pt-2">
-              <button
-                onClick={fetchEmployeeData}
-                className="btn-Employee"
-              >
-                View Employee
-              </button>
-            </div>
-
-            {error && <p className="text-red-500 mt-4 font-semibold">{error}</p>}
-
-            {employeeData && (
-              <div className="mt-6 bg-gray-50 p-4 rounded-lg border">
-                <h3 className="text-lg font-semibold mb-2">Employee Data</h3>
-                <p><strong>ID:</strong> {employeeData.employee_id}</p>
-                <p><strong>Name:</strong> {employeeData.first_name} {employeeData.last_name}</p>
-                <p><strong>Role:</strong> {employeeData.ismanager ? 'Manager' : 'Cashier'}</p>
+          {/* Add employee inline form */}
+          <div className="employee-add-row">
+            <h3 className="employee-add-title">Add Employee</h3>
+            <div className="employee-add-fields">
+              <div className="employee-field">
+                <label className="label-Employee">First Name</label>
+                <input
+                  className="employee-input"
+                  value={newFirst}
+                  onChange={(e) => setNewFirst(e.target.value)}
+                  placeholder="First name"
+                />
               </div>
-            )}
-          </section>
-
-          {/* Column 2: Add Employee */}
-          <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-            <h2 className="mb-3 text-lg font-bold text-center text-black">Add Employee</h2>
-
-            <label className="label-Employee">First Name:</label>
-            <input
-              value={newFirst}
-              onChange={(e) => setNewFirst(e.target.value)}
-              className={inputBase}
-              placeholder="Enter first name"
-            />
-
-            <label className="label-Employee">Last Name:</label>
-            <input
-              value={newLast}
-              onChange={(e) => setNewLast(e.target.value)}
-              className={inputBase}
-              placeholder="Enter last name"
-            />
-
-            <label className="label-Employee">Employee ID:</label>
-            <input
-              value={newId}
-              onChange={(e) => setNewId(e.target.value)}
-              className={inputBase}
-              placeholder="Enter unique ID"
-            />
-
-            <label className="label-Employee">Job Title:</label>
-            <input
-              type="checkbox"
-              checked={newManager}
-              onChange={(e) => setNewManager(e.target.checked)}
-            />
-            <span className="font-semibold">Is Manager (T/F)</span>
-
-            
-
-            <div className="mt-auto pt-2">
-              <button
-                onClick={addEmployee}
-                className="btn-Employee"
-              >
-                Add Employee
-              </button>
+              <div className="employee-field">
+                <label className="label-Employee">Last Name</label>
+                <input
+                  className="employee-input"
+                  value={newLast}
+                  onChange={(e) => setNewLast(e.target.value)}
+                  placeholder="Last name"
+                />
+              </div>
+              <label className="employee-checkbox-row employee-add-checkbox">
+                <input
+                  type="checkbox"
+                  checked={newManager}
+                  onChange={(e) => setNewManager(e.target.checked)}
+                />
+                <span>
+                  Is Manager{' '}
+                </span>
+              </label>
+              <div className="employee-add-button-wrap">
+                <button className="btn-Employee" onClick={addEmployee}>
+                  Add
+                </button>
+              </div>
             </div>
-          </section>
-
-          {/* Column 3: Delete Employee and Modify Job Title*/}
-          <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-            <h2 className="mb-3 text-lg font-bold text-center text-black">Delete Employee</h2>
-
-            <label className="label-Employee">Employee ID:</label>
-            <input
-              value={deleteId}
-              onChange={(e) => setDeleteId(e.target.value)}
-              className={inputBase}
-              placeholder="Enter Employee ID"
-            />
-
-            <div className="mt-auto pt-2">
-              <button
-                onClick={deleteEmployee}
-                className="btn-Employee"
-              >
-                Delete Employee
-              </button>
-            </div>
-
-            {/* Modify Job Title */}
-            <h2 className="mb-3 text-lg font-bold text-center text-black">Update Employee</h2>
-
-            <label className="label-Employee">Employee ID:</label>
-            <input
-              value={updateId}
-              onChange={(e) => setUpdateId(e.target.value)}
-              className={inputBase}
-              placeholder="Enter Employee ID"
-            />
-
-            <label className="label-Employee">Job Title:</label>
-            <input
-              type="checkbox"
-              checked={updateManager}
-              onChange={(e) => setUpdateManager(e.target.checked)}
-            />
-            <span className="font-semibold">Is Manager (T/F)</span>
-
-            <div className="mt-auto pt-2">
-              <button
-                onClick={updateEmployee}
-                className="btn-Employee"
-              >
-                Update Employee
-              </button>
-            </div>
-          </section>
-
-        </div>
+          </div>
+        </section>
       </main>
-
     </div>
   )
 }
