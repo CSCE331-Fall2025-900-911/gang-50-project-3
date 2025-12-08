@@ -165,8 +165,8 @@ export default function KioskNavbar() {
 
   return (
     <nav>
-      <div className="ShareTeaLogo">
-        <img className="navLogo" src="/sharetealogo.png" alt="Share Tea Logo"/>
+      <div className="FifTeaLogo">
+        <img className="navLogo" src="/FifteaLogo.png" alt="FifTea Logo"/>
       </div>
 
       <div className="pages">
