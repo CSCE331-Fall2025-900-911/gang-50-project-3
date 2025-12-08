@@ -80,6 +80,35 @@ app.get('/api/items', async (_req, res) => {
   }
 });
 
+// Manager view: all items, regardless of in_stock
+app.get('/api/admin/items', async (_req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        i.item_id,
+        i.item_name,
+        i.item_cost,
+        i.in_stock,
+        i.size_options,
+        i.photo,
+        i.seasonal_item,
+        i.seasonal_item_beginning_time,
+        i.seasonal_item_ending_time,
+        i.category_id,
+        ic.name AS category_name
+      FROM Item i
+      LEFT JOIN Item_Category ic ON i.category_id = ic.category_id
+      ORDER BY i.item_id ASC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching admin items:', err);
+    res.status(500).json({ error: 'Failed to fetch admin items' });
+  }
+});
+
+
 // Items by category
 app.get('/api/items/category/:categoryId', async (req, res) => {
   try {
@@ -295,15 +324,67 @@ app.post('/api/orders', async (req, res) => {
   });
 
   app.get('/api/updatemenu/deleteitem/:itemId', async (req, res) => {
-    try {
-      const { itemId } = req.params;
-      const result = await pool.query(`DELETE FROM item WHERE item_id = $1;`, [itemId]);
-      res.json(result.rows);
-    } catch (err) {
-      console.error('Error fetching item data:', err);
-      res.status(500).json({ error: 'Failed to get ingedient data' });
-    }
-  });
+  const client = await pool.connect();
+  try {
+    const { itemId } = req.params;
+
+    await client.query('BEGIN');
+
+    // 1) Remove ingredient links
+    await client.query(
+      'DELETE FROM item_ingredient WHERE item_id = $1;',
+      [itemId]
+    );
+
+    // 2) Remove order_items rows that reference this item (if your schema has this FK)
+    await client.query(
+      'DELETE FROM order_items WHERE item_id = $1;',
+      [itemId]
+    );
+
+    // 3) Delete the item itself
+    const result = await client.query(
+      'DELETE FROM item WHERE item_id = $1 RETURNING *;',
+      [itemId]
+    );
+
+    await client.query('COMMIT');
+
+    res.json(result.rows);     // will be [] if nothing deleted, or the deleted row
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error deleting item:', err);
+    res.status(500).json({ error: 'Failed to delete item' });
+  } finally {
+    client.release();
+  }
+});
+
+
+
+  app.get('/api/inventorypage/ingredients', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        i.ingredient_id,
+        i.ingredient_name,
+        i.supply_level,
+        i.expiration_date,
+        i.ingredient_cost,
+        i.vendor,
+        i.category_id,
+        ic.name AS ingredient_category_name
+      FROM ingredient i
+      LEFT JOIN ingredient_category ic ON i.category_id = ic.category_id
+      ORDER BY i.ingredient_id ASC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching ingredients:', err);
+    res.status(500).json({ error: 'Failed to fetch ingredients' });
+  }
+});
 
 
   app.get('/api/inventorypage/viewingredientdata/:ingredientName', async (req, res) => {
@@ -317,29 +398,108 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
-  app.get('/api/inventorypage/createnewingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor', async (req, res) => {
-    try {
-      const { newIngredientId, newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor } = req.params;
-      const result = await pool.query(`INSERT INTO ingredient (ingredient_id, ingredient_name, supply_level, expiration_date, ingredient_cost, vendor) VALUES ($1, $2, $3, $4, $5, $6)`,
-      [newIngredientId, newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor]);
-      res.json(result.rows);
-    } catch (err) {
-      console.error('Error fetching item data:', err);
-      res.status(500).json({ error: 'Failed to get item data' });
-    }
-  });
+  // Update ingredient by name (no ID required)
+app.patch('/api/inventorypage/ingredient', async (req, res) => {
+  try {
+    const {
+      ingredient_name,
+      supply_level,
+      expiration_date,
+      ingredient_cost,
+      vendor,
+      category_id,
+    } = req.body;
 
-  app.get('/api/inventorypage/updateingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor', async (req, res) => {
-    try {
-      const { newIngredientId, newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor } = req.params;
-      const result = await pool.query(`UPDATE ingredient SET ingredient_name = $1, supply_level = $2, expiration_date = $3, ingredient_cost = $4, vendor = $5 WHERE ingredient_id = $6 RETURNING *;`,
-      [newIngredientName, newIngredientSupply, newIngredientExpirationDate, newIngredientCost, newIngredientVendor, newIngredientId]);
-      res.json(result.rows);
-    } catch (err) {
-      console.error('Error fetching item data:', err);
-      res.status(500).json({ error: 'Failed to get item data' });
+    if (!ingredient_name) {
+      return res
+        .status(400)
+        .json({ error: 'ingredient_name is required to update' });
     }
-  });
+
+    const result = await pool.query(
+      `
+      UPDATE ingredient
+      SET
+        supply_level    = COALESCE($2, supply_level),
+        expiration_date = COALESCE($3, expiration_date),
+        ingredient_cost = COALESCE($4, ingredient_cost),
+        vendor          = COALESCE($5, vendor),
+        category_id     = COALESCE($6, category_id)
+      WHERE ingredient_name = $1
+      RETURNING *;
+      `,
+      [
+        ingredient_name,
+        supply_level ?? null,
+        expiration_date ?? null,
+        ingredient_cost ?? null,
+        vendor ?? null,
+        category_id ?? null,
+      ]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Ingredient not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating ingredient:', err);
+    res.status(500).json({ error: 'Failed to update ingredient' });
+  }
+});
+
+
+
+  
+
+app.post('/api/inventorypage/ingredients', async (req, res) => {
+  try {
+    const {
+      ingredient_name,
+      supply_level,
+      expiration_date,
+      ingredient_cost,
+      vendor,
+      category_id,
+    } = req.body;
+
+    const result = await pool.query(
+      `
+      INSERT INTO ingredient (
+        ingredient_name,
+        supply_level,
+        expiration_date,
+        ingredient_cost,
+        vendor,
+        category_id
+      )
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING ingredient_id,
+                ingredient_name,
+                supply_level,
+                expiration_date,
+                ingredient_cost,
+                vendor,
+                category_id
+      `,
+      [
+        ingredient_name,
+        supply_level,
+        expiration_date,
+        ingredient_cost,
+        vendor,
+        category_id ?? null,
+      ]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("Error creating ingredient:", err);
+    res.status(500).json({ error: "Failed to create ingredient" });
+  }
+});
+
 
   app.get('/api/weather', async (req, res) => {
     const { lat, lon } = req.query;
@@ -495,6 +655,70 @@ app.get('/api/salesreport/by-date-range', async (req, res) => {
         .json({ error: "Failed to fetch inventory usage by date range" });
     }
   });
+
+// Get ingredients for a specific item
+app.get('/api/items/:id/ingredients', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `
+      SELECT ii.ingredient_id, ing.ingredient_name
+      FROM item_ingredient ii
+      JOIN ingredient ing ON ing.ingredient_id = ii.ingredient_id
+      WHERE ii.item_id = $1
+      ORDER BY ing.ingredient_name
+      `,
+      [id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching item ingredients:', err);
+    res.status(500).json({ error: 'Failed to fetch item ingredients' });
+  }
+});
+
+// Replace all ingredients for an item
+app.post('/api/items/:id/ingredients', async (req, res) => {
+  const { id } = req.params;
+  const { ingredient_ids } = req.body; // array of integers
+
+  if (!Array.isArray(ingredient_ids)) {
+    return res.status(400).json({ error: 'ingredient_ids must be an array' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // remove old mappings
+    await client.query(
+      'DELETE FROM item_ingredient WHERE item_id = $1',
+      [id]
+    );
+
+    // insert new mappings
+    if (ingredient_ids.length > 0) {
+      const values = ingredient_ids
+        .map((_, idx) => `($1, $${idx + 2})`)
+        .join(', ');
+
+      await client.query(
+        `INSERT INTO item_ingredient (item_id, ingredient_id) VALUES ${values}`,
+        [id, ...ingredient_ids]
+      );
+    }
+
+    await client.query('COMMIT');
+    res.json({ success: true });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error updating item ingredients:', err);
+    res.status(500).json({ error: 'Failed to update item ingredients' });
+  } finally {
+    client.release();
+  }
+});
+
 
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {

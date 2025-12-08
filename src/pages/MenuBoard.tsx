@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import './MenuBoard.css';
+import { useNavigate } from 'react-router-dom';
 
 const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
 
@@ -23,6 +24,17 @@ export default function MenuBoard() {
   const [ingredients, setIngredients] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleLogout = () => {
+    document.documentElement.style.fontSize = '16px';
+    document.documentElement.style.filter = "";
+    localStorage.clear();
+    sessionStorage.clear();
+    console.log("User logged out.");
+    navigate("/");
+  };
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadData = async () => {
@@ -87,7 +99,7 @@ export default function MenuBoard() {
       </div>
 
       <div className="menu-content" style={{ flex: 2, overflowY: 'auto' }}>
-        <h1 className="menu-title">Menu Board</h1>
+        <h1 className="menu-title">Menu Board</h1> 
 
         {/* --- ICON LEGEND --- */}
         <div className="icon-legend" style={{ display: 'flex', gap: '1em', marginBottom: '1%' }}>
@@ -129,7 +141,9 @@ export default function MenuBoard() {
             ))}
           </div>
         )}
+        <button className="logout" onClick={handleLogout}>Back to Login</button>
       </div>
+      
     </div>
   );
 }

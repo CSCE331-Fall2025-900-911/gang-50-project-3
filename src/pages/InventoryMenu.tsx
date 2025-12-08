@@ -1,374 +1,453 @@
 import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
 import ManagerNavbar from "../components/ManagerNavbar";
 
+const API_URL = "/api";
+
+type Ingredient = {
+  ingredient_id: number;
+  ingredient_name: string;
+  supply_level: number;
+  expiration_date: string;
+  ingredient_cost: number;
+  vendor: string;
+  category_id?: number | null;
+  ingredient_category_name?: string | null;
+};
+
+type IngredientCategory = {
+  ingredient_category_id: number;
+  ingredient_category_name: string;
+};
+
 export default function UpdateMenu() {
-    const [viewIngredientName, setViewIngredientName] = useState("");
-    const [viewData, setViewData] = useState("");
-    const [ingredientNewName, setIngredientNewName] = useState("");
-    const [ingredientNewID, setIngredientNewID] = useState("");
-    const [ingredientNewPrice, setIngredientNewPrice] = useState("");
-    const [ingredientSupply, setIngredientSupply] = useState("");
-    const [ingredientExpirationDate, setIngredientExpirationDate] = useState("");
-    const [ingredientVendor, setIngredientVendor] = useState("");
-    const headerRef = useRef<HTMLElement | null>(null);
-    const [headerH, setHeaderH] = useState(64);
+  const [viewData, setViewData] = useState("");
+  const [ingredientNewName, setIngredientNewName] = useState("");
+  const [ingredientNewID, setIngredientNewID] = useState("");
+  const [ingredientNewPrice, setIngredientNewPrice] = useState("");
+  const [ingredientSupply, setIngredientSupply] = useState("");
+  const [ingredientExpirationDate, setIngredientExpirationDate] =
+    useState("");
+  const [ingredientVendor, setIngredientVendor] = useState("");
+  const [ingredientCategoryId, setIngredientCategoryId] = useState<string>("");
 
-    useLayoutEffect(() => {
-        const el = headerRef.current;
-        if (!el) return;
-        const update = () => setHeaderH(el.getBoundingClientRect().height);
-        update();
-        const ro = new ResizeObserver(update);
-        ro.observe(el);
-        window.addEventListener("resize", update);
-        return () => {
-            ro.disconnect();
-            window.removeEventListener("resize", update);
-        };
-    }, []);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [categories, setCategories] = useState<IngredientCategory[]>([]);
+  const [loadingIngredients, setLoadingIngredients] = useState(false);
+  const [error, setError] = useState("");
 
-    useEffect(() => {
-        const prev = document.body.style.overflowY;
-        document.body.style.overflowY = "auto";     // allow scroll on this page
-        return () => { document.body.style.overflowY = prev || "hidden"; }; // restore for others
-    }, []);
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [headerH, setHeaderH] = useState(64);
 
-    const inputBase = "block w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
-    const API_URL = '/api';
+  useLayoutEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const update = () => setHeaderH(el.getBoundingClientRect().height);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener("resize", update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
-    const handleViewSubmit = async (e?: React.FormEvent) => {
-        e?.preventDefault();
-        const trimmed = viewIngredientName.trim();
-        if (!trimmed) {
-            setViewData("Please enter a valid ingredient name.");
+  useEffect(() => {
+    const prev = document.body.style.overflowY;
+    document.body.style.overflowY = "auto";
+    return () => {
+      document.body.style.overflowY = prev || "hidden";
+    };
+  }, []);
+
+  // -------- load all ingredients for the table ----------
+  const loadIngredients = async () => {
+    try {
+      setLoadingIngredients(true);
+      setError("");
+      const res = await fetch(`${API_URL}/inventorypage/ingredients`);
+      if (!res.ok) throw new Error("Failed to load ingredients");
+      const data: Ingredient[] = await res.json();
+
+      data.sort((a, b) => a.ingredient_id - b.ingredient_id);
+      setIngredients(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load ingredients");
+    } finally {
+      setLoadingIngredients(false);
+    }
+  };
+
+  // -------- load ingredient categories for dropdown ----------
+  const loadCategories = async () => {
+    try {
+      const res = await fetch(`${API_URL}/ingredient-categories`);
+      if (!res.ok) throw new Error("Failed to load ingredient categories");
+      const data: IngredientCategory[] = await res.json();
+      setCategories(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load ingredient categories");
+    }
+  };
+
+  useEffect(() => {
+    loadIngredients();
+    loadCategories();
+  }, []);
+
+  // when user clicks "Load" in table, prefill the form
+  const handleRowSelect = (ing: Ingredient) => {
+    setIngredientNewID(String(ing.ingredient_id ?? ""));
+    setIngredientNewName(ing.ingredient_name ?? "");
+    setIngredientSupply(
+      ing.supply_level !== null && ing.supply_level !== undefined
+        ? String(ing.supply_level)
+        : ""
+    );
+    setIngredientExpirationDate(
+      ing.expiration_date ? ing.expiration_date.slice(0, 10) : ""
+    );
+    setIngredientNewPrice(
+      ing.ingredient_cost !== null && ing.ingredient_cost !== undefined
+        ? String(ing.ingredient_cost)
+        : ""
+    );
+    setIngredientVendor(ing.vendor ?? "");
+    setIngredientCategoryId(
+      ing.category_id !== null && ing.category_id !== undefined
+        ? String(ing.category_id)
+        : ""
+    );
+    setViewData(`Loaded ingredient #${ing.ingredient_id} into the form.`);
+  };
+
+  const handleAddIngredient = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+
+    let targetName = ingredientNewName.trim();
+    let targetID = ingredientNewID.trim(); // used only for update/delete
+    let targetPrice = ingredientNewPrice.trim();
+    let targetSupply = ingredientSupply.trim();
+    let targetVendor = ingredientVendor.trim();
+    let targetExpirationDate =
+      ingredientExpirationDate.trim() &&
+      ingredientExpirationDate.trim() + " 00:00:00";
+    let targetCategoryId =
+      ingredientCategoryId.trim() !== ""
+        ? Number(ingredientCategoryId.trim())
+        : null;
+
+    const submitter = (e?.nativeEvent as any).submitter;
+    const action = submitter?.value; // "add" | "update" | "delete"
+
+    // ---------- ADD: no ingredient_id needed ----------
+    if (action === "add") {
+      if (
+        !targetName ||
+        !targetPrice ||
+        !targetSupply ||
+        !targetVendor ||
+        !targetExpirationDate
+      ) {
+        setViewData("Verify all information is valid.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/inventorypage/ingredients`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ingredient_name: targetName,
+            supply_level: Number(targetSupply),
+            expiration_date: targetExpirationDate,
+            ingredient_cost: Number(targetPrice),
+            vendor: targetVendor,
+            category_id: targetCategoryId,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setViewData(
+            `Error ${res.status}\n${
+              data.error || "Failed to create ingredient"
+            }`
+          );
+          return;
+        }
+
+        alert(`Ingredient created! New ID: ${data.ingredient_id ?? "(unknown)"}`);
+        await loadIngredients();
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        setViewData(`Something happened -> ${message}`);
+      }
+    }
+
+    // ---------- UPDATE ----------
+    if (action === "update") {
+        if (!targetName) {
+            setViewData("Verify all information is valid (Name required).");
             return;
         }
-        ///api/inventorypage/viewingredientdata/:ingredientName
+
         try {
-            const res = await fetch(`${API_URL}/inventorypage/viewingredientdata/${encodeURIComponent(trimmed)}`);
+            const res = await fetch(`${API_URL}/inventorypage/ingredient`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ingredient_name: targetName,
+                    supply_level: targetSupply ? Number(targetSupply) : null,
+                    expiration_date: targetExpirationDate || null,
+                    ingredient_cost: targetPrice ? Number(targetPrice) : null,
+                    vendor: targetVendor || null,
+                    category_id: targetCategoryId,
+                }),
+            });
+
             const raw = await res.text();
 
             if (!res.ok) {
-                setViewData(
-                    `Error ${res.status}\n${raw || "Failed to fetch ingredient data"}`
-                );
+                setViewData(`Error ${res.status}\n${raw}`);
                 return;
-            }
+            } 
 
-            try {
-                const data = JSON.parse(raw);
-                const stringVersion = JSON.stringify(data, null, 2)
-                if (stringVersion == "[]")
-                    setViewData("Result is empty!");
-                else {
-                    const out = data.map((ingredient: any) => {
-                        return [
-                            `Ingredient ID: ${ingredient.ingredient_id}`,
-                            `Name: ${ingredient.ingredient_name}`,
-                            `Supply Level: ${ingredient.supply_level}`,
-                            `Expiration Date: ${ingredient.expiration_date}`,
-                            `Cost: $${ingredient.ingredient_cost}`,
-                            `Vendor: ${ingredient.vendor}`,
-                        ]
-                            .filter(Boolean)
-                            .join("\n");
-                    })
-                    setViewData(out);
-                }
-            } catch {
-                setViewData(`Non-JSON response from server:\n${raw}`);
-            }
+            alert("Ingredient updated!");
+            await loadIngredients();
+
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
-            setViewData(`Something happend!! -> : ${message}`);
+            setViewData(`Something happened -> ${message}`);
         }
-    };
+    }
 
-    const handleAddIngredient = async (e?: React.FormEvent) => {
-        e?.preventDefault();
-        var targetName = ingredientNewName.trim();
-        var targetID = ingredientNewID.trim();
-        var targetPrice = ingredientNewPrice.trim();
-        var targetSupply = ingredientSupply.trim();
-        var targetVendor = ingredientVendor.trim();
-        var targetExpirationDate = ingredientExpirationDate.trim() + " 00:00:00";
 
-        const submitter = (e?.nativeEvent as any).submitter;
-        const action = submitter?.value; // "add" or "update"
+    // ---------- DELETE ----------
+    if (action === "delete") {
+      if (!targetID) {
+        setViewData("Verify all information is valid (ID required).");
+        return;
+      }
 
-        if (action == "add") {
-            if (!targetName || !targetID || !targetPrice || !targetSupply || !targetVendor || !targetExpirationDate) {
-                setViewData("Verify all information is valid.");
-                return;
-            }
-            ///api/inventorypage/createnewingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor
-            try {
-                const res = await fetch(`${API_URL}/inventorypage/createnewingredient/${encodeURIComponent(targetID)}/${encodeURIComponent(targetName)}/${encodeURIComponent(targetSupply)}/${encodeURIComponent(targetExpirationDate)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetVendor)}`);
-                const raw = await res.text();
+      try {
+        const res = await fetch(
+          `${API_URL}/inventorypage/deleteingredient/${encodeURIComponent(
+            targetID
+          )}`
+        );
+        const raw = await res.text();
 
-                if (!res.ok) {
-                    setViewData(
-                        `Error ${res.status}\n${raw || "Failed to fetch item data"}`
-                    );
-                    return;
-                }
-
-                try {
-                    const data = JSON.parse(raw);
-                    const stringVersion = JSON.stringify(data, null, 2)
-                    if (stringVersion == "[]")
-                        setViewData("Action successful!");
-                    else
-                        setViewData(stringVersion);
-                } catch {
-                    setViewData(`Non-JSON response from server:\n${raw}`);
-                }
-            } catch (err: unknown) {
-                const message = err instanceof Error ? err.message : String(err);
-                setViewData(`Something happend!! -> : ${message}`);
-            }
+        if (!res.ok) {
+          setViewData(
+            `Error ${res.status}\n${
+              raw || "Failed to delete ingredient"
+            }`
+          );
+          return;
         }
-        if (action == "update") {
-            if (!targetID || !targetName) {
-                setViewData("Verify all information is valid.");
-                return;
-            }
 
-            const res = await fetch(`${API_URL}/inventorypage/viewingredientdata/${encodeURIComponent(targetName)}`);
-            const raw = await res.text();
-
-            if (!res.ok) {
-                setViewData(
-                    `Error ${res.status}\n${raw || "Failed to fetch ingredient data"}`
-                );
-                return;
-            }
-            var ids;
-            try {
-                try {
-                    const data = JSON.parse(raw);
-                    const stringVersion = JSON.stringify(data, null, 2)
-                    if (stringVersion == "[]")
-                        setViewData("Result is empty!");
-                    else {
-                        ids = data.map((ingredient: any) => ingredient);
-                    }
-                } catch {
-                    setViewData(`Non-JSON response from server:\n${raw}`);
-                }
-            } catch (err: unknown) {
-                const message = err instanceof Error ? err.message : String(err);
-                setViewData(`Something happend!! -> : ${message}`);
-            }
-            if (!targetName)
-                targetName = ids[0].ingredient_name;
-            if (!targetPrice)
-                targetPrice = ids[0].ingredient_cost;
-            if (!targetSupply)
-                targetSupply = ids[0].supply_level;
-            if (!targetVendor)
-                targetVendor = ids[0].vendor;
-            if (!targetExpirationDate || targetExpirationDate == " 00:00:00")
-                targetExpirationDate = ids[0].expiration_date;
-
-            ///api/inventorypage/updateingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor
-            try {
-                const res = await fetch(`${API_URL}/inventorypage/updateingredient/${encodeURIComponent(targetID)}/${encodeURIComponent(targetName)}/${encodeURIComponent(targetSupply)}/${encodeURIComponent(targetExpirationDate)}/${encodeURIComponent(targetPrice)}/${encodeURIComponent(targetVendor)}`);
-                const raw = await res.text();
-
-                if (!res.ok) {
-                    setViewData(
-                        `Error ${res.status}\n${raw || "Failed to fetch ingredient data"}`
-                    );
-                    return;
-                }
-
-                try {
-                    const data = JSON.parse(raw);
-                    const stringVersion = JSON.stringify(data, null, 2)
-                    if (stringVersion == "[]")
-                        setViewData("Result is empty!");
-                    else {
-                        const out = data.map((ingredient: any) => {
-                            return [
-                                `Ingredient ID: ${ingredient.ingredient_id}`,
-                                `Name: ${ingredient.ingredient_name}`,
-                                `Supply Level: ${ingredient.supply_level}`,
-                                `Expiration Date: ${ingredient.expiration_date}`,
-                                `Cost: $${ingredient.ingredient_cost}`,
-                                `Vendor: ${ingredient.vendor}`,
-                            ]
-                                .filter(Boolean)
-                                .join("\n");
-                        })
-                        setViewData(out);
-                    }
-                } catch {
-                    setViewData(`Non-JSON response from server:\n${raw}`);
-                }
-            } catch (err: unknown) {
-                    const message = err instanceof Error ? err.message : String(err);
-                    setViewData(`Something happend!! -> : ${message}`);
-                }
-            }
-        if(action == "delete")
-        {
-            if (!targetID) {
-                setViewData("Verify all information is valid.");
-                return;
-            }
-            ///api/inventorypage/createnewingredient/:newIngredientId/:newIngredientName/:newIngredientSupply/:newIngredientExpirationDate/:newIngredientCost/:newIngredientVendor
-            try {
-                const res = await fetch(`${API_URL}/inventorypage/deleteingredient/${encodeURIComponent(targetID)}`);
-                const raw = await res.text();
-
-                if (!res.ok) {
-                    setViewData(
-                        `Error ${res.status}\n${raw || "Failed to fetch item data"}`
-                    );
-                    return;
-                }
-
-                try {
-                    const data = JSON.parse(raw);
-                    const stringVersion = JSON.stringify(data, null, 2)
-                    if (stringVersion == "[]")
-                        setViewData("Action successful!");
-                    else
-                        setViewData(stringVersion);
-                } catch {
-                    setViewData(`Non-JSON response from server:\n${raw}`);
-                }
-            } catch (err: unknown) {
-                const message = err instanceof Error ? err.message : String(err);
-                setViewData(`Something happend!! -> : ${message}`);
-            }
+        try {
+          const data = JSON.parse(raw);
+          const stringVersion = JSON.stringify(data, null, 2);
+          if (stringVersion === "[]") alert("Ingredient deleted!");
+          else alert(stringVersion);
+          await loadIngredients();
+        } catch {
+          setViewData(`Non-JSON response from server:\n${raw}`);
         }
-    };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        alert(`Something happened -> ${message}`);
+      }
+    }
+  };
 
-    return (
-        <div id="rootPane" className="min-h-screen flex flex-col bg-white text-gray-900">
-            <nav ref={headerRef as any} className="cashier-nav">
-                <ManagerNavbar />
-            </nav>
+  const clearForm = () => {
+    setIngredientNewName("");
+    setIngredientNewID("");
+    setIngredientNewPrice("");
+    setIngredientSupply("");
+    setIngredientExpirationDate("");
+    setIngredientVendor("");
+    setIngredientCategoryId("");
+    setViewData("Form cleared.");
+  };
 
-            <div style={{ paddingTop: headerH }} className="flex-1">
-                <div className="mx-auto max-w-6xl p-6">
-                    <div className="update-menu-grid">
-                        <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-                            <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>View Ingedient Data</h2>
-                            <form onSubmit={handleViewSubmit} className="space-y-3 flex-1">
-                                <label htmlFor="viewItemDataField" className="label-updateMenu" style={{ color: "#000000" }}>Ingredient Name: </label>
-                                <input
-                                    id="viewItemDataField"
-                                    className={inputBase}
-                                    placeholder="Ingredient Name"
-                                    style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                    value={viewIngredientName}
-                                    onChange={(e) => setViewIngredientName(e.target.value)}
-                                />
-                                <div className="mt-auto pt-2">
-                                    <button id="viewDataSubmitButton" type="submit" className="btn-updateMenu">
-                                        Submit
-                                    </button>
-                                </div>
-                            </form>
-                        </section>
+  return (
+    <div className="update-page">
+      <nav ref={headerRef as any}>
+        <ManagerNavbar />
+      </nav>
 
-                        <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-                            <h2 className="mb-2 text-base font-semibold text-center text-black" style={{ color: "#000000" }}>Output</h2>
-                            <textarea
-                                id="viewDataTextArea"
-                                className="w-full resize-none rounded-xl border border-gray-300 p-3"
-                                value={viewData}
-                                readOnly
-                                style={{ height: "300px", width: "300px", resize: "none", backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                placeholder="Waiting..." />
-                        </section>
+      <main className="update-main" style={{ paddingTop: headerH }}>
+        {error && <div className="employee-error-banner">{error}</div>}
 
-                        <section className="rounded-2xl border p-4 shadow-sm flex flex-col">
-                            <h2 className="mb-3 text-lg font-bold text-center text-black" style={{ color: "#000000" }}>Add/Update Ingredient</h2>
-                            <form onSubmit={handleAddIngredient} className="grid grid-cols-1 gap-4 flex-1">
-                                <div>
-                                    <label htmlFor="ingredientNewName" className="label-updateMenu" style={{ color: "#000000" }}>Name: </label>
-                                    <input
-                                        id="ingredientNewName"
-                                        className={inputBase}
-                                        placeholder="Name"
-                                        style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                        value={ingredientNewName}
-                                        onChange={(e) => setIngredientNewName(e.target.value)}
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="ingredientNewID" className="label-updateMenu" style={{ color: "#000000" }}>Ingredient ID (Primary): </label>
-                                    <input
-                                        id="ingredientNewID"
-                                        className={inputBase}
-                                        placeholder="ID"
-                                        style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                        value={ingredientNewID}
-                                        onChange={(e) => setIngredientNewID(e.target.value)}
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="ingredientSupply" className="label-updateMenu" style={{ color: "#000000" }}>Supply: </label>
-                                    <input
-                                        id="ingredientSupply"
-                                        className={inputBase}
-                                        style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                        placeholder="0.00"
-                                        value={ingredientSupply}
-                                        onChange={(e) => setIngredientSupply(e.target.value)}
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="ingredientExpirationDate" className="label-updateMenu" style={{ color: "#000000" }}>Expiration Date: </label>
-                                    <input
-                                        id="ingredientExpirationDate"
-                                        className={inputBase}
-                                        placeholder="YYYY-MM-DD"
-                                        style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                        value={ingredientExpirationDate}
-                                        onChange={(e) => setIngredientExpirationDate(e.target.value)}
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="ingredientNewPrice" className="label-updateMenu" style={{ color: "#000000" }}>Cost: </label>
-                                    <input
-                                        id="ingredientNewPrice"
-                                        className={inputBase}
-                                        placeholder="0"
-                                        style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                        value={ingredientNewPrice}
-                                        onChange={(e) => setIngredientNewPrice(e.target.value)}
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="ingredientVendor" className="label-updateMenu" style={{ color: "#000000" }}>Vendor: </label>
-                                    <input
-                                        id="ingredientVendor"
-                                        className={inputBase}
-                                        placeholder="Vendor Name"
-                                        style={{ backgroundColor: "#fff", color: "#CF152D", borderColor: "#CF152D", borderWidth: "2px", borderStyle: "solid" }}
-                                        value={ingredientVendor}
-                                        onChange={(e) => setIngredientVendor(e.target.value)}
-                                    />
-                                </div>
-                                <div className="mt-auto flex items-center gap-2 pt-2">
-                                    <button type="submit" value="add" className="btn-updateMenu">Add</button>
-                                </div>
-                                <div className="mt-auto flex items-center gap-2 pt-2">
-                                    <button type="submit" value="update" className="btn-updateMenu">Update</button>
-                                </div>
-                                <div className="mt-auto flex items-center gap-2 pt-2">
-                                    <button type="submit" value="delete" className="btn-updateMenu">Delete</button>
-                                </div>
-                            </form>
-                        </section>
-                    </div>
-                </div>
+        <section className="update-card-big">
+          {/* ---------- TABLE ---------- */}
+          <div>
+            <h2>Ingredient List</h2>
+          </div>
+
+          <div className="update-table-wrapper">
+            <table className="update-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Supply</th>
+                  <th>Expiration</th>
+                  <th>Cost</th>
+                  <th>Vendor</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {ingredients.length === 0 && !loadingIngredients ? (
+                  <tr>
+                    <td colSpan={8} className="update-empty">
+                      No ingredients found.
+                    </td>
+                  </tr>
+                ) : (
+                  ingredients.map((ing) => (
+                    <tr key={ing.ingredient_id}>
+                      <td>{ing.ingredient_id}</td>
+                      <td>{ing.ingredient_name}</td>
+                      <td>
+                        {ing.ingredient_category_name ??
+                          (ing.category_id
+                            ? `#${ing.category_id}`
+                            : "")}
+                      </td>
+                      <td>{ing.supply_level}</td>
+                      <td>
+                        {ing.expiration_date?.slice(0, 10) || ""}
+                      </td>
+                      <td>{ing.ingredient_cost}</td>
+                      <td>{ing.vendor}</td>
+                      <td>
+                        <button
+                          className="btn-update btn-update--outline"
+                          onClick={() => handleRowSelect(ing)}
+                        >
+                          Load
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+
+          <h2 style={{ marginTop: "1.2rem" }}>Add / Update / Delete</h2>
+
+          <form onSubmit={handleAddIngredient} className="update-form-grid">
+            <div className="update-field">
+              <label className="update-label">Name</label>
+              <input
+                className="update-input"
+                value={ingredientNewName}
+                onChange={(e) => setIngredientNewName(e.target.value)}
+              />
             </div>
-        </div>
-    );
+
+            <div className="update-field">
+              <label className="update-label">Supply</label>
+              <input
+                className="update-input"
+                value={ingredientSupply}
+                onChange={(e) => setIngredientSupply(e.target.value)}
+              />
+            </div>
+
+            <div className="update-field">
+              <label className="update-label">Expiration Date</label>
+              <input
+                className="update-input"
+                placeholder="YYYY-MM-DD"
+                value={ingredientExpirationDate}
+                onChange={(e) =>
+                  setIngredientExpirationDate(e.target.value)
+                }
+              />
+            </div>
+
+            <div className="update-field">
+              <label className="update-label">Cost</label>
+              <input
+                className="update-input"
+                value={ingredientNewPrice}
+                onChange={(e) => setIngredientNewPrice(e.target.value)}
+              />
+            </div>
+
+            <div className="update-field">
+              <label className="update-label">Vendor</label>
+              <input
+                className="update-input"
+                value={ingredientVendor}
+                onChange={(e) => setIngredientVendor(e.target.value)}
+              />
+            </div>
+
+            <div className="update-field">
+              <label className="update-label">Category</label>
+              <select
+                className="update-input"
+                value={ingredientCategoryId}
+                onChange={(e) => setIngredientCategoryId(e.target.value)}
+              >
+                <option value="">(None)</option>
+                {categories.map((cat) => (
+                  <option
+                    key={cat.ingredient_category_id}
+                    value={cat.ingredient_category_id}
+                  >
+                    {cat.ingredient_category_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="update-actions-row">
+              <button type="submit" value="add" className="btn-update">
+                Add
+              </button>
+              <button
+                type="submit"
+                value="update"
+                className="btn-update btn-update"
+              >
+                Update
+              </button>
+              <button
+                type="submit"
+                value="delete"
+                className="btn-update btn-update"
+              >
+                Delete
+              </button>
+
+              <button
+                type="button"
+                onClick={clearForm}
+                className="btn-update btn-update"
+                style={{ marginLeft: "auto" }}
+              >
+                Clear
+              </button>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+  );
 }

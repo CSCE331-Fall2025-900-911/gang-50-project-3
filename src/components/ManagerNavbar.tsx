@@ -122,7 +122,7 @@ export default function ManagerNavbar() {
       <div className="pages">
         <div className="navItem">
           <img className="navIcon" src="/Sun.svg" alt="Weather" />
-          <p>72° F</p>
+          <p>Weather</p>
         </div>
 
         <div 
