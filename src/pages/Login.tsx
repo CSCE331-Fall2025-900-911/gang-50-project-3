@@ -32,7 +32,7 @@ export default function Login() {
     <div className="background">
       <div className="backgroundBox">
         <div>
-          <img src="/sharetealogo.png" className="logo" alt="ShareTea logo" />
+          <img src="/FifteaLogo.png" className="logo" alt="FifTea logo" />
 
           <div className="roleButtonsContainer">
             <button className="roleButton" onClick={() => handleRoleSelect("kiosk")}>
