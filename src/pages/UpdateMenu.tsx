@@ -369,13 +369,6 @@ export default function UpdateMenu() {
         return;
       }
 
-      let data;
-      try {
-        data = raw ? JSON.parse(raw) : null;
-      } catch {
-        data = null;
-      }
-
       alert("Item deleted!");
 
 
