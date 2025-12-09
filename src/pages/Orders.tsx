@@ -215,6 +215,80 @@ export default function Orders() {
     });
   };
 
+  const submitOrder = async () => {
+    if (cart.length === 0) return;
+
+    // Helper to collect all ingredient IDs for a drink
+    const collectIngredientIds = (drink: any) => {
+      const ids: number[] = [];
+
+      // Single-select categories (Milk, Ice, Size, Sweetness)
+      Object.values(drink.ingredients).forEach((ing: any) => {
+        if (ing && ing.ingredient_id) {
+          ids.push(ing.ingredient_id);
+        }
+      });
+
+      // Multi-select toppings/extras
+      drink.extras.forEach((e: any) => {
+        if (e && e.ingredient_id) {
+          ids.push(e.ingredient_id);
+        }
+      });
+
+      return ids;
+    };
+
+    const itemsPayload = cart.map((d: any) => {
+      const extrasCost = d.extras.reduce(
+        (s: number, e: any) => s + e.ingredient_cost,
+        0
+      );
+      const perDrink = d.item.item_cost + extrasCost;
+      const lineTotal = perDrink * d.quantity;
+
+      return {
+        item_id: d.item.item_id,
+        quantity: d.quantity,
+        subtotal: lineTotal,
+        // send all ingredient IDs (milk, ice, toppings, etc.)
+        extras: collectIngredientIds(d),
+      };
+    });
+
+    const body = {
+      customerId: null,        // or real id if you have it
+      employeeId: null,        // or real id
+      items: itemsPayload,
+      totalCost: itemsPayload.reduce((sum, x) => sum + x.subtotal, 0),
+      tax: 0,                  // or your tax calc
+      tip: 0,                  // or tip value
+    };
+
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.error(data);
+        alert(data.error || 'Failed to place order');
+        return;
+      }
+
+      console.log('Order created:', data);
+      alert('Order confirmed! Thank you.');
+      setCart([]);
+      setShowCheckoutPopup(false);
+    } catch (err: any) {
+      console.error(err);
+      alert('Network error while creating order');
+    }
+  };
+
 
   return (
     <div className="orders-layout">
@@ -473,18 +547,7 @@ export default function Orders() {
             <div className="checkout-actions">
               <button
                 className="btn btn-primary"
-                onClick={() => {
-                  const outOfStock = cart.some((d: any) => !d.item.in_stock);
-                  if (outOfStock) {
-                    alert(
-                      'Some items are out of stock. Please remove them from your order.'
-                    );
-                  } else {
-                    alert('Thank you for your order! Have a nice day.');
-                    setCart([]);
-                    setShowCheckoutPopup(false);
-                  }
-                }}
+                onClick={submitOrder}
               >
                 Confirm
               </button>

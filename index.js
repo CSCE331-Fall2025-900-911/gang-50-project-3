@@ -173,29 +173,94 @@ app.get('/api/ingredient-categories', async (_req, res) => {
   }
 });
 
+
 // Create orders
 app.post('/api/orders', async (req, res) => {
   const client = await pool.connect();
+
   try {
     await client.query('BEGIN');
 
     const { customerId, employeeId, items, totalCost, tax, tip } = req.body;
 
-    // Insert order
-    const orderResult = await client.query(`
-      INSERT INTO Customer_Order (time_ordered, total_cost, tax, tip, customer_id, employee_id)
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'items array is required' });
+    }
+
+    // 1) Insert order
+    const orderResult = await client.query(
+      `
+      INSERT INTO customer_order (time_ordered, total_cost, tax, tip, customer_id, employee_id)
       VALUES (NOW(), $1, $2, $3, $4, $5)
-      RETURNING order_id
-    `, [totalCost, tax, tip, customerId || null, employeeId || null]);
+      RETURNING order_id;
+      `,
+      [totalCost, tax, tip, customerId || null, employeeId || null]
+    );
 
     const orderId = orderResult.rows[0].order_id;
 
-    // Insert order items
+    // 2) Insert order items
     for (const item of items) {
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO order_items (order_id, item_id, quantity, subtotal)
-        VALUES ($1, $2, $3, $4)
-      `, [orderId, item.item_id, item.quantity, item.subtotal]);
+        VALUES ($1, $2, $3, $4);
+        `,
+        [orderId, item.item_id, item.quantity, item.subtotal]
+      );
+    }
+
+
+    const baseUsageResult = await client.query(
+      `
+      SELECT ii.ingredient_id, SUM(oi.quantity) AS total_used
+      FROM order_items oi
+      JOIN item_ingredient ii
+        ON oi.item_id = ii.item_id
+      WHERE oi.order_id = $1
+      GROUP BY ii.ingredient_id;
+      `,
+      [orderId]
+    );
+
+
+    const usageByIngredient = new Map(); 
+
+
+    for (const row of baseUsageResult.rows) {
+      const ingId = Number(row.ingredient_id);
+      const used = Number(row.total_used) || 0;
+      const prev = usageByIngredient.get(ingId) || 0;
+      usageByIngredient.set(ingId, prev + used);
+    }
+
+
+    for (const item of items) {
+      const qty = Number(item.quantity) || 0;
+      if (!Array.isArray(item.extras) || qty <= 0) continue;
+
+      for (const extra of item.extras) {
+        const ingId =
+          typeof extra === 'number'
+            ? extra
+            : extra && extra.ingredient_id;
+
+        if (!ingId) continue;
+
+        const prev = usageByIngredient.get(ingId) || 0;
+        usageByIngredient.set(ingId, prev + qty);
+      }
+    }
+
+    for (const [ingredientId, totalUsed] of usageByIngredient.entries()) {
+      await client.query(
+        `
+        UPDATE ingredient
+        SET supply_level = GREATEST(supply_level - $1, 0)
+        WHERE ingredient_id = $2;
+        `,
+        [totalUsed, ingredientId]
+      );
     }
 
     await client.query('COMMIT');
@@ -208,6 +273,8 @@ app.post('/api/orders', async (req, res) => {
     client.release();
   }
 });
+
+
 
   // Fetch employee data
   app.get('/api/employees', async (req, res) => {
