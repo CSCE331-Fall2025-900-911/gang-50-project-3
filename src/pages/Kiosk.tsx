@@ -205,6 +205,75 @@ export default function Kiosk() {
     setShowCustomizationPopup(true);
   };
 
+  const handleConfirmOrder = async () => {
+    if (cart.length === 0) return;
+
+    // If items can ever be out of stock on kiosk, keep this check
+    const outOfStock = cart.some((d: any) => !d.item.in_stock);
+    if (outOfStock) {
+      alert(
+        'Some items are out of stock. Please remove them from your order.'
+      );
+      return;
+    }
+
+    // Build order_items payload (use *pre-discount* line subtotals)
+    const orderItems = cart.map((d: any) => {
+      const extrasCost = d.extras.reduce(
+        (s: number, e: any) => s + e.ingredient_cost,
+        0
+      );
+      const perDrink = d.item.item_cost + extrasCost;
+      const lineSubtotal = perDrink * d.quantity; // raw line subtotal
+
+      return {
+        item_id: d.item.item_id,
+        quantity: d.quantity,
+        subtotal: lineSubtotal,
+      };
+    });
+
+    try {
+      const res = await fetch(`${API_URL}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: null,             // kiosk: anonymous customer
+          employeeId: null,             // or a kiosk employee id if you have one
+          items: orderItems,
+          totalCost: discountedTotal,   // AFTER discount + tax
+          tax: discountedTax,
+          tip: 0,                       // kiosk: no tip for now
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        alert(
+          `Failed to place order: ${data.error || `HTTP ${res.status}`}`
+        );
+        return;
+      }
+
+      console.log('Kiosk order created:', data);
+      alert('Order confirmed! Thank you.');
+
+      // Reset state
+      setCart([]);
+      setAppliedDiscount(0);
+      setShowCheckoutPopup(false);
+    } catch (err: any) {
+      console.error('Error creating kiosk order:', err);
+      alert(
+        `Something went wrong creating the order: ${
+          err?.message ?? String(err)
+        }`
+      );
+    }
+  };
+
+
   // ---------- UI ----------
   return (
     <div className="orders-layout">
@@ -512,12 +581,7 @@ export default function Kiosk() {
             <div className="checkout-actions">
               <button
                 className="btn btn-primary"
-                onClick={() => {
-                  alert('Order confirmed! Thank you.');
-                  setCart([]);
-                  setAppliedDiscount(0);
-                  setShowCheckoutPopup(false);
-                }}
+                onClick={handleConfirmOrder}
               >
                 Confirm
               </button>

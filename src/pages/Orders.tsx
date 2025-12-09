@@ -215,6 +215,63 @@ export default function Orders() {
     });
   };
 
+  const handleConfirmOrder = async () => {
+    const outOfStock = cart.some((d: any) => !d.item.in_stock);
+    if (outOfStock) {
+      alert('Some items are out of stock. Please remove them from your order.');
+      return;
+    }
+
+    // Build payload items for backend
+    const orderItems = cart.map((d: any) => {
+      const extrasCost = d.extras.reduce(
+        (s: number, e: any) => s + e.ingredient_cost,
+        0
+      );
+      const perDrink = d.item.item_cost + extrasCost;
+      const lineSubtotal = perDrink * d.quantity;
+
+      return {
+        item_id: d.item.item_id,
+        quantity: d.quantity,
+        subtotal: lineSubtotal,
+      };
+    });
+
+    try {
+      const res = await fetch(`${API_URL}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: null,        
+          employeeId: null,        
+          items: orderItems,
+          totalCost: total,        
+          tax: tax,
+          tip: 0,                  
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(
+          `Failed to place order: ${data.error || `HTTP ${res.status}`}`
+        );
+        return;
+      }
+
+      const data = await res.json();
+      console.log('Order created:', data);
+      alert('Thank you for your order! Have a nice day.');
+
+      setCart([]);
+      setShowCheckoutPopup(false);
+    } catch (err: any) {
+      console.error('Error creating order:', err);
+      alert(`Something went wrong creating the order: ${err?.message ?? err}`);
+    }
+  };
+
 
   return (
     <div className="orders-layout">
@@ -473,18 +530,7 @@ export default function Orders() {
             <div className="checkout-actions">
               <button
                 className="btn btn-primary"
-                onClick={() => {
-                  const outOfStock = cart.some((d: any) => !d.item.in_stock);
-                  if (outOfStock) {
-                    alert(
-                      'Some items are out of stock. Please remove them from your order.'
-                    );
-                  } else {
-                    alert('Thank you for your order! Have a nice day.');
-                    setCart([]);
-                    setShowCheckoutPopup(false);
-                  }
-                }}
+                onClick={handleConfirmOrder}
               >
                 Confirm
               </button>
