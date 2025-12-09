@@ -365,30 +365,133 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
-  app.get('/api/updatemenu/createnewitem/:newItemName/:newItemId/:newItemPrice/:newItemIsAvailable/:newItemSizes/:newItemPhotoPath/:newItemIsSeasonal/:newItemSeasonalTimeBegin/:newItemSeasonalTimeEnd/:newItemCategory', async (req, res) => {
-    try {
-      const { newItemName, newItemId, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd, newItemCategory} = req.params;
-      const result = await pool.query(`INSERT INTO Item (item_ID, item_name, item_cost, in_stock, size_options, photo, seasonal_item, seasonal_item_beginning_time, seasonal_item_ending_time, category_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);`,
-      [newItemId, newItemName, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd, newItemCategory]);
-      res.json(result.rows);
-    } catch (err) {
-      console.error('Error fetching item data:', err);
-      res.status(500).json({ error: 'Failed to get item data' });
-    }
-  });
+  
 
-  app.get('/api/updatemenu/updateitem/:newItemName/:newItemId/:newItemPrice/:newItemIsAvailable/:newItemSizes/:newItemPhotoPath/:newItemIsSeasonal/:newItemSeasonalTimeBegin/:newItemSeasonalTimeEnd', async (req, res) => {
+
+
+// Fixed UPDATE route
+app.get(
+  '/api/updatemenu/updateitem/:newItemName/:newItemId/:newItemPrice/:newItemIsAvailable/:newItemSizes/:newItemPhotoPath/:newItemIsSeasonal/:newItemSeasonalTimeBegin/:newItemSeasonalTimeEnd/:newItemCategory',
+  async (req, res) => {
     try {
-      const { newItemName, newItemId, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd,  } = req.params;
-      //const result = await pool.query(`UPDATE ingredient SET ingredient_name = $1, supply_level = $2, expiration_date = $3, ingredient_cost = $4, vendor = $5 WHERE ingredient_id = $6 RETURNING *;`,
-      const result = await pool.query(`UPDATE item SET item_name = $1, item_cost = $2, in_stock = $3, size_options = $4, photo = $5, seasonal_item = $6, seasonal_item_beginning_time = $7, seasonal_item_ending_time = $8 WHERE item_id = $9 RETURNING *;`,
-      [newItemName, newItemPrice, newItemIsAvailable, newItemSizes, newItemPhotoPath, newItemIsSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd, newItemId]);
+      const {
+        newItemName,
+        newItemId,
+        newItemPrice,
+        newItemIsAvailable,
+        newItemSizes,
+        newItemPhotoPath,
+        newItemIsSeasonal,
+        newItemSeasonalTimeBegin,
+        newItemSeasonalTimeEnd,
+        newItemCategory,
+      } = req.params;
+
+      // Parse numeric values
+      const itemId = parseInt(newItemId, 10);
+      const itemPrice = parseFloat(newItemPrice);
+      const categoryId = parseInt(newItemCategory, 10);
+
+      // Validate parsed values
+      if (isNaN(itemId) || isNaN(itemPrice) || isNaN(categoryId)) {
+        return res.status(400).json({ 
+          error: 'Invalid numeric values provided',
+          details: {
+            itemId: isNaN(itemId) ? 'invalid' : 'valid',
+            itemPrice: isNaN(itemPrice) ? 'invalid' : 'valid',
+            categoryId: isNaN(categoryId) ? 'invalid' : 'valid'
+          }
+        });
+      }
+
+      // Parse boolean values
+      const isAvailable = newItemIsAvailable === 'true';
+      const isSeasonal = newItemIsSeasonal === 'true';
+
+      const result = await pool.query(
+        `UPDATE item
+         SET item_name                    = $1,
+             item_cost                    = $2,
+             in_stock                     = $3,
+             size_options                 = $4,
+             photo                        = $5,
+             seasonal_item                = $6,
+             seasonal_item_beginning_time = $7,
+             seasonal_item_ending_time    = $8,
+             category_id                  = $9
+         WHERE item_id = $10
+         RETURNING *;`,
+        [
+          newItemName,
+          itemPrice,
+          isAvailable,
+          newItemSizes,
+          newItemPhotoPath,
+          isSeasonal,
+          newItemSeasonalTimeBegin,
+          newItemSeasonalTimeEnd,
+          categoryId,
+          itemId,
+        ]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Item not found' });
+      }
+
       res.json(result.rows);
     } catch (err) {
-      console.error('Error fetching item data:', err);
-      res.status(500).json({ error: 'Failed to get item data' });
+      console.error('Error updating item:', err);
+      res.status(500).json({ 
+        error: 'Failed to update item',
+        message: err.message 
+      });
     }
-  });
+  }
+);
+
+// Fixed CREATE route
+app.get('/api/updatemenu/createnewitem/:newItemName/:newItemId/:newItemPrice/:newItemIsAvailable/:newItemSizes/:newItemPhotoPath/:newItemIsSeasonal/:newItemSeasonalTimeBegin/:newItemSeasonalTimeEnd/:newItemCategory', async (req, res) => {
+  try {
+    const { 
+      newItemName, newItemId, newItemPrice, newItemIsAvailable, 
+      newItemSizes, newItemPhotoPath, newItemIsSeasonal, 
+      newItemSeasonalTimeBegin, newItemSeasonalTimeEnd, newItemCategory
+    } = req.params;
+    
+    // Parse numeric values
+    const itemId = parseInt(newItemId, 10);
+    const itemPrice = parseFloat(newItemPrice);
+    const categoryId = parseInt(newItemCategory, 10);
+    
+    // Validate parsed values
+    if (isNaN(itemId) || isNaN(itemPrice) || isNaN(categoryId)) {
+      return res.status(400).json({ 
+        error: 'Invalid numeric values provided'
+      });
+    }
+    
+    // Parse boolean values
+    const isAvailable = newItemIsAvailable === 'true';
+    const isSeasonal = newItemIsSeasonal === 'true';
+    
+    const result = await pool.query(
+      `INSERT INTO Item (item_id, item_name, item_cost, in_stock, size_options, photo, seasonal_item, seasonal_item_beginning_time, seasonal_item_ending_time, category_id) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING *;`,
+      [itemId, newItemName, itemPrice, isAvailable, newItemSizes, newItemPhotoPath, isSeasonal, newItemSeasonalTimeBegin, newItemSeasonalTimeEnd, categoryId]
+    );
+    
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error creating item:', err);
+    res.status(500).json({ 
+      error: 'Failed to create item',
+      message: err.message 
+    });
+  }
+});
+
 
   app.get('/api/updatemenu/deleteitem/:itemId', async (req, res) => {
   const client = await pool.connect();

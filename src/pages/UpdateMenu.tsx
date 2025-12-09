@@ -33,16 +33,21 @@ export default function UpdateMenu() {
   const [loadingItems, setLoadingItems] = useState(false);
   const [error, setError] = useState("");
 
+  // NEW: which row is currently selected for editing
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+
   // form state
   const [itemNewName, setItemNewName] = useState("");
-  const [itemNewID, setItemNewID] = useState(""); // hidden, used for editing
+  const [itemNewID, setItemNewID] = useState(""); // still keep this for display if needed
   const [itemNewPrice, setItemNewPrice] = useState("");
   const [itemNewCategory, setItemNewCategory] = useState("");
   const [itemPhotoPath, setItemPhotoPath] = useState("");
 
   const [categories, setCategories] = useState<ItemCategory[]>([]);
   const [allIngredients, setAllIngredients] = useState<Ingredient[]>([]);
-  const [selectedIngredientIds, setSelectedIngredientIds] = useState<number[]>([]);
+  const [selectedIngredientIds, setSelectedIngredientIds] = useState<number[]>(
+    []
+  );
 
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerH, setHeaderH] = useState(64);
@@ -140,13 +145,17 @@ export default function UpdateMenu() {
     setItemNewCategory("");
     setItemPhotoPath("");
     setSelectedIngredientIds([]);
+    setSelectedItemId(null); // clear selection as well
   };
 
   const handleRowSelect = (item: Item) => {
+    setSelectedItemId(item.item_id);          // <-- key: track which item is selected
     setItemNewID(String(item.item_id));
     setItemNewName(item.item_name);
     setItemNewPrice(String(item.item_cost));
-    setItemNewCategory(item.category_id != null ? String(item.category_id) : "");
+    setItemNewCategory(
+      item.category_id != null ? String(item.category_id) : ""
+    );
     setItemPhotoPath(item.photo || "");
     loadItemIngredients(item.item_id);
   };
@@ -190,9 +199,7 @@ export default function UpdateMenu() {
         );
       }
     } catch (err: any) {
-      alert(
-        `Ingredient update error: ${err?.message ?? String(err)}`
-      );
+      alert(`Ingredient update error: ${err?.message ?? String(err)}`);
     }
   };
 
@@ -222,12 +229,15 @@ export default function UpdateMenu() {
       }
 
       // backend still expects all params, so we send sensible defaults
-      const targetSizes = "Regular";
-      const targetPhoto = "/images/default-drink.png";
-      const targetAvailability = false;
-      const targetSeasonal = false;
-      const targetSeasonalStart = "1970-01-01 00:00:01";
-      const targetSeasonalEnd = "1970-01-01 00:00:01";
+      const targetSizes= "Regular";
+      const targetPhoto=  "/images/default-drink.png";
+
+
+      const targetAvailability= true;
+      const targetSeasonal= false;
+
+      const targetSeasonalStart= "1970-01-01 00:00:01";
+      const targetSeasonalEnd= "1970-01-01 00:00:01";
 
       const nextId = getNextItemId();
       const targetID = String(nextId);
@@ -257,19 +267,13 @@ export default function UpdateMenu() {
         }
 
         try {
-          const data = JSON.parse(raw);
-          const stringVersion = JSON.stringify(data, null, 2);
-          if (stringVersion === "[]") {
-            alert("Item created!");
-          } else {
-            alert(stringVersion);
-          }
+          alert("Item created!");
         } catch {
           alert(`Non-JSON response from server:\n${raw}`);
         }
 
         await loadItems();
-        await saveItemIngredients(nextId);
+        await saveItemIngredients(nextId); // use the ID we passed to backend
         clearForm();
       } catch (err: any) {
         alert(`Something happened -> ${err?.message ?? String(err)}`);
@@ -278,35 +282,19 @@ export default function UpdateMenu() {
 
     // ---------- UPDATE ----------
     if (action === "update") {
-        const targetID = itemNewID.trim();
-        if (!targetID) {
-            alert("Select an item from the table to edit first.");
-            return;
-        }
+      // use selectedItemId as the source of truth
+      if (selectedItemId == null) {
+        alert("Select an item from the table to edit first.");
+        return;
+      }
+      const targetID = String(selectedItemId);
 
-        // fetch current values for any missing fields
-        let existing: Item;   // <-- not nullable
-        try {
-        const res = await fetch(
-            `${API_URL}/updatemenu/viewitemdata/${encodeURIComponent(targetID)}`
-        );
-        const raw = await res.text();
-        if (!res.ok) {
-            alert(
-            `Error ${res.status}\n${raw || "Failed to fetch item data"}`
-            );
-            return;
-        }
-        const data = JSON.parse(raw);
-        if (!data.length) {
-            alert("Item not found.");
-            return;
-        }
-        existing = data[0] as Item;
-        } catch (err: any) {
-            alert(`Something happened -> ${err.message ?? String(err)}`);
-            return;
-        }
+      // get the existing item from our items list instead of a separate fetch
+      const existing = items.find((i) => i.item_id === selectedItemId);
+      if (!existing) {
+        alert("Selected item not found in local list.");
+        return;
+      }
 
       if (!targetName) targetName = existing.item_name;
       if (!targetPrice) targetPrice = String(existing.item_cost);
@@ -354,62 +342,50 @@ export default function UpdateMenu() {
         }
 
         try {
-          const data = JSON.parse(raw);
-          const stringVersion = JSON.stringify(data, null, 2);
-          if (stringVersion === "[]") {
-            alert("Item updated!");
-          } else {
-            alert("Item updated!\n\n" + stringVersion);
-          }
+          alert("Item updated!");
         } catch {
           alert(`Non-JSON response from server:\n${raw}`);
         }
 
         await loadItems();
-        await saveItemIngredients(Number(targetID));
+        await saveItemIngredients(selectedItemId); // <-- always uses selected row's ID
       } catch (err: any) {
         alert(`Something happened -> ${err?.message ?? String(err)}`);
       }
     }
   };
 
-   const handleDeleteItem = async (id: number) => {
-      if (!window.confirm("Delete this item?")) return;
+  const handleDeleteItem = async (id: number) => {
+    if (!window.confirm("Delete this item?")) return;
 
-      try {
-        const res = await fetch(
-          `${API_URL}/updatemenu/deleteitem/${encodeURIComponent(id)}`
-        );
-        const raw = await res.text();
+    try {
+      const res = await fetch(
+        `${API_URL}/updatemenu/deleteitem/${encodeURIComponent(id)}`
+      );
+      const raw = await res.text();
 
-        if (!res.ok) {
-          alert(`Error ${res.status}\n${raw || "Failed to delete item"}`);
-          return;
-        }
-
-        // Safely handle server response
-        let data;
-        try {
-          data = raw ? JSON.parse(raw) : null;
-        } catch {
-          data = null; // raw is not valid JSON
-        }
-
-        if (!data) {
-          // raw was empty or not JSON
-          alert("Item deleted!");
-        } else {
-          alert("Item deleted!\n" + JSON.stringify(data, null, 2));
-        }
-
-        await loadItems();
-
-        if (itemNewID === String(id)) clearForm();
-      } catch (err: any) {
-        alert(`Something happened -> ${err?.message ?? String(err)}`);
+      if (!res.ok) {
+        alert(`Error ${res.status}\n${raw || "Failed to delete item"}`);
+        return;
       }
-};
 
+      let data;
+      try {
+        data = raw ? JSON.parse(raw) : null;
+      } catch {
+        data = null;
+      }
+
+      alert("Item deleted!");
+
+
+      await loadItems();
+
+      if (itemNewID === String(id)) clearForm();
+    } catch (err: any) {
+      alert(`Something happened -> ${err?.message ?? String(err)}`);
+    }
+  };
 
   // ----------------- UI -----------------
 
@@ -425,6 +401,11 @@ export default function UpdateMenu() {
         <section className="menu-admin-card">
           <div className="update-table-header-row">
             <h2>Menu Items</h2>
+            {selectedItemId != null && (
+              <span className="update-selected-label">
+                Editing item ID: {selectedItemId}
+              </span>
+            )}
           </div>
 
           <div className="menu-admin-content">
@@ -449,7 +430,14 @@ export default function UpdateMenu() {
                       </tr>
                     ) : (
                       items.map((item) => (
-                        <tr key={item.item_id}>
+                        <tr
+                          key={item.item_id}
+                          className={
+                            item.item_id === selectedItemId
+                              ? "update-row--selected"
+                              : ""
+                          }
+                        >
                           <td>{item.item_id}</td>
                           <td>{item.item_name}</td>
                           <td>{item.category_name || ""}</td>
@@ -560,6 +548,7 @@ export default function UpdateMenu() {
                     type="submit"
                     value="update"
                     className="btn-menu-secondary"
+                    disabled={selectedItemId == null}
                   >
                     Update
                   </button>

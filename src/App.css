@@ -200,8 +200,6 @@ body {
 }
 
 .section-title{
-  font-size: 1.375rem; /* 22px */
-  font-weight: 700;
   margin: 16px 0 16px;
   text-align: left;
 }
@@ -288,7 +286,6 @@ body {
 
 .thumb-ph{ 
   color: #94a3b8; 
-  font-size: 0.8125rem; /* 13px */
 }
 
 .item-name{ 
@@ -329,7 +326,6 @@ body {
 
 .order-title{ 
   text-align: left; 
-  font-size: 1.25rem; /* 20px */
   font-weight: 700; 
 }
 
