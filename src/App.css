@@ -757,26 +757,29 @@ body {
 .Analytics-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
 }
 
 .reportButton {
   background-color: #CF152D;
-  font-size: small; /* already relative */
   border: none;
   color: white;
   font-weight: 600;
-  margin: 5px;
-  border-radius: 6px;
-  padding: 10px 10px;
+  border-radius: 999px;
+  padding: 0.6rem 1.2rem;
   cursor: pointer;
-  transition: background-color 0.25s ease, transform 0.1s ease;
-  width: 20%;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease, transform 0.1s ease,
+    box-shadow 0.15s ease;
+  width: auto;
+  align-self: flex-start;
 }
 
 .reportButton:hover {
   background-color: #a10f23;
-  transform: scale(1.02);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.16);
 }
 
 /* Discount Wheel */
@@ -1710,3 +1713,173 @@ body {
   flex-direction: column;
 }
 
+.analytics-card-body {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* X/Z report section */
+.analytics-section {
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.analytics-section-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111827;
+  text-align: left;
+}
+
+/* Chart area */
+.analytics-chart-wrapper {
+  width: 100%;
+  height: 280px;
+}
+
+/* small cards on the right side (Order stats + Daily report) */
+.analytics-small-card {
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.analytics-stat-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  text-align: left;
+}
+
+.analytics-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  text-align: left;
+}
+
+/* Date input inside small cards */
+.analytics-date-input {
+  margin-top: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.9rem;
+  background-color: #f9fafb;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.analytics-date-input:focus {
+  outline: none;
+  border-color: #CF152D;
+  box-shadow: 0 0 0 2px rgba(207, 21, 45, 0.15);
+}
+
+/* === PRODUCT USAGE & SALES REPORT CARD === */
+
+.analytics-product-card {
+  border-radius: 1.1rem;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.analytics-product-grid {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.analytics-product-chart {
+  border-radius: 0.9rem;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  padding: 0.75rem 0.75rem 1rem;
+  min-height: 260px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.analytics-product-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-self: stretch;
+  padding: 0.5rem;
+}
+
+/* Inputs + labels in the right column */
+.analytics-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.analytics-input-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  text-align: left;
+}
+
+/* reuse analytics-date-input for both */
+.analytics-product-controls .analytics-date-input {
+  width: 100%;
+}
+
+/* Make product buttons align nicely */
+.analytics-product-controls .reportButton {
+  width: 100%;
+  justify-content: center;
+}
+
+
+
+/* === RESPONSIVE BREAKPOINTS === */
+
+@media (max-width: 1024px) {
+  .Analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-chart-wrapper {
+    height: 240px;
+  }
+}
+
+@media (max-width: 640px) {
+  .update-main {
+    padding: 1rem;
+  }
+
+  .update-card-big {
+    padding: 1rem;
+  }
+
+  .analytics-chart-wrapper {
+    height: 220px;
+  }
+
+  .analytics-section-title {
+    font-size: 1rem;
+  }
+
+  .analytics-stat-value {
+    font-size: 1.1rem;
+  }
+}
