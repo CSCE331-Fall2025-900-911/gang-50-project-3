@@ -205,73 +205,82 @@ export default function Kiosk() {
     setShowCustomizationPopup(true);
   };
 
-  const handleConfirmOrder = async () => {
-    if (cart.length === 0) return;
+    const submitOrder = async () => {
+  if (cart.length === 0) return;
 
-    // If items can ever be out of stock on kiosk, keep this check
-    const outOfStock = cart.some((d: any) => !d.item.in_stock);
-    if (outOfStock) {
-      alert(
-        'Some items are out of stock. Please remove them from your order.'
-      );
+  // Helper to collect all ingredient IDs for a drink
+  const collectIngredientIds = (drink: any) => {
+    const ids: number[] = [];
+
+    // Single-select categories (Milk, Ice, Size, Sweetness)
+    Object.values(drink.ingredients).forEach((ing: any) => {
+      if (ing && ing.ingredient_id) {
+        ids.push(ing.ingredient_id);
+      }
+    });
+
+    // Multi-select toppings/extras
+    drink.extras.forEach((e: any) => {
+      if (e && e.ingredient_id) {
+        ids.push(e.ingredient_id);
+      }
+    });
+
+    return ids;
+  };
+
+  const itemsPayload = cart.map((d: any) => {
+    const extrasCost = d.extras.reduce(
+      (s: number, e: any) => s + e.ingredient_cost,
+      0
+    );
+    const perDrink = d.item.item_cost + extrasCost;
+    const lineTotal = perDrink * d.quantity;
+
+    return {
+      item_id: d.item.item_id,
+      quantity: d.quantity,
+      subtotal: lineTotal,
+      // send all ingredient IDs (milk, ice, toppings, etc.)
+      extras: collectIngredientIds(d),
+    };
+  });
+
+  const body = {
+    customerId: null,        // or real id if you have it
+    employeeId: null,        // or real id
+    items: itemsPayload,
+    totalCost: itemsPayload.reduce((sum, x) => sum + x.subtotal, 0),
+    tax: 0,                  // or your tax calc
+    tip: 0,                  // or tip value
+  };
+
+  try {
+    const res = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      console.error(data);
+      alert(data.error || 'Failed to place order');
       return;
     }
 
-    // Build order_items payload (use *pre-discount* line subtotals)
-    const orderItems = cart.map((d: any) => {
-      const extrasCost = d.extras.reduce(
-        (s: number, e: any) => s + e.ingredient_cost,
-        0
-      );
-      const perDrink = d.item.item_cost + extrasCost;
-      const lineSubtotal = perDrink * d.quantity; // raw line subtotal
+    console.log('Order created:', data);
+    alert('Order confirmed! Thank you.');
+    setCart([]);
+    setAppliedDiscount?.(0);
+    setShowCheckoutPopup(false);
+  } catch (err: any) {
+    console.error(err);
+    alert('Network error while creating order');
+  }
+};
 
-      return {
-        item_id: d.item.item_id,
-        quantity: d.quantity,
-        subtotal: lineSubtotal,
-      };
-    });
 
-    try {
-      const res = await fetch(`${API_URL}/orders`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerId: null,             // kiosk: anonymous customer
-          employeeId: null,             // or a kiosk employee id if you have one
-          items: orderItems,
-          totalCost: discountedTotal,   // AFTER discount + tax
-          tax: discountedTax,
-          tip: 0,                       // kiosk: no tip for now
-        }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        alert(
-          `Failed to place order: ${data.error || `HTTP ${res.status}`}`
-        );
-        return;
-      }
-
-      console.log('Kiosk order created:', data);
-      alert('Order confirmed! Thank you.');
-
-      // Reset state
-      setCart([]);
-      setAppliedDiscount(0);
-      setShowCheckoutPopup(false);
-    } catch (err: any) {
-      console.error('Error creating kiosk order:', err);
-      alert(
-        `Something went wrong creating the order: ${
-          err?.message ?? String(err)
-        }`
-      );
-    }
-  };
 
 
   // ---------- UI ----------
@@ -581,7 +590,7 @@ export default function Kiosk() {
             <div className="checkout-actions">
               <button
                 className="btn btn-primary"
-                onClick={handleConfirmOrder}
+                onClick={submitOrder}
               >
                 Confirm
               </button>
