@@ -360,6 +360,44 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
+// index.js or routes file
+
+app.get('/api/orders/recent', async (req, res) => {
+  const defaultLimit = 10;
+  const rawLimit = req.query.limit;
+  let limit = defaultLimit;
+
+  if (rawLimit !== undefined) {
+    const parsed = Number(rawLimit);
+    if (Number.isFinite(parsed) && parsed > 0 && parsed <= 100) {
+      limit = parsed;
+    }
+  }
+
+  const sql = `
+    SELECT
+      o.order_id,
+      o.time_ordered AS order_date,
+      o.total_cost,
+      COALESCE(SUM(oi.quantity), 0) AS item_count
+    FROM customer_order o
+    LEFT JOIN order_items oi
+      ON o.order_id = oi.order_id
+    GROUP BY o.order_id, o.time_ordered, o.total_cost
+    ORDER BY o.time_ordered DESC
+    LIMIT $1;
+  `;
+
+  try {
+    const { rows } = await pool.query(sql, [limit]);
+    res.json(rows);
+  } catch (err) {
+    console.error('Error fetching recent orders:', err);
+    res.status(500).json({ error: 'Failed to fetch recent orders' });
+  }
+});
+
+
 
 
   app.get('/api/inventorypage/ingredients', async (req, res) => {

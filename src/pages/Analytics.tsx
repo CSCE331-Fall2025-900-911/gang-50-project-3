@@ -13,6 +13,13 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+type RecentOrder = {
+  order_id: number;
+  order_date: string;
+  total_cost: number;
+  item_count: number;
+};
+
 export default function Analytics() {
   const headerRef = useRef<HTMLElement>(null);
   const [headerH, setHeaderH] = useState(64);
@@ -67,6 +74,10 @@ export default function Analytics() {
       },
     ],
   });
+
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [loadingRecent, setLoadingRecent] = useState(false);
+  const [recentError, setRecentError] = useState("");
 
   useLayoutEffect(() => {
     const el = headerRef.current;
@@ -139,15 +150,9 @@ export default function Analytics() {
 
   const fetchTotalSales = async () => {
     try {
-      console.log("Date submitting:", selectedDate);
-      if (!selectedDate) {
-        console.warn("No date selected");
-        return;
-      }
+      if (!selectedDate) return;
 
       const res = await fetch(`/api/sales/by-date/${selectedDate}`);
-      console.log("Response status:", res.status);
-
       if (!res.ok) {
         const text = await res.text();
         console.error("Backend error body:", text);
@@ -164,15 +169,9 @@ export default function Analytics() {
 
   const fetchTotalOrders = async () => {
     try {
-      console.log("Date submitting:", selectedDate);
-      if (!selectedDate) {
-        console.warn("No date selected");
-        return;
-      }
+      if (!selectedDate) return;
 
       const res = await fetch(`/api/totalOrders/by-date/${selectedDate}`);
-      console.log("Response status:", res.status);
-
       if (!res.ok) {
         const text = await res.text();
         console.error("Backend error body:", text);
@@ -189,11 +188,9 @@ export default function Analytics() {
 
   const fetchHourlySales = async () => {
     try {
-      console.log("Fetching hourly sales for:", selectedDate);
+      if (!selectedDate) return;
 
       const res = await fetch(`/api/hourlySales/by-date/${selectedDate}`);
-      console.log("Hourly sales response status:", res.status);
-
       if (!res.ok) {
         const text = await res.text();
         console.error("Hourly sales backend error body:", text);
@@ -201,8 +198,6 @@ export default function Analytics() {
       }
 
       const hourlyData = await res.json();
-      console.log("Hourly sales data:", hourlyData);
-
       const values = new Array(HOUR_LABELS.length).fill(0);
 
       hourlyData.forEach((row: any) => {
@@ -234,18 +229,11 @@ export default function Analytics() {
 
   const fetchProductUsageReport = async () => {
     try {
-      if (!startDate || !endDate) {
-        console.warn("Start and end dates are required for inventory usage");
-        return;
-      }
-  
-      console.log("Fetching inventory usage for range:", startDate, "to", endDate);
-  
+      if (!startDate || !endDate) return;
+
       const res = await fetch(
         `/api/inventoryusage/by-date-range?startDate=${startDate}&endDate=${endDate}`
       );
-      console.log("Inventory usage response status:", res.status);
-  
       if (!res.ok) {
         const text = await res.text();
         console.error("Inventory usage backend error body:", text);
@@ -253,15 +241,14 @@ export default function Analytics() {
           `Inventory usage request failed with status ${res.status}`
         );
       }
-  
+
       const data = await res.json();
-      console.log("Inventory usage data:", data);
-  
+
       const labels = data.map((row: any) => row.ingredient_name);
       const values = data.map(
         (row: any) => Number(row.total_items_using_ingredient) || 0
       );
-  
+
       setProductBarData((prev: any) => ({
         ...prev,
         labels,
@@ -280,18 +267,11 @@ export default function Analytics() {
 
   const fetchSalesReport = async () => {
     try {
-      if (!startDate || !endDate) {
-        console.warn("Start and end dates are required");
-        return;
-      }
-
-      console.log("Fetching sales report for range:", startDate, "to", endDate);
+      if (!startDate || !endDate) return;
 
       const res = await fetch(
         `/api/salesreport/by-date-range?startDate=${startDate}&endDate=${endDate}`
       );
-      console.log("Sales report response status:", res.status);
-
       if (!res.ok) {
         const text = await res.text();
         console.error("Sales report backend error body:", text);
@@ -299,7 +279,6 @@ export default function Analytics() {
       }
 
       const data = await res.json();
-      console.log("Sales report data:", data);
 
       const labels = data.map((row: any) =>
         new Date(row.sale_date).toLocaleDateString()
@@ -323,138 +302,219 @@ export default function Analytics() {
   };
 
   const fetchReportData = async () => {
-    if (!selectedDate) {
-      console.warn("No date selected");
-      return;
-    }
+    if (!selectedDate) return;
 
     try {
-      await Promise.all([
-        fetchTotalSales(),
-        fetchTotalOrders(),
-        fetchHourlySales(),
-      ]);
-      console.log("Report data updated.");
+      await Promise.all([fetchTotalSales(), fetchTotalOrders(), fetchHourlySales()]);
     } catch (err) {
       console.error("Error running report wrapper", err);
     }
   };
 
+  const fetchRecentOrders = async () => {
+    try {
+      setLoadingRecent(true);
+      setRecentError("");
+
+
+      const res = await fetch("/api/orders/recent?limit=10");
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Recent orders backend error:", text);
+        throw new Error(`Recent orders request failed: ${res.status}`);
+      }
+
+      const data = await res.json();
+      setRecentOrders(
+        data.map((row: any) => ({
+          order_id: row.order_id,
+          order_date: row.order_date,
+          total_cost: Number(row.total_cost),
+          item_count: row.item_count,
+        }))
+      );
+    } catch (err: any) {
+      console.error("Error fetching recent orders", err);
+      setRecentError("Failed to load recent orders.");
+    } finally {
+      setLoadingRecent(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecentOrders();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-white text-gray-900">
-      <nav
-        ref={headerRef}
-        className="cashier-nav fixed top-0 left-0 right-0 z-50"
-      >
+    <div className="update-page">
+      <nav ref={headerRef as any}>
         <ManagerNavbar />
       </nav>
 
-      <main
-        style={{ paddingTop: headerH }}
-        className="p-6 max-w-7xl mx-auto overflow-y-auto"
-      >
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          Sales Analytics
-        </h1>
-
-        {/* X/Z hourly report */}
-        <section className="rounded-2xl border p-4 shadow-sm flex flex-col max-w-5xl mx-auto">
-          <h2 className="mb-3 text-lg font-bold text-center text-black">
-            X/Z Report
-          </h2>
-
-          <div className="relative h-[70vh] w-full">
-            <Bar data={barData} options={barOptions} />
+      <main className="update-main" style={{ paddingTop: headerH }}>
+        {/* main analytics card, same style as employee/inventory */}
+        <section className="update-card-big">
+          <div className="update-table-header-row">
+            <h2>Sales Analytics</h2>
           </div>
-        </section>
 
-        {/* Order stats + daily report controls */}
-        <div className="Analytics-grid max-w-5xl mx-auto mt-10">
-          <section className="rounded-2xl border p-6 shadow-sm text-center">
-            <h2 className="text-lg font-bold mb-4">Order Statistics</h2>
-
-            <div className="text-xl font-medium mb-2">Total Sales</div>
-            <div className="text-gray-500 mb-4">
-              {totalSales !== null ? `$${totalSales.toFixed(2)}` : "(Value)"}
-            </div>
-
-            <div className="text-xl font-medium mb-2">Total Orders</div>
-            <div className="text-gray-500">
-              {totalOrders !== null ? totalOrders : "(Value)"}
-            </div>
-          </section>
-
-          <section className="rounded-2xl border p-6 shadow-sm text-center">
-            <h2 className="text-lg font-bold mb-4">Generate Report</h2>
-
-            <div>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 text-sm"
-              />
-
-              <button
-                id="reportButton"
-                onClick={fetchReportData}
-                className="reportButton w-3/4 mt-4"
-              >
-                Generate X/Z Report
-              </button>
-            </div>
-          </section>
-        </div>
-
-        <section className="rounded-2xl border p-4 shadow-sm max-w-5xl mx-auto mt-8">
-          <h2 className="mb-3 text-lg font-bold text-center text-black">
-            Product Usage &amp; Sales Report
-          </h2>
-
-          <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            <div className="lg:col-span-2 relative h-[50vh] w-full">
-              <Bar data={productBarData} options={productBarOptions} />
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">
-                  Start -
-                </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 text-sm"
-                />
+          <section>
+              <div>
+                <h2>Recent Orders</h2>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">
-                  End -
-                </label>
+              <div className="update-table-wrapper">
+                <table className="update-table">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Date</th>
+                      <th>Items</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentError && (
+                      <tr>
+                        <td colSpan={4} className="update-empty">
+                          {recentError}
+                        </td>
+                      </tr>
+                    )}
+
+                    {!recentError && !loadingRecent && recentOrders.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="update-empty">
+                          No recent orders found.
+                        </td>
+                      </tr>
+                    )}
+
+                    {loadingRecent && (
+                      <tr>
+                        <td colSpan={4} className="update-empty">
+                          Loading…
+                        </td>
+                      </tr>
+                    )}
+
+                    {!loadingRecent &&
+                      !recentError &&
+                      recentOrders.map((o) => (
+                        <tr key={o.order_id}>
+                          <td>{o.order_id}</td>
+                          <td>
+                            {new Date(o.order_date).toLocaleString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                              hour: "numeric",
+                              minute: "2-digit",
+                            })}
+                          </td>
+                          <td>{o.item_count}</td>
+                          <td>${o.total_cost.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+          <div className="analytics-card-body">
+            {/* X/Z hourly report */}
+            <section className="analytics-section">
+              <h2 className="analytics-section-title">X/Z Report</h2>
+              <div className="analytics-chart-wrapper">
+                <Bar data={barData} options={barOptions} />
+              </div>
+            </section>
+            {/* order stats + date picker */}
+            <div className="Analytics-grid">
+              <section className="analytics-small-card">
+                <h3 className="analytics-section-title">Order Statistics</h3>
+
+                <div className="analytics-stat-label">Total Sales:</div>
+                <div className="analytics-stat-value">
+                  {totalSales !== null ? `$${totalSales.toFixed(2)}` : "(Value)"}
+                </div>
+
+                <div className="analytics-stat-label" style={{ marginTop: "1rem" }}>
+                  Total Orders:
+                </div>
+                <div className="analytics-stat-value">
+                  {totalOrders !== null ? totalOrders : "(Value)"}
+                </div>
+              </section>
+
+              <section className="analytics-small-card">
+                <h3 className="analytics-section-title">Generate Daily Report</h3>
+
                 <input
                   type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 text-sm"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="analytics-date-input"
                 />
-              </div>
 
-              <button
-                className="reportButton w-full"
-                onClick={fetchProductUsageReport}
-              >
-                Generate Product Usage Report
-              </button>
-
-              <button
-                className="reportButton w-full"
-                onClick={fetchSalesReport}
-              >
-                Generate Sales Report
-              </button>
+                <button
+                  id="reportButton"
+                  onClick={fetchReportData}
+                  className="reportButton analytics-report-btn"
+                >
+                  Generate X/Z Report
+                </button>
+              </section>
             </div>
+
+            {/* product usage & sales report */}
+            <section className="analytics-product-card">
+              <h2 className="analytics-section-title">
+                Product Usage &amp; Sales Report
+              </h2>
+
+              <div className="analytics-product-grid">
+                <div className="analytics-product-chart">
+                  <Bar data={productBarData} options={productBarOptions} />
+                </div>
+
+                <div className="analytics-product-controls">
+                  <div className="analytics-input-group">
+                    <label className="analytics-input-label">Start: </label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="analytics-date-input"
+                    />
+                  </div>
+
+                  <div className="analytics-input-group">
+                    <label className="analytics-input-label">End: </label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="analytics-date-input"
+                    />
+                  </div>
+
+                  <button
+                    className="reportButton analytics-report-btn"
+                    onClick={fetchProductUsageReport}
+                  >
+                    Product Usage Report
+                  </button>
+
+                  <button
+                    className="reportButton analytics-report-btn"
+                    onClick={fetchSalesReport}
+                  >
+                    Sales Report
+                  </button>
+                </div>
+              </div>
+            </section>
           </div>
         </section>
       </main>
