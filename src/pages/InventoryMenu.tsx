@@ -272,7 +272,6 @@ export default function UpdateMenu() {
     setIngredientExpirationDate("");
     setIngredientVendor("");
     setIngredientCategoryId("");
-    alert("Form cleared.");
   };
 
   return (

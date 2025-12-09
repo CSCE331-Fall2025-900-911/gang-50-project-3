@@ -288,7 +288,7 @@ export default function Kiosk() {
     <div className="orders-layout">
       {/* LEFT SidEBAR */}
       <div className="sidebar sidebar-left">
-        <h2 className="section-title">Item Categories</h2>
+        <h2>Item Categories</h2>
         <div className="category-list">
           {categories.map((c: any) => (
             <button
@@ -305,8 +305,10 @@ export default function Kiosk() {
       {/* MAIN CONTENT */}
       <div className="content">
         <KioskNavbar />
-        <h2 className="section-title">{selectedCategoryName}</h2>
-
+        <div style={{justifyContent: 'center' }}> 
+          <h2>{selectedCategoryName}</h2>
+          <p>Select your drink below</p>
+        </div> 
         {filteredItems.length === 0 ? (
           <p className="empty muted">No items found.</p>
         ) : (
