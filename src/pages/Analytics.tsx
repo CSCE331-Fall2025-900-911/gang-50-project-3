@@ -278,14 +278,21 @@ export default function Analytics() {
       throw new Error(`Sales report request failed with status ${res.status}`);
     }
 
-    const data = await res.json();
+    type SalesReportRow = {
+      sale_date: string;          // e.g. "2024-10-09" or "2024-10-09T00:00:00.000Z"
+      total_sales: number | string;
+    };
 
-    const labels = data.map((row: any) => {
-    const [year, month, day] = row.sale_date.split("-");
-    return `${month}/${day}/${year}`;
-  });
+    const data: SalesReportRow[] = await res.json();
 
-    const values = data.map((row: any) => Number(row.total_sales) || 0);
+    const labels = data.map((row) => {
+      // Take only the date part before any "T"
+      const dateOnly = row.sale_date.split("T")[0];
+      const [year, month, day] = dateOnly.split("-");
+      return `${month}/${day}/${year}`;
+    });
+
+    const values = data.map((row) => Number(row.total_sales) || 0);
 
     setProductBarData((prev: any) => ({
       ...prev,
