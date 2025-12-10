@@ -820,7 +820,7 @@ app.get('/api/salesreport/by-date-range', async (req, res) => {
       `,
       [startDate, endDate]
     );
-
+  
       res.json(result.rows);
     } catch (err) {
       console.error('Error fetching sales by date range:', err);
