@@ -105,7 +105,7 @@ export default function MenuBoard() {
         <div className="icon-legend" style={{ display: 'flex', gap: '1em', marginBottom: '1%' }}>
           <div className="legend-item" style={{ display: 'flex', alignItems: 'center', gap: '0.3em' }}>
             <span className="dietary-icon milk">🥛</span>
-            <span>Requires Milk</span>
+            <span>Contains Milk</span>
           </div>
           <div className="legend-item" style={{ display: 'flex', alignItems: 'center', gap: '0.3em' }}>
             <span className="dietary-icon gluten">🌾</span>
@@ -162,7 +162,7 @@ const MenuSection: React.FC<{ title: string; items: any[] }> = ({ title, items }
           {/* Dietary Icons */}
           <span className="dietary-icons">
             {requiresMilk(item) && (
-              <span className="dietary-icon milk" title="Requires Milk">🥛</span>
+              <span className="dietary-icon milk" title="Contains Milk">🥛</span>
             )}
             {isGluten(item.item_name) && (
               <span className="dietary-icon gluten" title="Contains Gluten">🌾</span>
