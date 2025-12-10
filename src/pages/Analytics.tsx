@@ -266,40 +266,39 @@ export default function Analytics() {
   };
 
   const fetchSalesReport = async () => {
-    try {
-      if (!startDate || !endDate) return;
+  try {
+    if (!startDate || !endDate) return;
 
-      const res = await fetch(
-        `/api/salesreport/by-date-range?startDate=${startDate}&endDate=${endDate}`
-      );
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("Sales report backend error body:", text);
-        throw new Error(`Sales report request failed with status ${res.status}`);
-      }
-
-      const data = await res.json();
-
-      const labels = data.map((row: any) =>
-        new Date(row.sale_date).toLocaleDateString()
-      );
-      const values = data.map((row: any) => Number(row.total_sales) || 0);
-
-      setProductBarData((prev: any) => ({
-        ...prev,
-        labels,
-        datasets: [
-          {
-            ...prev.datasets[0],
-            label: "Total Sales ($)",
-            data: values,
-          },
-        ],
-      }));
-    } catch (err) {
-      console.error("Error fetching sales report", err);
+    const res = await fetch(
+      `/api/salesreport/by-date-range?startDate=${startDate}&endDate=${endDate}`
+    );
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Sales report backend error body:", text);
+      throw new Error(`Sales report request failed with status ${res.status}`);
     }
-  };
+
+    const data = await res.json();
+
+    const labels = data.map((row: any) => row.sale_date);
+
+    const values = data.map((row: any) => Number(row.total_sales) || 0);
+
+    setProductBarData((prev: any) => ({
+      ...prev,
+      labels,
+      datasets: [
+        {
+          ...prev.datasets[0],
+          label: "Total Sales ($)",
+          data: values,
+        },
+      ],
+    }));
+  } catch (err) {
+    console.error("Error fetching sales report", err);
+  }
+};
 
   const fetchReportData = async () => {
     if (!selectedDate) return;
