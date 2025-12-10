@@ -280,10 +280,10 @@ export default function Analytics() {
 
     const data = await res.json();
 
-    const labels = data.map(row => {
-    const [y, m, d] = row.sale_date.split("-");
-    return `${m}/${d}/${y}`;
-    });
+    const labels = data.map((row: any) => {
+    const [year, month, day] = row.sale_date.split("-");
+    return `${month}/${day}/${year}`;
+  });
 
     const values = data.map((row: any) => Number(row.total_sales) || 0);
 
