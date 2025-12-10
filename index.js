@@ -520,7 +520,7 @@ app.get('/api/updatemenu/createnewitem/:newItemName/:newItemId/:newItemPrice/:ne
 
     await client.query('COMMIT');
 
-    res.json(result.rows);     // will be [] if nothing deleted, or the deleted row
+    res.json(result.rows); 
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error deleting item:', err);
@@ -530,7 +530,6 @@ app.get('/api/updatemenu/createnewitem/:newItemName/:newItemId/:newItemPrice/:ne
   }
 });
 
-// index.js or routes file
 
 app.get('/api/orders/recent', async (req, res) => {
   const defaultLimit = 10;
