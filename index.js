@@ -809,7 +809,7 @@ app.get('/api/salesreport/by-date-range', async (req, res) => {
   
       const result = await pool.query(
         `
-          SELECT
+        SELECT
           time_ordered::date AS sale_date,
           COALESCE(SUM(total_cost), 0) AS total_sales
         FROM customer_order
@@ -817,7 +817,9 @@ app.get('/api/salesreport/by-date-range', async (req, res) => {
           AND time_ordered < ($2::date + INTERVAL '1 day')
         GROUP BY sale_date
         ORDER BY sale_date
-      );
+      `,
+      [startDate, endDate]
+    );
   
       res.json(result.rows);
     } catch (err) {
