@@ -394,11 +394,6 @@ export default function UpdateMenu() {
         <section className="menu-admin-card">
           <div className="update-table-header-row">
             <h2>Menu Items</h2>
-            {selectedItemId != null && (
-              <span className="update-selected-label">
-                Editing item ID: {selectedItemId}
-              </span>
-            )}
           </div>
 
           <div className="menu-admin-content">
