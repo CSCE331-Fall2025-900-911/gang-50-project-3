@@ -95,7 +95,7 @@ export default function MenuBoard() {
   return (
     <div className="menu-board-container" style={{ display: 'flex', gap: '2%' }}>
       <div className="menu-header-image" style={{ flex: 1 }}>
-        <img src="menu_image(updated).png" alt="Menu Visual" className="main-menu-img" />
+        <img src="menu_image(new).png" alt="Menu Visual" className="main-menu-img" />
       </div>
 
       <div className="menu-content" style={{ flex: 2, overflowY: 'auto' }}>
