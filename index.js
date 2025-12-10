@@ -799,33 +799,33 @@ app.post('/api/inventorypage/ingredients', async (req, res) => {
   });
 
 app.get('/api/salesreport/by-date-range', async (req, res) => {
-    try {
-      const { startDate, endDate } = req.query;
-  
-      if (!startDate || !endDate) {
-        return res.status(400).json({ error: 'startDate and endDate are required' });
-      }
-  
-      const result = await pool.query(
-        `
-        SELECT
-          time_ordered::date AS sale_date,
-          COALESCE(SUM(total_cost), 0) AS total_sales
-        FROM customer_order
-        WHERE time_ordered >= $1
-          AND time_ordered < ($2::date + INTERVAL '1 day')
-        GROUP BY sale_date
-        ORDER BY sale_date
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const result = await pool.query(
+      `
+      SELECT
+        (time_ordered AT TIME ZONE 'America/Chicago')::date AS sale_date,
+        COALESCE(SUM(total_cost), 0) AS total_sales
+      FROM customer_order
+      WHERE (time_ordered AT TIME ZONE 'America/Chicago')::date >= $1::date
+        AND (time_ordered AT TIME ZONE 'America/Chicago')::date <= $2::date
+      GROUP BY sale_date
+      ORDER BY sale_date
       `,
       [startDate, endDate]
     );
-  
-      res.json(result.rows);
-    } catch (err) {
-      console.error('Error fetching sales by date range:', err);
-      res.status(500).json({ error: 'Failed to fetch sales by date range' });
-    }
-  });
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching sales by date range:', err);
+    res.status(500).json({ error: 'Failed to fetch sales by date range' });
+  }
+});
 
   app.get("/api/inventoryusage/by-date-range", async (req, res) => {
     try {
