@@ -80,6 +80,77 @@ app.get('/api/items', async (_req, res) => {
   }
 });
 
+// Get kiosk items
+app.get('/api/kiosk/items', async (_req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        i.item_id,
+        i.item_name,
+        i.item_cost,
+        i.in_stock,
+        i.size_options,
+        i.photo,
+        i.seasonal_item,
+        ic.name as category_name,
+        ic.category_id,
+        i.contains_dairy,
+        i.contains_gluten
+      FROM Item i
+      LEFT JOIN Item_Category ic ON i.category_id = ic.category_id
+      WHERE i.in_stock = true
+      ORDER BY ic.name, i.item_name
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching items:', err);
+    res.status(500).json({ error: 'Failed to fetch items' });
+  }
+});
+
+
+app.get('/api/admin/items', async (_req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        i.item_id,
+        i.item_name,
+        i.item_cost,
+        i.in_stock,
+        i.size_options,
+        i.photo,
+        i.seasonal_item,
+        i.seasonal_item_beginning_time,
+        i.seasonal_item_ending_time,
+        i.category_id,
+        c.name AS category_name,
+        i.contains_dairy,
+        i.contains_gluten,
+
+        /* 👇 true if ANY ingredient for this item has supply_level <= 0 */
+        EXISTS (
+          SELECT 1
+          FROM item_ingredient ii
+          JOIN ingredient ing ON ing.ingredient_id = ii.ingredient_id
+          WHERE ii.item_id = i.item_id
+            AND ing.supply_level <= 0
+        ) AS has_oos_ingredient
+
+      FROM Item i
+      LEFT JOIN Item_Category c ON i.category_id = c.category_id
+      ORDER BY i.item_id;
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to load items' });
+  }
+});
+
+
+
+
 // Items by category
 app.get('/api/items/category/:categoryId', async (req, res) => {
   try {
