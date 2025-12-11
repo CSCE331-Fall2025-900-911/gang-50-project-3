@@ -45,7 +45,7 @@ export default function Kiosk() {
     const load = async () => {
       try {
         const c = await fetch(`${API_URL}/categories`).then(r => r.json());
-        const i = await fetch(`${API_URL}/items`).then(r => r.json());
+        const i = await fetch(`${API_URL}/kiosk/items`).then(r => r.json());
         const g = await fetch(`${API_URL}/ingredients`).then(r => r.json());
 
         setCategories(c);
@@ -466,16 +466,21 @@ export default function Kiosk() {
             <img onClick={() => setInfoSection('center')} src="/Info.svg" alt="Info Icon" style={{ width: 25, height: 25 }} />
           </div>
 
+          {/* Dietary filter */}
           <div
             className="dietary-filter"
             style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
-            <span style={{ fontSize: '0.9rem' }}>Dietary:</span>
+            <span>Dietary:</span>
             <select
               value={dietaryFilter}
               onChange={(e) =>
                 setDietaryFilter(
-                  e.target.value as 'all' | 'dairy_free' | 'gluten_free' | 'both_free'
+                  e.target.value as
+                    | 'all'
+                    | 'dairy_free'
+                    | 'gluten_free'
+                    | 'both_free',
                 )
               }
               className="dietary-select"
@@ -483,7 +488,7 @@ export default function Kiosk() {
               <option value="all">All Items</option>
               <option value="dairy_free">Dairy-Free</option>
               <option value="gluten_free">Gluten-Free</option>
-              <option value="both_free">Dairy & Gluten Free</option>
+              <option value="both_free">Dairy &amp; Gluten Free</option>
             </select>
           </div>
         </div>

@@ -80,6 +80,34 @@ app.get('/api/items', async (_req, res) => {
   }
 });
 
+// Get kiosk items
+app.get('/api/kiosk/items', async (_req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        i.item_id,
+        i.item_name,
+        i.item_cost,
+        i.in_stock,
+        i.size_options,
+        i.photo,
+        i.seasonal_item,
+        ic.name as category_name,
+        ic.category_id,
+        i.contains_dairy,
+        i.contains_gluten
+      FROM Item i
+      LEFT JOIN Item_Category ic ON i.category_id = ic.category_id
+      WHERE i.in_stock = true
+      ORDER BY ic.name, i.item_name
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching items:', err);
+    res.status(500).json({ error: 'Failed to fetch items' });
+  }
+});
+
 
 // example: GET /api/admin/items
 app.get('/api/admin/items', async (_req, res) => {
