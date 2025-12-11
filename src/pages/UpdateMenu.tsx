@@ -243,9 +243,8 @@ export default function UpdateMenu() {
         return;
       }
 
-      // backend still expects all params, so we send sensible defaults
       const targetSizes= "Regular";
-      const targetPhoto=  "/images/default-drink.png";
+      const targetPhoto=  "default_drink.jpg";
 
 
       const targetAvailability= true;
