@@ -21,6 +21,12 @@ export default function EmployeePage() {
   const [newLast, setNewLast] = useState('')
   const [newManager, setNewManager] = useState(false)
 
+  // for editting names
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editFirst, setEditFirst] = useState('');
+  const [editLast, setEditLast] = useState('');
+  const [editManager, setEditManager] = useState(false)
+
   const headerRef = useRef<HTMLElement | null>(null)
   const [headerH, setHeaderH] = useState(64)
 
@@ -116,22 +122,52 @@ export default function EmployeePage() {
     }
   }
 
-  const toggleManager = async (emp: Employee) => {
+    const startEditEmployee = (emp: Employee) => {
+    setEditingId(emp.employee_id);
+    setEditFirst(emp.first_name);
+    setEditLast(emp.last_name);
+    setEditManager(emp.ismanager);
+    setError('');
+  };
+
+  const cancelEditEmployee = () => {
+    setEditingId(null);
+    setEditFirst('');
+    setEditLast('');
+    setEditManager(false);
+  };
+
+  const saveEditEmployee = async () => {
+    if (editingId === null) return;
+
+    if (!editFirst.trim() || !editLast.trim()) {
+      setError('First and last name cannot be empty.');
+      return;
+    }
+
     try {
-      setError('')
-      const res = await fetch(`/api/employees/${emp.employee_id}/manager`, {
+      setError('');
+      const res = await fetch(`/api/employees/${editingId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ismanager: !emp.ismanager }),
-      })
-      if (!res.ok) throw new Error('Failed to update employee')
-      await loadEmployees()
-      alert("Changed employee role!");
+        body: JSON.stringify({
+          first_name: editFirst.trim(),
+          last_name: editLast.trim(),
+          ismanager: editManager,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update employee');
+
+      await loadEmployees();
+      cancelEditEmployee();
+      alert('Updated employee info!');
     } catch (err) {
-      console.error(err)
-      setError('Failed to update employee')
+      console.error(err);
+      setError('Failed to update employee');
     }
-  }
+  };
+
 
   // ---------------- JSX ----------------
 
@@ -173,32 +209,82 @@ export default function EmployeePage() {
                 {employees.map((emp) => (
                   <tr key={emp.employee_id}>
                     <td>{emp.employee_id}</td>
-                    <td>{emp.first_name}</td>
-                    <td>{emp.last_name}</td>
                     <td>
-                      <span
-                        className={
-                          emp.ismanager
-                            ? 'employee-role-pill employee-role-manager'
-                            : 'employee-role-pill employee-role-cashier'
-                        }
-                      >
-                        {emp.ismanager ? 'Manager' : 'Cashier'}
-                      </span>
+                      {editingId === emp.employee_id ? (
+                        <input
+                          className="employee-input employee-input--inline"
+                          value={editFirst}
+                          onChange={(e) => setEditFirst(e.target.value)}
+                        />
+                      ) : (
+                        emp.first_name
+                      )}
+                    </td>
+                    <td>
+                      {editingId === emp.employee_id ? (
+                        <input
+                          className="employee-input employee-input--inline"
+                          value={editLast}
+                          onChange={(e) => setEditLast(e.target.value)}
+                        />
+                      ) : (
+                        emp.last_name
+                      )}
+                    </td>
+                    <td>
+                      {editingId === emp.employee_id ? (
+                        <select
+                          className="employee-input employee-input--inline"
+                          value={editManager ? 'manager' : 'cashier'}
+                          onChange={(e) => setEditManager(e.target.value === 'manager')}
+                        >
+                          <option value="cashier">Cashier</option>
+                          <option value="manager">Manager</option>
+                        </select>
+                      ) : (
+                        <span
+                          className={
+                            emp.ismanager
+                              ? 'employee-role-pill employee-role-manager'
+                              : 'employee-role-pill employee-role-cashier'
+                          }
+                        >
+                          {emp.ismanager ? 'Manager' : 'Cashier'}
+                        </span>
+                      )}
                     </td>
                     <td className="employee-actions-cell">
-                      <button
-                        className="btn-Employee btn-Employee--outline"
-                        onClick={() => toggleManager(emp)}
-                      >
-                        {emp.ismanager ? 'Set Cashier' : 'Set Manager'}
-                      </button>
-                      <button
-                        className="btn-Employee btn-Employee--danger-outline"
-                        onClick={() => deleteEmployee(emp.employee_id)}
-                      >
-                        Delete
-                      </button>
+                      {editingId === emp.employee_id ? (
+                        <>
+                          <button
+                            className="btn-Employee"
+                            onClick={saveEditEmployee}
+                          >
+                            Save
+                          </button>
+                          <button
+                            className="btn-Employee btn-Employee--outline"
+                            onClick={cancelEditEmployee}
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="btn-Employee btn-Employee--outline"
+                            onClick={() => startEditEmployee(emp)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="btn-Employee btn-Employee--danger-outline"
+                            onClick={() => deleteEmployee(emp.employee_id)}
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -326,26 +326,40 @@ app.post('/api/orders', async (req, res) => {
     }
   });
 
-  // Update employee
-  app.patch('/api/employees/:id/manager', async (req, res) => {
+  app.patch('/api/employees/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const { ismanager } = req.body;
+      const { first_name, last_name, ismanager } = req.body;
+
+      if (!first_name || !last_name || typeof ismanager !== 'boolean') {
+        return res
+          .status(400)
+          .json({ error: 'first_name, last_name, and ismanager (boolean) are required' });
+      }
 
       const result = await pool.query(
-        `UPDATE Employee
-        SET ismanager = $1
-        WHERE employee_id = $2
-        RETURNING employee_id, first_name, last_name, ismanager`,
-        [ismanager, id]
+        `
+        UPDATE Employee
+        SET first_name = $1,
+            last_name  = $2,
+            ismanager  = $3
+        WHERE employee_id = $4
+        RETURNING employee_id, first_name, last_name, ismanager;
+        `,
+        [first_name, last_name, ismanager, id]
       );
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: 'Employee not found' });
+      }
 
       res.json(result.rows[0]);
     } catch (err) {
-      console.error('Error updating manager status:', err);
-      res.status(500).json({ error: 'Failed to update manager status' });
+      console.error('Error updating employee:', err);
+      res.status(500).json({ error: 'Failed to update employee' });
     }
   });
+
 
   app.get('/api/updatemenu/viewitemdata/:itemId', async (req, res) => {
     try {
@@ -614,9 +628,10 @@ app.get('/api/orders/recent', async (req, res) => {
     }
   });
 
-  // Update ingredient by name (no ID required)
-app.patch('/api/inventorypage/ingredient', async (req, res) => {
+  // Update ingredient BY ID (better for editing + renaming)
+app.patch('/api/inventorypage/ingredients/:ingredientId', async (req, res) => {
   try {
+    const { ingredientId } = req.params;
     const {
       ingredient_name,
       supply_level,
@@ -626,26 +641,22 @@ app.patch('/api/inventorypage/ingredient', async (req, res) => {
       category_id,
     } = req.body;
 
-    if (!ingredient_name) {
-      return res
-        .status(400)
-        .json({ error: 'ingredient_name is required to update' });
-    }
-
     const result = await pool.query(
       `
       UPDATE ingredient
       SET
-        supply_level    = COALESCE($2, supply_level),
-        expiration_date = COALESCE($3, expiration_date),
-        ingredient_cost = COALESCE($4, ingredient_cost),
-        vendor          = COALESCE($5, vendor),
-        category_id     = COALESCE($6, category_id)
-      WHERE ingredient_name = $1
+        ingredient_name = COALESCE($2, ingredient_name),
+        supply_level    = COALESCE($3, supply_level),
+        expiration_date = COALESCE($4, expiration_date),
+        ingredient_cost = COALESCE($5, ingredient_cost),
+        vendor          = COALESCE($6, vendor),
+        category_id     = COALESCE($7, category_id)
+      WHERE ingredient_id = $1
       RETURNING *;
       `,
       [
-        ingredient_name,
+        ingredientId,
+        ingredient_name ?? null,
         supply_level ?? null,
         expiration_date ?? null,
         ingredient_cost ?? null,
@@ -660,14 +671,10 @@ app.patch('/api/inventorypage/ingredient', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error('Error updating ingredient:', err);
+    console.error('Error updating ingredient by ID:', err);
     res.status(500).json({ error: 'Failed to update ingredient' });
   }
 });
-
-
-
-  
 
 app.post('/api/inventorypage/ingredients', async (req, res) => {
   try {
