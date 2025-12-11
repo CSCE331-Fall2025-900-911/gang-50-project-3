@@ -1366,7 +1366,7 @@ body {
   border: 1px solid #e5e7eb;
   background-color: #f9fafb;
 
-  max-height: 520px; /* adjust if you want taller/shorter */
+  max-height: 700px; /* make table taller or shorter */
   overflow-y: auto;
 }
 
