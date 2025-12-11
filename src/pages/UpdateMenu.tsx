@@ -15,7 +15,11 @@ type Item = {
   seasonal_item_ending_time: string | null;
   category_id: number | null;
   category_name?: string | null;
+
+  contains_dairy: boolean;
+  contains_gluten: boolean;
 };
+
 
 type ItemCategory = {
   category_id: number;
@@ -48,6 +52,10 @@ export default function UpdateMenu() {
   const [selectedIngredientIds, setSelectedIngredientIds] = useState<number[]>(
     []
   );
+
+  // dietary checkboxes
+  const [itemContainsDairy, setItemContainsDairy] = useState(false);
+  const [itemContainsGluten, setItemContainsGluten] = useState(false);
 
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerH, setHeaderH] = useState(64);
@@ -145,11 +153,13 @@ export default function UpdateMenu() {
     setItemNewCategory("");
     setItemPhotoPath("");
     setSelectedIngredientIds([]);
-    setSelectedItemId(null); // clear selection as well
+    setSelectedItemId(null);
+    setItemContainsDairy(false);
+    setItemContainsGluten(false);
   };
 
   const handleRowSelect = (item: Item) => {
-    setSelectedItemId(item.item_id);          // <-- key: track which item is selected
+    setSelectedItemId(item.item_id);
     setItemNewID(String(item.item_id));
     setItemNewName(item.item_name);
     setItemNewPrice(String(item.item_cost));
@@ -157,8 +167,11 @@ export default function UpdateMenu() {
       item.category_id != null ? String(item.category_id) : ""
     );
     setItemPhotoPath(item.photo || "");
+    setItemContainsDairy(item.contains_dairy ?? false);
+    setItemContainsGluten(item.contains_gluten ?? false);
     loadItemIngredients(item.item_id);
   };
+
 
   const handleIngredientToggle = (id: number, checked: boolean) => {
     setSelectedIngredientIds((prev) => {
@@ -210,6 +223,8 @@ export default function UpdateMenu() {
 
     const submitter = (e.nativeEvent as any).submitter;
     const action = submitter?.value as "add" | "update";
+    const containsDairy = itemContainsDairy;
+    const containsGluten = itemContainsGluten;
 
     let targetName = itemNewName.trim();
     let targetPrice = itemNewPrice.trim();
@@ -228,9 +243,8 @@ export default function UpdateMenu() {
         return;
       }
 
-      // backend still expects all params, so we send sensible defaults
       const targetSizes= "Regular";
-      const targetPhoto=  "/images/default-drink.png";
+      const targetPhoto=  "default_drink.jpg";
 
 
       const targetAvailability= true;
@@ -252,11 +266,11 @@ export default function UpdateMenu() {
             targetSizes
           )}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(
             targetSeasonal
-          )}/${encodeURIComponent(
-            targetSeasonalStart
-          )}/${encodeURIComponent(
+          )}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(
             targetSeasonalEnd
-          )}/${encodeURIComponent(targetCategory)}`
+          )}/${encodeURIComponent(targetCategory)}/${encodeURIComponent(
+            containsDairy
+          )}/${encodeURIComponent(containsGluten)}`
         );
 
         const raw = await res.text();
@@ -324,15 +338,15 @@ export default function UpdateMenu() {
             targetName
           )}/${encodeURIComponent(targetID)}/${encodeURIComponent(
             targetPrice
-          )}/${encodeURIComponent(
-            targetAvailability
-          )}/${encodeURIComponent(targetSizes)}/${encodeURIComponent(
-            targetPhoto
-          )}/${encodeURIComponent(targetSeasonal)}/${encodeURIComponent(
-            targetSeasonalStart
-          )}/${encodeURIComponent(
+          )}/${encodeURIComponent(targetAvailability)}/${encodeURIComponent(
+            targetSizes
+          )}/${encodeURIComponent(targetPhoto)}/${encodeURIComponent(
+            targetSeasonal
+          )}/${encodeURIComponent(targetSeasonalStart)}/${encodeURIComponent(
             targetSeasonalEnd
-          )}/${encodeURIComponent(targetCategory)}`
+          )}/${encodeURIComponent(targetCategory)}/${encodeURIComponent(
+            containsDairy
+          )}/${encodeURIComponent(containsGluten)}`
         );
         const raw = await res.text();
 
@@ -406,13 +420,15 @@ export default function UpdateMenu() {
                       <th>Name</th>
                       <th>Category</th>
                       <th>Cost</th>
+                      <th>Dairy</th>
+                      <th>Gluten</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {items.length === 0 && !loadingItems ? (
                       <tr>
-                        <td colSpan={5} className="update-empty">
+                        <td colSpan={7} className="update-empty">
                           No items found.
                         </td>
                       </tr>
@@ -421,15 +437,15 @@ export default function UpdateMenu() {
                         <tr
                           key={item.item_id}
                           className={
-                            item.item_id === selectedItemId
-                              ? "update-row--selected"
-                              : ""
+                            item.item_id === selectedItemId ? "update-row--selected" : ""
                           }
                         >
                           <td>{item.item_id}</td>
                           <td>{item.item_name}</td>
                           <td>{item.category_name || ""}</td>
                           <td>{item.item_cost}</td>
+                          <td>{item.contains_dairy ? "Yes" : "No"}</td>
+                          <td>{item.contains_gluten ? "Yes" : "No"}</td>
                           <td className="update-actions-cell">
                             <button
                               className="btn-update btn-update--outline"
@@ -498,8 +514,31 @@ export default function UpdateMenu() {
                   />
                 </div>
 
+                <div className="menu-field menu-dietary-field">
+                  <h3 className="menu-ingredients-label">Dietary Restrictions</h3>
+                  <div className="menu-dietary-toggles">
+                    <label className="menu-dietary-toggle">
+                      <input
+                        type="checkbox"
+                        checked={itemContainsDairy}
+                        onChange={(e) => setItemContainsDairy(e.target.checked)}
+                      />
+                      <span>Has Dairy</span>
+                    </label>
+                    <label className="menu-dietary-toggle">
+                      <input
+                        type="checkbox"
+                        checked={itemContainsGluten}
+                        onChange={(e) => setItemContainsGluten(e.target.checked)}
+                      />
+                      <span>Has Gluten</span>
+                    </label>
+                  </div>
+                </div>
+
+
                 <div className="menu-field">
-                  <div className="menu-ingredients-label">Ingredients</div>
+                  <h3 className="menu-ingredients-label">Ingredients</h3>
                   <div className="menu-ingredients-list">
                     {allIngredients.map((ing) => (
                       <label

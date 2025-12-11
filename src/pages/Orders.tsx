@@ -1,702 +1,3 @@
-// import { useState, useEffect } from 'react';
-// import CashierNavbar from '../components/CashierNavbar';
-
-
-// export default function Orders() {
-//   const [categories, setCategories] = useState<any[]>([]);
-//   const [items, setItems] = useState<any[]>([]);
-//   const [ingredients, setIngredients] = useState<any[]>([]);
-//   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-//   const [cart, setCart] = useState<any[]>([]);
-//   const [error, setError] = useState<string | null>(null);
-//   const [showCheckoutPopup, setShowCheckoutPopup] = useState(false);
-//   const [showCustomizationPopup, setShowCustomizationPopup] = useState(false);
-//   const [customizingDrink, setCustomizingDrink] = useState<any | null>(null);
-  
-
-//   const API_URL = '/api';
-//   const singleSelectCategories = ['Sizes', 'Temperature', 'Milk', 'Ice Level', 'Sweetness Level'];
-//   const multiSelectCategories = ['Toppings'];
-
-//   useEffect(() => {
-//     const load = async () => {
-//       try {
-//         const c = await fetch(`${API_URL}/categories`).then(r => r.json());
-//         const i = await fetch(`${API_URL}/admin/items`).then(r => r.json());
-//         const g = await fetch(`${API_URL}/ingredients`).then(r => r.json());
-
-//         setCategories(c);
-//         setItems(i);
-//         setIngredients(g);
-//         if (c.length) setSelectedCategory(c[0].category_id);
-//       } catch (err: any) {
-//         console.error(err);
-//         setError('Failed to load data');
-//       }
-//     };
-//     load();
-//   }, []);
-
-//   if (error) {
-//     return (
-//       <div className="error-screen">
-//         <CashierNavbar />
-//         <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
-//           <h2>Something went wrong</h2>
-//           <p>{error}</p>
-//           <button onClick={() => window.location.reload()} className="btn">Retry</button>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   // Group ingredients by category
-//   const groupedIngredients: Record<string, any[]> = {};
-//   for (const ingRaw of ingredients) {
-//     const ing = ingRaw as any;
-//     const catName = ing.ingredient_category_name || 'Other';
-//     if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
-//     groupedIngredients[catName].push(ing);
-//   }
-//   Object.keys(groupedIngredients).forEach(catName => {
-//     groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
-//   });
-
-//   // Filter normal items  
-//   const filteredItems = selectedCategory === 7
-//     ? []
-//     : items.filter((item: any) => item.category_id === selectedCategory);
-
-//   // Add drink and open customization popup
-//   const addDrink = (item: any) => {
-//     const newDrink = {
-//       cart_id: Date.now(),
-//       item,
-//       quantity: 1,
-//       temperature: 'Iced',
-//       ingredients: {
-//         Milk: null,
-//         'Ice Level': null,
-//         Sizes: null,
-//         'Sweetness Level': null,
-//       },
-//       extras: [] as any[],
-//     };
-//     setCart(prev => [...prev, newDrink]);
-//     setCustomizingDrink(newDrink);
-//     setShowCustomizationPopup(true);
-//   };
-
-//   // Add ingredient to last drink
-//   const addIngredient = (ingRaw: any) => {
-//     const ing = ingRaw as any;
-//     const lastDrink = [...cart].reverse().find((d: any) => d.item);
-//     if (!lastDrink) return alert('Select a drink first');
-
-//     const drinkId = lastDrink.cart_id;
-
-//     setCart(prev => prev.map((d: any) => {
-//       if (d.cart_id !== drinkId) return d;
-
-//       if (singleSelectCategories.includes(ing.ingredient_category_name)) {
-//         return {
-//           ...d,
-//           ingredients: {
-//             ...d.ingredients,
-//             [ing.ingredient_category_name]: ing,
-//           },
-//         };
-//       }
-
-//       return {
-//         ...d,
-//         extras: [...d.extras, ing],
-//       };
-//     }));
-//   };
-
-//   const removeDrink = (drinkId: any) => {
-//     setCart(prev => prev.filter((d: any) => d.cart_id !== drinkId));
-//   };
-
-//   const subtotal = cart.reduce((sum: number, d: any) => {
-//     const drinkExtras = d.extras.reduce((s: number, e: any) => s + e.ingredient_cost, 0);
-//     const perDrink = d.item.item_cost + drinkExtras;
-//     return sum + perDrink * d.quantity;
-//   }, 0);
-//   const tax = subtotal * 0.08;
-//   const total = subtotal + tax;
-
-//   // Only Packaging in Misc
-//   const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter((catName: string) => {
-//     const list = groupedIngredients[catName];
-//     return list[0] && list[0].ingredient_category_name === 'Packaging';
-//   });
-
-//   const changeQuantity = (drinkId: number, delta: number) => {
-//     setCart(prev =>
-//       prev.map((d: any) => {
-//         if (d.cart_id !== drinkId) return d;
-//         const newQty = d.quantity + delta;
-//         return {
-//           ...d,
-//           quantity: newQty < 1 ? 1 : newQty, // never go below 1
-//         };
-//       })
-//     );
-//   };
-
-//   // --- Customization Handlers ---
-//   const setCustomizationOption = (category: string, ing: any) => {
-//     if (!customizingDrink) return;
-
-//     const current = customizingDrink.ingredients[category];
-
-//     const isSame = current && current.ingredient_id === ing.ingredient_id;
-
-//     setCustomizingDrink({
-//       ...customizingDrink,
-//       ingredients: {
-//         ...customizingDrink.ingredients,
-//         [category]: isSame ? null : ing,
-//       },
-//     });
-//   };
-
-//   const confirmCustomization = () => {
-//     if (!customizingDrink) return;
-//     setCart(prev => prev.map(d => d.cart_id === customizingDrink.cart_id ? customizingDrink : d));
-//     setCustomizingDrink(null);
-//     setShowCustomizationPopup(false);
-//   };
-
-//   const cancelCustomization = () => {
-//     setCustomizingDrink(null);
-//     setShowCustomizationPopup(false);
-//   };
-
-//   const openCustomizationForDrink = (drink: any) => {
-//     const copy = {
-//       ...drink,
-//       temperature: drink.temperature || 'Iced',
-//       ingredients: { ...drink.ingredients },
-//       extras: [...drink.extras],
-//     };
-
-//     setCustomizingDrink(copy);
-//     setShowCustomizationPopup(true);
-//   };
-
-//   const toggleTopping = (ing: any) => {
-//     if (!customizingDrink) return;
-
-//     const exists = customizingDrink.extras.some(
-//       (e: any) => e.ingredient_id === ing.ingredient_id
-//     );
-
-//     const newExtras = exists
-//       ? customizingDrink.extras.filter(
-//           (e: any) => e.ingredient_id !== ing.ingredient_id
-//         )
-//       : [...customizingDrink.extras, ing];
-
-//     setCustomizingDrink({
-//       ...customizingDrink,
-//       extras: newExtras,
-//     });
-//   };
-
-//   const setTemperature = (temp: 'Hot' | 'Iced') => {
-//     if (!customizingDrink) return;
-
-//     setCustomizingDrink({
-//       ...customizingDrink,
-//       temperature: temp,
-//     });
-//   };
-
-//   const submitOrder = async () => {
-//     if (cart.length === 0) return;
-
-//     // Helper to collect all ingredient IDs for a drink
-//     const collectIngredientIds = (drink: any) => {
-//       const ids: number[] = [];
-
-//       // Single-select categories (Milk, Ice, Size, Sweetness)
-//       Object.values(drink.ingredients).forEach((ing: any) => {
-//         if (ing && ing.ingredient_id) {
-//           ids.push(ing.ingredient_id);
-//         }
-//       });
-
-//       // Multi-select toppings/extras
-//       drink.extras.forEach((e: any) => {
-//         if (e && e.ingredient_id) {
-//           ids.push(e.ingredient_id);
-//         }
-//       });
-
-//       return ids;
-//     };
-
-//     const itemsPayload = cart.map((d: any) => {
-//       const extrasCost = d.extras.reduce(
-//         (s: number, e: any) => s + e.ingredient_cost,
-//         0
-//       );
-//       const perDrink = d.item.item_cost + extrasCost;
-//       const lineTotal = perDrink * d.quantity;
-
-//       return {
-//         item_id: d.item.item_id,
-//         quantity: d.quantity,
-//         subtotal: lineTotal,
-//         // send all ingredient IDs (milk, ice, toppings, etc.)
-//         extras: collectIngredientIds(d),
-//       };
-//     });
-
-//     const body = {
-//       customerId: null,        // or real id if you have it
-//       employeeId: null,        // or real id
-//       items: itemsPayload,
-//       totalCost: itemsPayload.reduce((sum, x) => sum + x.subtotal, 0),
-//       tax: 0,                  // or your tax calc
-//       tip: 0,                  // or tip value
-//     };
-
-//     try {
-//       const res = await fetch('/api/orders', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify(body),
-//       });
-
-//       const data = await res.json();
-//       if (!res.ok) {
-//         console.error(data);
-//         alert(data.error || 'Failed to place order');
-//         return;
-//       }
-
-//       console.log('Order created:', data);
-//       alert('Order confirmed! Thank you.');
-//       setCart([]);
-//       setShowCheckoutPopup(false);
-//     } catch (err: any) {
-//       console.error(err);
-//       alert('Network error while creating order');
-//     }
-//   };
-
-
-//   return (
-//     <div className="orders-layout">
-//       {/* LEFT SidEBAR */}
-//       <div className="sidebar sidebar-left">
-//         <h2 className="section-title">Item Categories</h2>
-//         <div className="category-list">
-//           {categories.map((c: any) => (
-//             <button
-//               key={c.category_id}
-//               onClick={() => setSelectedCategory(c.category_id)}
-//               className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}
-//             >
-//               {c.name}
-//             </button>
-//           ))}
-//           {!categories.some(c => c.category_id === 7) && (
-//             <button
-//               onClick={() => setSelectedCategory(7)}
-//               className={`category-btn ${selectedCategory === 7 ? 'active' : ''}`}
-//             >
-//               Misc
-//             </button>
-//           )}
-//         </div>
-//       </div>
-
-//       {/* MAIN CONTENT */}
-//       <div className="content">
-//         <CashierNavbar />
-//         <h2 className="section-title">{categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items'}</h2>
-
-//         {selectedCategory === 7 ? (
-//           allowedMiscCategoryNames.map((catName: string) => (
-//             <div key={catName} className="ingredient-group">
-//               <h3 className="ingredient-category-title">{catName}</h3>
-//               <div className="item-grid">
-//                 {groupedIngredients[catName].map((item: any) => (
-//                   <button
-//                     key={item.ingredient_id}
-//                     onClick={() => addIngredient(item)}
-//                     className={`item-card ${cart.some((d: any) => d.extras.some((ex: any) => ex.ingredient_id === item.ingredient_id)) ? 'selected' : ''}`}
-//                   >
-//                     <div className="thumb">
-//                       {item.photo ? (
-//                         <img src={item.photo} alt={item.ingredient_name} className="thumb-img" />
-//                       ) : (
-//                         <span className="thumb-ph">No image</span>
-//                       )}
-//                     </div>
-//                     <h3 className="item-name">{item.ingredient_name}</h3>
-//                   </button>
-//                 ))}
-//               </div>
-//             </div>
-//           ))
-//         ) : (
-//           filteredItems.length === 0 ? (
-//             <p className="empty muted">No items found.</p>
-//           ) : (
-//             <div className="item-grid">
-//               {filteredItems.map((item: any) => (
-//                 <button key={item.item_id} onClick={() => addDrink(item)} className="item-card">
-//                   <div className="thumb">
-//                     {item.photo ? (
-//                       <img src={item.photo} alt={item.item_name} className="thumb-img" />
-//                     ) : (
-//                       <span className="thumb-ph">No image</span>
-//                     )}
-//                   </div>
-//                   <h3 className="item-name">{item.item_name}</h3>
-//                   <p className="item-price">${item.item_cost.toFixed(2)}</p>
-//                 </button>
-//               ))}
-//             </div>
-//           )
-//         )}
-//       </div>
-
-//       {/* RIGHT SidEBAR / CART */}
-//       <div className="sidebar sidebar-right">
-//         <h2 className="order-title">Current Order</h2>
-
-//       <div className="order-lines" >
-//         {cart.length === 0 ? (
-//           <p className="empty muted">No items in cart</p>
-//         ) : (
-//           cart.map((d: any) => (
-//             <div key={d.cart_id} className="order-line" onClick={() => openCustomizationForDrink(d)} style={{ cursor: 'pointer' }}>
-//                 <div>
-//                   <div className="order-line-title">
-//                     {d.item.item_name}
-//                   </div>
-//                   <div className="order-line-sub">
-//                     {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
-//                       ing ? (
-//                         <div key={cat}>
-//                           <span>{ing.ingredient_name}</span>
-//                         </div>
-//                       ) : null
-//                     ))}
-//                     {d.extras.map((e: any) => (
-//                       <div key={e.ingredient_id}>
-//                         {e.ingredient_name} {e.ingredient_cost > 0 ? `(+$${e.ingredient_cost.toFixed(2)})` : ''}
-//                       </div>
-//                     ))}
-//                   </div>
-//                 </div>
-//                 <div style={{ display: 'flex', flexDirection: 'column', }}> 
-//                   <div className="order-line-amt">
-//                     <span className="order-line-total">
-//                       {(() => {
-//                         const extrasCost = d.extras.reduce(
-//                           (s: number, e: any) => s + e.ingredient_cost,
-//                           0
-//                         );
-//                         const perDrink = d.item.item_cost + extrasCost;
-//                         return `$${(perDrink * d.quantity).toFixed(2)}`;
-//                       })()}
-//                     </span>
-
-//                     <button
-//                       className="order-line-remove"
-//                       onClick={(e) => {
-//                         e.stopPropagation();
-//                         removeDrink(d.cart_id);
-//                       }}
-//                     >
-//                       ×
-//                     </button>
-//                   </div>
-//                   <div className="qty-controls">
-//                     <button
-//                       className="qty-btn"
-//                       onClick={(e) => {
-//                         e.stopPropagation();
-//                         changeQuantity(d.cart_id, -1);
-//                       }}
-//                     >
-//                       -
-//                     </button>
-
-//                     <span className="qty-display">{d.quantity}</span>
-
-//                     <button
-//                       className="qty-btn"
-//                       onClick={(e) => {
-//                         e.stopPropagation();
-//                         changeQuantity(d.cart_id, 1);
-//                       }}
-//                     >
-//                       +
-//                     </button>
-//                   </div>
-//                 </div>
-//               </div>
-//           ))
-          
-//         )}
-//       </div>
-
-//         <div className="totals-card">
-//           <div className="totals-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-//           <div className="totals-row"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
-//           <div className="totals-row totals-row-total"><span>Total</span><span>${total.toFixed(2)}</span></div>
-//         </div>
-
-//         <button disabled={cart.length === 0} className="btn btn-checkout" onClick={() => setShowCheckoutPopup(true)}>Checkout</button>
-//       </div>
-
-//       {/* --- Checkout Popup --- */}
-//       {showCheckoutPopup && (
-//         <div className="checkout-backdrop">
-//           <div className="checkout-modal">
-//             <h3 className="checkout-title">Review Your Order</h3>
-
-//             <div className="checkout-lines">
-//               {cart.map((d: any) => {
-//                 const extrasCost = d.extras.reduce(
-//                   (s: number, e: any) => s + e.ingredient_cost,
-//                   0
-//                 );
-//                 const perDrink = d.item.item_cost + extrasCost;
-//                 const lineTotal = perDrink * d.quantity;
-
-//                 return (
-//                   <div key={d.cart_id} className="checkout-line">
-//                     {/* Thumbnail */}
-//                     <div className="checkout-thumb">
-//                       {d.item.photo ? (
-//                         <img
-//                           src={d.item.photo}
-//                           alt={d.item.item_name}
-//                           className="checkout-thumb-img"
-//                         />
-//                       ) : (
-//                         <div className="checkout-thumb-ph">No image</div>
-//                       )}
-//                     </div>
-
-//                     {/* Drink details */}
-//                     <div className="checkout-line-main">
-//                       <span className="checkout-line-name">
-//                         {d.item.item_name}
-//                       </span>
-
-
-//                       <div className="checkout-line-ingredients">
-//                         {Object.entries(d.ingredients).map(
-//                           ([cat, ing]: [string, any]) =>
-//                             ing && (
-//                               <div key={cat}>
-//                                 {ing.ingredient_name}
-//                               </div>
-//                             )
-//                         )}
-//                         {d.extras.map((e: any) => (
-//                           <div key={e.ingredient_id}>
-//                             {e.ingredient_name} {e.ingredient_cost > 0 ? `(+$${e.ingredient_cost.toFixed(2)})` : ''}
-//                           </div>
-//                         ))}
-//                       </div>
-//                     </div>
-
-//                     {/* Qty + line total */}
-//                     <div className="checkout-line-meta">
-//                       <div className="checkout-line-total">
-//                         ${lineTotal.toFixed(2)}
-//                       </div>
-//                       <div className="checkout-line-qty">
-//                         Qty: <strong>{d.quantity}</strong>
-//                       </div>
-//                     </div>
-//                   </div>
-//                 );
-//               })}
-//             </div>
-
-//             {/* Summary */}
-//             <div className="checkout-summary">
-//               <div className="checkout-summary-row">
-//                 <span>Subtotal</span>
-//                 <span>${subtotal.toFixed(2)}</span>
-//               </div>
-//               <div className="checkout-summary-row">
-//                 <span>Tax</span>
-//                 <span>${tax.toFixed(2)}</span>
-//               </div>
-//               <div className="checkout-summary-row checkout-summary-total">
-//                 <span>Total</span>
-//                 <span>${total.toFixed(2)}</span>
-//               </div>
-//             </div>
-
-//             {/* Actions */}
-//             <div className="checkout-actions">
-//               <button
-//                 className="btn btn-primary"
-//                 onClick={submitOrder}
-//               >
-//                 Confirm
-//               </button>
-
-//               <button
-//                 className="btn btn-ghost"
-//                 onClick={() => setShowCheckoutPopup(false)}
-//               >
-//                 Cancel
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-
-//       {/* --- Customization Popup --- */}
-//       {showCustomizationPopup && customizingDrink && (
-//         <div
-//           className="customization-popup"
-//           style={{
-//             position: 'fixed',
-//             top: 0,
-//             left: 0,
-//             width: '100vw',
-//             height: '100vh',
-//             backgroundColor: 'rgba(0,0,0,0.5)',
-//             display: 'flex',
-//             justifyContent: 'center',
-//             alignItems: 'center',
-//             zIndex: 1000,
-//           }}
-//         >
-//           <div
-//             style={{
-//               backgroundColor: 'white',
-//               padding: '2rem',
-//               borderRadius: '8px',
-//               width: '500px',
-//               maxHeight: '80vh',
-//               overflowY: 'auto',
-//             }}
-//           >
-//             <h3
-//               className="section-title"
-//               style={{ textAlign: 'center', marginBottom: '1rem' }}
-//             >
-//               Customize {customizingDrink.item.item_name}
-//             </h3>
-
-//             <div>
-//               <h4>Temperature</h4>
-//               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-//                 <button
-//                   className={`btn ${
-//                     customizingDrink.temperature === 'Hot' ? 'active' : ''
-//                   }`}
-//                   onClick={() => setTemperature('Hot')}
-//                 >
-//                   Hot
-//                 </button>
-//                 <button
-//                   className={`btn ${
-//                     customizingDrink.temperature === 'Iced' ? 'active' : ''
-//                   }`}
-//                   onClick={() => setTemperature('Iced')}
-//                 >
-//                   Iced
-//                 </button>
-//               </div>
-//             </div>
-
-//             {/* Single-select options */}
-//             {singleSelectCategories.map((cat) => (
-//               <div key={cat} style={{ marginBottom: '1rem' }}>
-//                 <h4>{cat}</h4>
-//                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-//                   {groupedIngredients[cat]?.map((ing: any) => (
-//                     <button
-//                       key={ing.ingredient_id}
-//                       onClick={() => setCustomizationOption(cat, ing)}
-//                       className={`btn ${
-//                         customizingDrink.ingredients[cat]?.ingredient_id ===
-//                         ing.ingredient_id
-//                           ? 'active'
-//                           : ''
-//                       }`}
-//                     >
-//                       {ing.ingredient_name}
-//                     </button>
-//                   ))}
-//                 </div>
-//               </div>
-//             ))}
-
-//            {/* Multi-select categories */}
-//             {multiSelectCategories.map((cat) => (
-//               groupedIngredients[cat] ? (
-//                 <div key={cat} style={{ marginBottom: '1rem' }}>
-//                   <h4>{cat}</h4>
-//                   <div
-//                     style={{
-//                       display: 'flex',
-//                       gap: '0.5rem',
-//                       flexWrap: 'wrap',
-//                     }}
-//                   >
-//                     {groupedIngredients[cat].map((ing: any) => {
-//                       const isSelected = customizingDrink.extras.some(
-//                         (e: any) => e.ingredient_id === ing.ingredient_id
-//                       );
-//                       return (
-//                         <button
-//                           key={ing.ingredient_id}
-//                           onClick={() => toggleTopping(ing)}
-//                           className={`btn ${isSelected ? 'active' : ''}`}
-//                         >
-//                           {ing.ingredient_name} {ing.ingredient_cost ? `(+${ing.ingredient_cost.toFixed(2)})` : ''}
-//                         </button>
-//                       );
-//                     })}
-//                   </div>
-//                 </div>
-//               ) : null
-//             ))}
-
-//             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-//               <button
-//                 className="logout"
-//                 onClick={confirmCustomization}
-//                 style={{ marginRight: '1rem' }}
-//               >
-//                 Confirm
-//               </button>
-//               <button className="btn" onClick={cancelCustomization}>
-//                 Cancel
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//     </div>
-//   );
-// }
-
-
-
-
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
@@ -711,24 +12,31 @@ export default function Orders() {
   const [showCustomizationPopup, setShowCustomizationPopup] = useState(false);
   const [customizingDrink, setCustomizingDrink] = useState<any | null>(null);
 
-  const API_URL = '/api';
-  const singleSelectCategories = ['Sizes', 'Temperature', 'Milk', 'Ice Level', 'Sweetness Level'];
-  const multiSelectCategories = ['Toppings'];
+  const [dietaryFilter, setDietaryFilter] = useState<
+    'all' | 'dairy_free' | 'gluten_free' | 'both_free'
+  >('all');
 
   const miscIngredientPhotos: Record<string, string> = {
     Bag: '/ingredient_36.png',
     Lid: '/ingredient_32.png',
     Straw: '/ingredient_33.png',
     Napkin: '/ingredient_34.png',
-    "To-go Box": '/ingredient_35.png',
+    'To-go Box': '/ingredient_35.png',
   };
+
+  const API_URL = '/api';
+  const singleSelectCategories = ['Sizes', 'Milk', 'Ice Level', 'Sweetness Level'];
+
+  const multiSelectCategories = ['Toppings'];
+
+  const REQUIRED_CATEGORIES = ['Sizes', 'Milk', 'Ice Level', 'Sweetness Level'];
 
   useEffect(() => {
     const load = async () => {
       try {
-        const c = await fetch(`${API_URL}/categories`).then(r => r.json());
-        const i = await fetch(`${API_URL}/admin/items`).then(r => r.json());
-        const g = await fetch(`${API_URL}/ingredients`).then(r => r.json());
+        const c = await fetch(`${API_URL}/categories`).then((r) => r.json());
+        const i = await fetch(`${API_URL}/admin/items`).then((r) => r.json());
+        const g = await fetch(`${API_URL}/ingredients`).then((r) => r.json());
 
         setCategories(c);
         setItems(i);
@@ -749,7 +57,9 @@ export default function Orders() {
         <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
           <h2>Something went wrong</h2>
           <p>{error}</p>
-          <button onClick={() => window.location.reload()} className="btn">Retry</button>
+          <button onClick={() => window.location.reload()} className="btn">
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -763,14 +73,34 @@ export default function Orders() {
     if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
     groupedIngredients[catName].push(ing);
   }
-  Object.keys(groupedIngredients).forEach(catName => {
-    groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
+  Object.keys(groupedIngredients).forEach((catName) => {
+    groupedIngredients[catName].sort((a: any, b: any) =>
+      a.ingredient_name.localeCompare(b.ingredient_name),
+    );
   });
 
-  // Filter normal items
-  const filteredItems = selectedCategory === 7
-    ? []
-    : items.filter((item: any) => item.category_id === selectedCategory);
+  // Filter normal items with dietary filter
+  const filteredItems =
+    selectedCategory === 7
+      ? []
+      : items
+          .filter((item: any) => item.category_id === selectedCategory)
+          .filter((item: any) => {
+            const hasDairy = !!item.contains_dairy;
+            const hasGluten = !!item.contains_gluten;
+
+            switch (dietaryFilter) {
+              case 'dairy_free':
+                return !hasDairy;
+              case 'gluten_free':
+                return !hasGluten;
+              case 'both_free':
+                return !hasDairy && !hasGluten;
+              case 'all':
+              default:
+                return true;
+            }
+          });
 
   // Add drink and open customization popup
   const addDrink = (item: any) => {
@@ -787,7 +117,7 @@ export default function Orders() {
       },
       extras: [] as any[],
     };
-    setCart(prev => [...prev, newDrink]);
+    setCart((prev) => [...prev, newDrink]);
     setCustomizingDrink(newDrink);
     setShowCustomizationPopup(true);
   };
@@ -800,28 +130,30 @@ export default function Orders() {
 
     const drinkId = lastDrink.cart_id;
 
-    setCart(prev => prev.map((d: any) => {
-      if (d.cart_id !== drinkId) return d;
+    setCart((prev) =>
+      prev.map((d: any) => {
+        if (d.cart_id !== drinkId) return d;
 
-      if (singleSelectCategories.includes(ing.ingredient_category_name)) {
+        if (singleSelectCategories.includes(ing.ingredient_category_name)) {
+          return {
+            ...d,
+            ingredients: {
+              ...d.ingredients,
+              [ing.ingredient_category_name]: ing,
+            },
+          };
+        }
+
         return {
           ...d,
-          ingredients: {
-            ...d.ingredients,
-            [ing.ingredient_category_name]: ing,
-          },
+          extras: [...d.extras, ing],
         };
-      }
-
-      return {
-        ...d,
-        extras: [...d.extras, ing],
-      };
-    }));
+      }),
+    );
   };
 
   const removeDrink = (drinkId: any) => {
-    setCart(prev => prev.filter((d: any) => d.cart_id !== drinkId));
+    setCart((prev) => prev.filter((d: any) => d.cart_id !== drinkId));
   };
 
   const subtotal = cart.reduce((sum: number, d: any) => {
@@ -833,21 +165,23 @@ export default function Orders() {
   const total = subtotal + tax;
 
   // Only Packaging in Misc
-  const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter((catName: string) => {
-    const list = groupedIngredients[catName];
-    return list[0] && list[0].ingredient_category_name === 'Packaging';
-  });
+  const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter(
+    (catName: string) => {
+      const list = groupedIngredients[catName];
+      return list[0] && list[0].ingredient_category_name === 'Packaging';
+    },
+  );
 
   const changeQuantity = (drinkId: number, delta: number) => {
-    setCart(prev =>
+    setCart((prev) =>
       prev.map((d: any) => {
         if (d.cart_id !== drinkId) return d;
         const newQty = d.quantity + delta;
         return {
           ...d,
-          quantity: newQty < 1 ? 1 : newQty,
+          quantity: newQty < 1 ? 1 : newQty, // never go below 1
         };
-      })
+      }),
     );
   };
 
@@ -856,7 +190,17 @@ export default function Orders() {
     if (!customizingDrink) return;
 
     const current = customizingDrink.ingredients[category];
+
     const isSame = current && current.ingredient_id === ing.ingredient_id;
+
+    // If drink is Hot and this is an Ice Level that is NOT "No Ice", ignore
+    if (
+      category === 'Ice Level' &&
+      customizingDrink.temperature === 'Hot' &&
+      !/no ice/i.test(ing.ingredient_name)
+    ) {
+      return;
+    }
 
     setCustomizingDrink({
       ...customizingDrink,
@@ -869,7 +213,26 @@ export default function Orders() {
 
   const confirmCustomization = () => {
     if (!customizingDrink) return;
-    setCart(prev => prev.map(d => d.cart_id === customizingDrink.cart_id ? customizingDrink : d));
+
+    for (const cat of REQUIRED_CATEGORIES) {
+      if (!customizingDrink.ingredients[cat]) {
+        alert(`Please select a ${cat} option.`);
+        return;
+      }
+    }
+
+    if (
+      customizingDrink.temperature === 'Hot' &&
+      customizingDrink.ingredients['Ice Level'] &&
+      !/no ice/i.test(customizingDrink.ingredients['Ice Level'].ingredient_name)
+    ) {
+      alert('Hot drinks must use the "No Ice" option.');
+      return;
+    }
+
+    setCart((prev) =>
+      prev.map((d) => (d.cart_id === customizingDrink.cart_id ? customizingDrink : d)),
+    );
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
   };
@@ -886,54 +249,133 @@ export default function Orders() {
       ingredients: { ...drink.ingredients },
       extras: [...drink.extras],
     };
+
     setCustomizingDrink(copy);
     setShowCustomizationPopup(true);
   };
 
   const toggleTopping = (ing: any) => {
     if (!customizingDrink) return;
-    const exists = customizingDrink.extras.some((e: any) => e.ingredient_id === ing.ingredient_id);
+
+    const exists = customizingDrink.extras.some(
+      (e: any) => e.ingredient_id === ing.ingredient_id,
+    );
+
     const newExtras = exists
       ? customizingDrink.extras.filter((e: any) => e.ingredient_id !== ing.ingredient_id)
       : [...customizingDrink.extras, ing];
-    setCustomizingDrink({ ...customizingDrink, extras: newExtras });
+
+    setCustomizingDrink({
+      ...customizingDrink,
+      extras: newExtras,
+    });
   };
 
+  // UPDATED: when Hot is selected, auto-set Ice Level to "No Ice"
   const setTemperature = (temp: 'Hot' | 'Iced') => {
     if (!customizingDrink) return;
-    setCustomizingDrink({ ...customizingDrink, temperature: temp });
+
+    let updatedIngredients = { ...customizingDrink.ingredients };
+
+    if (temp === 'Hot') {
+      const iceOptions = groupedIngredients['Ice Level'] || [];
+      const noIceOption = iceOptions.find((ing: any) =>
+        /no ice/i.test(ing.ingredient_name),
+      );
+      if (noIceOption) {
+        updatedIngredients['Ice Level'] = noIceOption;
+      }
+    }
+
+    setCustomizingDrink({
+      ...customizingDrink,
+      temperature: temp,
+      ingredients: updatedIngredients,
+    });
   };
 
   const submitOrder = async () => {
     if (cart.length === 0) return;
 
+    // NEW: validate required options for every drink before sending to backend
+    for (const d of cart) {
+      for (const cat of REQUIRED_CATEGORIES) {
+        if (!d.ingredients[cat]) {
+          alert(`Please select a ${cat} option for "${d.item.item_name}".`);
+          return;
+        }
+      }
+      if (
+        d.temperature === 'Hot' &&
+        d.ingredients['Ice Level'] &&
+        !/no ice/i.test(d.ingredients['Ice Level'].ingredient_name)
+      ) {
+        alert(`Hot drinks must use the "No Ice" option for "${d.item.item_name}".`);
+        return;
+      }
+    }
+
+    // Helper to collect all ingredient IDs for a drink
     const collectIngredientIds = (drink: any) => {
       const ids: number[] = [];
-      Object.values(drink.ingredients).forEach((ing: any) => { if (ing && ing.ingredient_id) ids.push(ing.ingredient_id); });
-      drink.extras.forEach((e: any) => { if (e && e.ingredient_id) ids.push(e.ingredient_id); });
+
+      // Single-select categories (Milk, Ice, Size, Sweetness)
+      Object.values(drink.ingredients).forEach((ing: any) => {
+        if (ing && ing.ingredient_id) {
+          ids.push(ing.ingredient_id);
+        }
+      });
+
+      // Multi-select toppings/extras
+      drink.extras.forEach((e: any) => {
+        if (e && e.ingredient_id) {
+          ids.push(e.ingredient_id);
+        }
+      });
+
       return ids;
     };
 
     const itemsPayload = cart.map((d: any) => {
-      const extrasCost = d.extras.reduce((s: number, e: any) => s + e.ingredient_cost, 0);
+      const extrasCost = d.extras.reduce(
+        (s: number, e: any) => s + e.ingredient_cost,
+        0,
+      );
       const perDrink = d.item.item_cost + extrasCost;
       const lineTotal = perDrink * d.quantity;
-      return { item_id: d.item.item_id, quantity: d.quantity, subtotal: lineTotal, extras: collectIngredientIds(d) };
+
+      return {
+        item_id: d.item.item_id,
+        quantity: d.quantity,
+        subtotal: lineTotal,
+        // send all ingredient IDs (milk, ice, toppings, etc.)
+        extras: collectIngredientIds(d),
+      };
     });
 
     const body = {
-      customerId: null,
-      employeeId: null,
+      customerId: null, // or real id if you have it
+      employeeId: null, // or real id
       items: itemsPayload,
       totalCost: itemsPayload.reduce((sum, x) => sum + x.subtotal, 0),
-      tax: 0,
-      tip: 0,
+      tax: 0, // or your tax calc
+      tip: 0, // or tip value
     };
 
     try {
-      const res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
       const data = await res.json();
-      if (!res.ok) { console.error(data); alert(data.error || 'Failed to place order'); return; }
+      if (!res.ok) {
+        console.error(data);
+        alert(data.error || 'Failed to place order');
+        return;
+      }
+
       console.log('Order created:', data);
       alert('Order confirmed! Thank you.');
       setCart([]);
@@ -948,15 +390,28 @@ export default function Orders() {
     <div className="orders-layout">
       {/* LEFT SIDEBAR */}
       <div className="sidebar sidebar-left">
-        <h2 className="section-title">Item Categories</h2>
+        <h2 style={{textAlign: 'left'}}>Item Categories</h2>
         <div className="category-list">
           {categories.map((c: any) => (
-            <button key={c.category_id} onClick={() => setSelectedCategory(c.category_id)} className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}>
+            <button
+              key={c.category_id}
+              onClick={() => setSelectedCategory(c.category_id)}
+              className={`cashier-category-btn ${
+                selectedCategory === c.category_id ? 'active' : ''
+              }`}
+            >
               {c.name}
             </button>
           ))}
-          {!categories.some(c => c.category_id === 7) && (
-            <button onClick={() => setSelectedCategory(7)} className={`category-btn ${selectedCategory === 7 ? 'active' : ''}`}>Misc</button>
+          {!categories.some((c) => c.category_id === 7) && (
+            <button
+              onClick={() => setSelectedCategory(7)}
+              className={`cashier-category-btn ${
+                selectedCategory === 7 ? 'active' : ''
+              }`}
+            >
+              Misc
+            </button>
           )}
         </div>
       </div>
@@ -964,43 +419,104 @@ export default function Orders() {
       {/* MAIN CONTENT */}
       <div className="content">
         <CashierNavbar />
-        <h2 className="section-title">{categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items'}</h2>
+        <div
+          className="section-header"
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '1rem',
+          }}
+        >
+          <h2>
+            {categories.find((c: any) => c.category_id === selectedCategory)?.name ||
+              'Items'}
+          </h2>
+
+          {/* Dietary filter */}
+          <div
+            className="dietary-filter"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <span>Dietary:</span>
+            <select
+              value={dietaryFilter}
+              onChange={(e) =>
+                setDietaryFilter(
+                  e.target.value as
+                    | 'all'
+                    | 'dairy_free'
+                    | 'gluten_free'
+                    | 'both_free',
+                )
+              }
+              className="dietary-select"
+            >
+              <option value="all">All Items</option>
+              <option value="dairy_free">Dairy-Free</option>
+              <option value="gluten_free">Gluten-Free</option>
+              <option value="both_free">Dairy &amp; Gluten Free</option>
+            </select>
+          </div>
+        </div>
 
         {selectedCategory === 7 ? (
-          allowedMiscCategoryNames.map((catName: string) => {
-            const ingredientsForCategory = groupedIngredients[catName] || [];
-            return (
-              <div key={catName} className="ingredient-group">
-                <h3 className="ingredient-category-title">{catName}</h3>
-                <div className="item-grid">
-                  {ingredientsForCategory.map((item: any) => (
-                    <button
-                      key={item.ingredient_id}
-                      onClick={() => addIngredient(item)}
-                      className={`item-card ${cart.some(d => d.extras.some((ex:any) => ex.ingredient_id === item.ingredient_id)) ? 'selected' : ''}`}
-                    >
-                      <div className="thumb">
-                        {miscIngredientPhotos[item.ingredient_name] ? (
-                          <img src={miscIngredientPhotos[item.ingredient_name]} alt={item.ingredient_name} className="thumb-img" />
-                        ) : (
-                          <span className="thumb-ph">No image</span>
-                        )}
-                      </div>
-                      <h3 className="item-name">{item.ingredient_name}</h3>
-                    </button>
-                  ))}
-                  {ingredientsForCategory.length === 0 && <p className="no-items">No ingredients available</p>}
-                </div>
+          allowedMiscCategoryNames.map((catName: string) => (
+            <div key={catName} className="ingredient-group">
+              <h3 className="ingredient-category-title">{catName}</h3>
+              <div className="item-grid">
+                {groupedIngredients[catName].map((item: any) => (
+                  <button
+                    key={item.ingredient_id}
+                    onClick={() => addIngredient(item)}
+                    className={`item-card ${
+                      cart.some((d: any) =>
+                        d.extras.some(
+                          (ex: any) => ex.ingredient_id === item.ingredient_id,
+                        ),
+                      )
+                        ? 'selected'
+                        : ''
+                    }`}
+                  >
+                    <div className="thumb">
+                      {miscIngredientPhotos[item.ingredient_name] ? (
+                        <img
+                          src={miscIngredientPhotos[item.ingredient_name]}
+                          alt={item.ingredient_name}
+                          className="thumb-img"
+                        />
+                      ) : (
+                        <span className="thumb-ph">No image</span>
+                      )}
+                    </div>
+                    <h3 className="item-name">{item.ingredient_name}</h3>
+                  </button>
+                ))}
               </div>
-            );
-          })
+            </div>
+          ))
         ) : filteredItems.length === 0 ? (
           <p className="empty muted">No items found.</p>
         ) : (
           <div className="item-grid">
             {filteredItems.map((item: any) => (
-              <button key={item.item_id} onClick={() => addDrink(item)} className="item-card">
-                <div className="thumb">{item.photo ? <img src={item.photo} alt={item.item_name} className="thumb-img" /> : <span className="thumb-ph">No image</span>}</div>
+              <button
+                key={item.item_id}
+                onClick={() => addDrink(item)}
+                className="item-card"
+              >
+                <div className="thumb">
+                  {item.photo ? (
+                    <img
+                      src={item.photo}
+                      alt={item.item_name}
+                      className="thumb-img"
+                    />
+                  ) : (
+                    <span className="thumb-ph">No image</span>
+                  )}
+                </div>
                 <h3 className="item-name">{item.item_name}</h3>
                 <p className="item-price">${item.item_cost.toFixed(2)}</p>
               </button>
@@ -1012,28 +528,84 @@ export default function Orders() {
       {/* RIGHT SIDEBAR / CART */}
       <div className="sidebar sidebar-right">
         <h2 className="order-title">Current Order</h2>
+
         <div className="order-lines">
           {cart.length === 0 ? (
             <p className="empty muted">No items in cart</p>
           ) : (
             cart.map((d: any) => (
-              <div key={d.cart_id} className="order-line" onClick={() => openCustomizationForDrink(d)} style={{ cursor: 'pointer' }}>
+              <div
+                key={d.cart_id}
+                className="order-line"
+                onClick={() => openCustomizationForDrink(d)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div>
                   <div className="order-line-title">{d.item.item_name}</div>
                   <div className="order-line-sub">
-                    {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => ing ? <div key={cat}>{ing.ingredient_name}</div> : null)}
-                    {d.extras.map((e: any) => <div key={e.ingredient_id}>{e.ingredient_name} {e.ingredient_cost > 0 ? `(+$${e.ingredient_cost.toFixed(2)})` : ''}</div>)}
+                    {Object.entries(d.ingredients).map(
+                      ([cat, ing]: [string, any]) =>
+                        ing ? (
+                          <div key={cat}>
+                            <span>{ing.ingredient_name}</span>
+                          </div>
+                        ) : null,
+                    )}
+                    {d.extras.map((e: any) => (
+                      <div key={e.ingredient_id}>
+                        {e.ingredient_name}{' '}
+                        {e.ingredient_cost > 0
+                          ? `(+$${e.ingredient_cost.toFixed(2)})`
+                          : ''}
+                      </div>
+                    ))}
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <div className="order-line-amt">
-                    <span className="order-line-total">{(() => { const extrasCost = d.extras.reduce((s: number, e: any) => s + e.ingredient_cost, 0); const perDrink = d.item.item_cost + extrasCost; return `$${(perDrink * d.quantity).toFixed(2)}`; })()}</span>
-                    <button className="order-line-remove" onClick={e => { e.stopPropagation(); removeDrink(d.cart_id); }}>×</button>
+                    <span className="order-line-total">
+                      {(() => {
+                        const extrasCost = d.extras.reduce(
+                          (s: number, e: any) => s + e.ingredient_cost,
+                          0,
+                        );
+                        const perDrink = d.item.item_cost + extrasCost;
+                        return `$${(perDrink * d.quantity).toFixed(2)}`;
+                      })()}
+                    </span>
+
+                    <button
+                      className="order-line-remove"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeDrink(d.cart_id);
+                      }}
+                    >
+                      ×
+                    </button>
                   </div>
                   <div className="qty-controls">
-                    <button className="qty-btn" onClick={e => { e.stopPropagation(); changeQuantity(d.cart_id, -1); }}>-</button>
+                    <button
+                      className="qty-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        changeQuantity(d.cart_id, -1);
+                      }}
+                    >
+                      -
+                    </button>
+
                     <span className="qty-display">{d.quantity}</span>
-                    <button className="qty-btn" onClick={e => { e.stopPropagation(); changeQuantity(d.cart_id, 1); }}>+</button>
+
+                    <button
+                      className="qty-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        changeQuantity(d.cart_id, 1);
+                      }}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1042,12 +614,27 @@ export default function Orders() {
         </div>
 
         <div className="totals-card">
-          <div className="totals-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-          <div className="totals-row"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
-          <div className="totals-row totals-row-total"><span>Total</span><span>${total.toFixed(2)}</span></div>
+          <div className="totals-row">
+            <span>Subtotal</span>
+            <span>${subtotal.toFixed(2)}</span>
+          </div>
+          <div className="totals-row">
+            <span>Tax</span>
+            <span>${tax.toFixed(2)}</span>
+          </div>
+          <div className="totals-row totals-row-total">
+            <span>Total</span>
+            <span>${total.toFixed(2)}</span>
+          </div>
         </div>
 
-        <button disabled={cart.length === 0} className="btn btn-checkout" onClick={() => setShowCheckoutPopup(true)}>Checkout</button>
+        <button
+          disabled={cart.length === 0}
+          className="btn btn-checkout"
+          onClick={() => setShowCheckoutPopup(true)}
+        >
+          Checkout
+        </button>
       </div>
 
       {/* --- Checkout Popup --- */}
@@ -1055,39 +642,95 @@ export default function Orders() {
         <div className="checkout-backdrop">
           <div className="checkout-modal">
             <h3 className="checkout-title">Review Your Order</h3>
+
             <div className="checkout-lines">
               {cart.map((d: any) => {
-                const extrasCost = d.extras.reduce((s: number, e: any) => s + e.ingredient_cost, 0);
+                const extrasCost = d.extras.reduce(
+                  (s: number, e: any) => s + e.ingredient_cost,
+                  0,
+                );
                 const perDrink = d.item.item_cost + extrasCost;
                 const lineTotal = perDrink * d.quantity;
+
                 return (
                   <div key={d.cart_id} className="checkout-line">
-                    <div className="checkout-thumb">{d.item.photo ? <img src={d.item.photo} alt={d.item.item_name} className="checkout-thumb-img" /> : <div className="checkout-thumb-ph">No image</div>}</div>
+                    {/* Thumbnail */}
+                    <div className="checkout-thumb">
+                      {d.item.photo ? (
+                        <img
+                          src={d.item.photo}
+                          alt={d.item.item_name}
+                          className="checkout-thumb-img"
+                        />
+                      ) : (
+                        <div className="checkout-thumb-ph">No image</div>
+                      )}
+                    </div>
+
+                    {/* Drink details */}
                     <div className="checkout-line-main">
-                      <span className="checkout-line-name">{d.item.item_name}</span>
+                      <span className="checkout-line-name">
+                        {d.item.item_name}
+                      </span>
+
                       <div className="checkout-line-ingredients">
-                        {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => ing && <div key={cat}>{ing.ingredient_name}</div>)}
-                        {d.extras.map((e: any) => <div key={e.ingredient_id}>{e.ingredient_name} {e.ingredient_cost > 0 ? `(+$${e.ingredient_cost.toFixed(2)})` : ''}</div>)}
+                        {Object.entries(d.ingredients).map(
+                          ([cat, ing]: [string, any]) =>
+                            ing && <div key={cat}>{ing.ingredient_name}</div>,
+                        )}
+                        {d.extras.map((e: any) => (
+                          <div key={e.ingredient_id}>
+                            {e.ingredient_name}{' '}
+                            {e.ingredient_cost > 0
+                              ? `(+$${e.ingredient_cost.toFixed(2)})`
+                              : ''}
+                          </div>
+                        ))}
                       </div>
                     </div>
+
+                    {/* Qty + line total */}
                     <div className="checkout-line-meta">
-                      <div className="checkout-line-total">${lineTotal.toFixed(2)}</div>
-                      <div className="checkout-line-qty">Qty: <strong>{d.quantity}</strong></div>
+                      <div className="checkout-line-total">
+                        ${lineTotal.toFixed(2)}
+                      </div>
+                      <div className="checkout-line-qty">
+                        Qty: <strong>{d.quantity}</strong>
+                      </div>
                     </div>
                   </div>
                 );
               })}
             </div>
 
+            {/* Summary */}
             <div className="checkout-summary">
-              <div className="checkout-summary-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-              <div className="checkout-summary-row"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
-              <div className="checkout-summary-row checkout-summary-total"><span>Total</span><span>${total.toFixed(2)}</span></div>
+              <div className="checkout-summary-row">
+                <span>Subtotal</span>
+                <span>${subtotal.toFixed(2)}</span>
+              </div>
+              <div className="checkout-summary-row">
+                <span>Tax</span>
+                <span>${tax.toFixed(2)}</span>
+              </div>
+              <div className="checkout-summary-row checkout-summary-total">
+                <span>Total</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
             </div>
 
+            {/* Actions */}
             <div className="checkout-actions">
-              <button className="btn btn-primary" onClick={submitOrder}>Confirm</button>
-              <button className="btn btn-ghost" onClick={() => setShowCheckoutPopup(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={submitOrder}>
+                Confirm
+              </button>
+
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowCheckoutPopup(false)}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -1095,19 +738,112 @@ export default function Orders() {
 
       {/* --- Customization Popup --- */}
       {showCustomizationPopup && customizingDrink && (
-        <div className="customization-popup" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto' }}>
-            <h3 className="section-title" style={{ textAlign: 'center', marginBottom: '1rem' }}>{customizingDrink.item.item_name}</h3>
+        <div
+          className="customization-popup"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1500,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              padding: '2rem',
+              borderRadius: '8px',
+              width: '500px',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+            }}
+          >
+            <h3
+              className="section-title"
+              style={{ textAlign: 'center'}}
+            >
+              Customize {customizingDrink.item.item_name}
+            </h3>
+            <h5
+              style={{
+                marginTop: 0,
+                marginBottom: '1rem',
+                fontSize: '0.85rem',
+                color: '#666',
+                textAlign: 'center',
+              }}
+            >
+              Fields marked <span style={{ color: 'red' }}>*</span> are required.
+            </h5>
 
+            {/* Temperature */}
+            <div style={{ marginBottom: '1rem' }}>
+              <h4>Temperature <span style={{ color: 'red' }}>*</span></h4>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '0.5rem',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <button
+                  className={`btn ${
+                    customizingDrink.temperature === 'Hot' ? 'active' : ''
+                  }`}
+                  onClick={() => setTemperature('Hot')}
+                >
+                  Hot
+                </button>
+                <button
+                  className={`btn ${
+                    customizingDrink.temperature === 'Iced' ? 'active' : ''
+                  }`}
+                  onClick={() => setTemperature('Iced')}
+                >
+                  Iced
+                </button>
+              </div>
+            </div>
+
+            {/* Single-select ingredient groups */}
             {singleSelectCategories.map((cat) => (
-              <div key={cat} className="customization-category">
-                <h4 className="customization-category-title">{cat}</h4>
-                <div className="customization-options">
-                  {(groupedIngredients[cat] || []).map((ing: any) => {
-                    const selected = customizingDrink.ingredients[cat]?.ingredient_id === ing.ingredient_id;
+              <div key={cat} style={{ marginBottom: '1rem' }}>
+                <h4>{cat} <span style={{ color: 'red' }}>*</span></h4>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '0.5rem',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  {groupedIngredients[cat]?.map((ing: any) => {
+                    const isSelected =
+                      customizingDrink.ingredients[cat]?.ingredient_id ===
+                      ing.ingredient_id;
+
+                    const isHot = customizingDrink.temperature === 'Hot';
+                    const isIceCat = cat === 'Ice Level';
+                    const isNotNoIce =
+                      isIceCat && !/no ice/i.test(ing.ingredient_name);
+                    const disabled = isHot && isIceCat && isNotNoIce;
+
                     return (
-                      <button key={ing.ingredient_id} className={`customization-option ${selected ? 'selected' : ''}`} onClick={() => setCustomizationOption(cat, ing)}>
-                        {ing.ingredient_name} {ing.ingredient_cost > 0 ? `(+$${ing.ingredient_cost.toFixed(2)})` : ''}
+                      <button
+                        key={ing.ingredient_id}
+                        onClick={() => {
+                          if (!disabled) setCustomizationOption(cat, ing);
+                        }}
+                        disabled={disabled}
+                        className={`btn ${isSelected ? 'active' : ''} ${
+                          disabled ? 'disabled' : ''
+                        }`}
+                      >
+                        {ing.ingredient_name}
                       </button>
                     );
                   })}
@@ -1115,46 +851,51 @@ export default function Orders() {
               </div>
             ))}
 
-           {/* Multi-select categories */}
-            {multiSelectCategories.map((cat) => (
+            {/* Multi-select categories */}
+            {multiSelectCategories.map((cat) =>
               groupedIngredients[cat] ? (
-                <div key={cat} className="customization-category">
-                  <h4 className="customization-category-title">{cat}</h4>
-                  <div className="customization-options">
+                <div key={cat} style={{ marginBottom: '1rem' }}>
+                  <h4>{cat}</h4>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '0.5rem',
+                      flexWrap: 'wrap',
+                    }}
+                  >
                     {groupedIngredients[cat].map((ing: any) => {
-                      const selected = customizingDrink.extras.some(
+                      const isSelected = customizingDrink.extras.some(
                         (e: any) => e.ingredient_id === ing.ingredient_id
                       );
                       return (
                         <button
                           key={ing.ingredient_id}
-                          className={`customization-option ${selected ? 'selected' : ''}`}
                           onClick={() => toggleTopping(ing)}
+                          className={`btn ${isSelected ? 'active' : ''}`}
                         >
-                          {ing.ingredient_name} {ing.ingredient_cost > 0 ? `(+$${ing.ingredient_cost.toFixed(2)})` : ''}
+                          {ing.ingredient_name}{' '}
+                          {ing.ingredient_cost
+                            ? `(+${ing.ingredient_cost.toFixed(2)})`
+                            : ''}
                         </button>
                       );
                     })}
                   </div>
                 </div>
               ) : null
-            ))}
+            )}
 
-            {/* Temperature */}
-            <div className="customization-category">
-              <h4 className="customization-category-title">Temperature</h4>
-              <div className="customization-options">
-                {['Hot', 'Iced'].map((temp) => (
-                  <button key={temp} className={`customization-option ${customizingDrink.temperature === temp ? 'selected' : ''}`} onClick={() => setTemperature(temp as 'Hot' | 'Iced')}>
-                    {temp}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="customization-actions" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <button className="btn btn-primary" onClick={confirmCustomization}>Confirm</button>
-              <button className="btn btn-ghost" onClick={cancelCustomization}>Cancel</button>
+            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+              <button
+                className="logout"
+                onClick={confirmCustomization}
+                style={{ marginRight: '1rem' }}
+              >
+                Confirm
+              </button>
+              <button className="btn" onClick={cancelCustomization}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>

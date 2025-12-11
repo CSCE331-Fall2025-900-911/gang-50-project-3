@@ -222,12 +222,38 @@ body {
   cursor: pointer;
   transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
+
+.cashier-category-btn{
+  width: 100%;
+  height: 70px;
+  text-align: left;
+  padding: 12px 14px;
+  background: #f8fafc;
+  color: #334155;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+
 .category-btn:hover{ 
   background: #ffffff; 
   border-color: #f9c; 
 }
 
+.cashier-category-btn:hover{ 
+  background: #ffffff; 
+  border-color: #f9c; 
+}
+
 .category-btn.active{
+  background: #fde8ef;
+  color: #be123c;
+  border-color: #be123c;
+  font-weight: 700; 
+}
+
+.cashier-category-btn.active{
   background: #fde8ef;
   color: #be123c;
   border-color: #be123c;
@@ -971,15 +997,6 @@ body {
   gap: 0.5rem;
 }
 
-/* labels + inputs reused from before */
-.label-Employee {
-  font-family: Arial, sans-serif;
-  font-size: 0.9rem;
-  color: #374151;
-  margin-bottom: 0.1rem;
-  display: block;
-  font-weight: 600;
-}
 .employee-input {
   display: block;
   width: 100%;
@@ -1366,9 +1383,20 @@ body {
   border: 1px solid #e5e7eb;
   background-color: #f9fafb;
 
-  max-height: 520px; /* adjust if you want taller/shorter */
+  max-height: 700px; /* make table taller or shorter */
   overflow-y: auto;
 }
+
+.ingredient-table-wrapper {
+  border-radius: 0.9rem;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+
+  max-height: 360px; /* make table taller or shorter */
+  overflow-y: auto;
+}
+
 
 .update-table {
   width: 100%;
@@ -1501,12 +1529,6 @@ body {
   justify-content: center; 
 }
 
-.update-table-header-row h2 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #000000;
-}
-
 
 /* Big white card containing table + right panel */
 .menu-admin-card {
@@ -1517,24 +1539,6 @@ body {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* Left side: table */
-.menu-admin-left {
-  display: flex;
-  flex-direction: column;
-}
-
-.menu-table-header h2 {
-  margin: 0 0 0.75rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.menu-table-wrapper {
-  border-radius: 0.75rem;
-  overflow: hidden;
-  border: 1px solid #e5e7eb;
-  max-height: 360px;
-}
 
 .menu-table {
   width: 100%;
@@ -1704,7 +1708,7 @@ body {
 /* ===== KIOSK PAGE REFINEMENT ===== */
 
 .kiosk-page {
-  background-color: #f1f1f1; /* same bg */
+  background-color: #f1f1f1;
   display: flex;
   flex-direction: column;
 }
@@ -1829,10 +1833,6 @@ body {
   text-align: left;
 }
 
-/* reuse analytics-date-input for both */
-.analytics-product-controls .analytics-date-input {
-  width: 100%;
-}
 
 /* Make product buttons align nicely */
 .analytics-product-controls .reportButton {
@@ -1878,4 +1878,37 @@ body {
   .analytics-stat-value {
     font-size: 1.1rem;
   }
+}
+
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dietary-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dietary-select {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.update-table th:last-child,
+.update-table td:last-child {
+  white-space: nowrap;
+  width: 1%; 
+  text-align: center; 
+}
+
+.update-table td:last-child .update-actions-row {
+  display: flex;
+  justify-content: center;  /* or flex-start */
+  gap: 0.5rem;
+  margin: 0;                /* reset any margin that might push them right */
 }

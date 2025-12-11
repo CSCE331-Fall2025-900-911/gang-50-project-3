@@ -83,3 +83,6 @@ CREATE TABLE Item_Ingredient(
     FOREIGN KEY (ingredient_ID) REFERENCES Ingredient(ingredient_ID)
 );
 
+ALTER TABLE Item
+  ADD COLUMN contains_dairy  BOOLEAN DEFAULT FALSE,
+  ADD COLUMN contains_gluten BOOLEAN DEFAULT FALSE;

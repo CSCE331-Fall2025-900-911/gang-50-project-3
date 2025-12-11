@@ -19,21 +19,38 @@ type IngredientCategory = {
   ingredient_category_name: string;
 };
 
-export default function UpdateMenu() {
-  const [ingredientNewName, setIngredientNewName] = useState("");
-  const [ingredientNewID, setIngredientNewID] = useState("");
-  const [ingredientNewPrice, setIngredientNewPrice] = useState("");
-  const [ingredientSupply, setIngredientSupply] = useState("");
-  const [ingredientExpirationDate, setIngredientExpirationDate] =
-    useState("");
-  const [ingredientVendor, setIngredientVendor] = useState("");
-  const [ingredientCategoryId, setIngredientCategoryId] = useState<string>("");
+// Draft type for inline editing (store as strings for inputs)
+type IngredientEditDraft = {
+  ingredient_name: string;
+  supply_level: string;
+  expiration_date: string;
+  ingredient_cost: string;
+  vendor: string;
+  category_id: string;
+};
 
+export default function UpdateMenu() {
+  // --- Add form state (only used for creating new ingredients) ---
+  const [newName, setNewName] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [newSupply, setNewSupply] = useState("");
+  const [newExpirationDate, setNewExpirationDate] = useState("");
+  const [newVendor, setNewVendor] = useState("");
+  const [newCategoryId, setNewCategoryId] = useState<string>("");
+
+  // --- Data + loading/error ---
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [categories, setCategories] = useState<IngredientCategory[]>([]);
   const [loadingIngredients, setLoadingIngredients] = useState(false);
   const [error, setError] = useState("");
 
+  // --- Inline edit state ---
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingDraft, setEditingDraft] = useState<IngredientEditDraft | null>(
+    null
+  );
+
+  // Layout stuff (navbar height)
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerH, setHeaderH] = useState(64);
 
@@ -96,182 +113,204 @@ export default function UpdateMenu() {
     loadCategories();
   }, []);
 
-  // when user clicks "Load" in table, prefill the form
-  const handleRowSelect = (ing: Ingredient) => {
-    setIngredientNewID(String(ing.ingredient_id ?? ""));
-    setIngredientNewName(ing.ingredient_name ?? "");
-    setIngredientSupply(
-      ing.supply_level !== null && ing.supply_level !== undefined
-        ? String(ing.supply_level)
-        : ""
-    );
-    setIngredientExpirationDate(
-      ing.expiration_date ? ing.expiration_date.slice(0, 10) : ""
-    );
-    setIngredientNewPrice(
-      ing.ingredient_cost !== null && ing.ingredient_cost !== undefined
-        ? String(ing.ingredient_cost)
-        : ""
-    );
-    setIngredientVendor(ing.vendor ?? "");
-    setIngredientCategoryId(
-      ing.category_id !== null && ing.category_id !== undefined
-        ? String(ing.category_id)
-        : ""
+  // ---------- Inline editing helpers ----------
+
+  const startEditingRow = (ing: Ingredient) => {
+    setEditingId(ing.ingredient_id);
+    setEditingDraft({
+      ingredient_name: ing.ingredient_name ?? "",
+      supply_level:
+        ing.supply_level !== null && ing.supply_level !== undefined
+          ? String(ing.supply_level)
+          : "",
+      expiration_date: ing.expiration_date
+        ? ing.expiration_date.slice(0, 10)
+        : "",
+      ingredient_cost:
+        ing.ingredient_cost !== null && ing.ingredient_cost !== undefined
+          ? String(ing.ingredient_cost)
+          : "",
+      vendor: ing.vendor ?? "",
+      category_id:
+        ing.category_id !== null && ing.category_id !== undefined
+          ? String(ing.category_id)
+          : "",
+    });
+  };
+
+  const cancelEditingRow = () => {
+    setEditingId(null);
+    setEditingDraft(null);
+  };
+
+  const updateEditingField = <K extends keyof IngredientEditDraft>(
+    field: K,
+    value: string
+  ) => {
+    setEditingDraft((prev) =>
+      prev ? { ...prev, [field]: value } : prev
     );
   };
 
-  const handleAddIngredient = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const saveEditingRow = async () => {
+    if (editingId == null || !editingDraft) return;
 
-    let targetName = ingredientNewName.trim();
-    let targetID = ingredientNewID.trim(); // used only for update/delete
-    let targetPrice = ingredientNewPrice.trim();
-    let targetSupply = ingredientSupply.trim();
-    let targetVendor = ingredientVendor.trim();
-    let targetExpirationDate =
-      ingredientExpirationDate.trim() &&
-      ingredientExpirationDate.trim() + " 00:00:00";
-    let targetCategoryId =
-      ingredientCategoryId.trim() !== ""
-        ? Number(ingredientCategoryId.trim())
+    const nameTrimmed = editingDraft.ingredient_name.trim();
+    if (!nameTrimmed) {
+      alert("Name is required.");
+      return;
+    }
+
+    const payload = {
+      ingredient_name: nameTrimmed,
+      supply_level: editingDraft.supply_level
+        ? Number(editingDraft.supply_level)
+        : null,
+      expiration_date: editingDraft.expiration_date
+        ? editingDraft.expiration_date + " 00:00:00"
+        : null,
+      ingredient_cost: editingDraft.ingredient_cost
+        ? Number(editingDraft.ingredient_cost)
+        : null,
+      vendor: editingDraft.vendor.trim() || null,
+      category_id: editingDraft.category_id
+        ? Number(editingDraft.category_id)
+        : null,
+    };
+
+    try {
+      const res = await fetch(
+        `${API_URL}/inventorypage/ingredients/${editingId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const raw = await res.text();
+      if (!res.ok) {
+        alert(`Error ${res.status}\n${raw}`);
+        return;
+      }
+
+      alert("Ingredient updated!");
+      await loadIngredients();
+      cancelEditingRow();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      alert(`Something happened -> ${message}`);
+    }
+  };
+
+  const deleteIngredientInline = async (ingredientId: number) => {
+    if (!window.confirm("Delete this ingredient?")) return;
+
+    try {
+      const res = await fetch(
+        `${API_URL}/inventorypage/deleteingredient/${encodeURIComponent(
+          String(ingredientId)
+        )}`
+      );
+      const raw = await res.text();
+
+      if (!res.ok) {
+        alert(
+          `Error ${res.status}\n${
+            raw || "Failed to delete ingredient"
+          }`
+        );
+        return;
+      }
+
+      try {
+        const data = JSON.parse(raw);
+        const stringVersion = JSON.stringify(data, null, 2);
+        if (stringVersion === "[]") alert("Ingredient deleted!");
+        else alert(stringVersion);
+      } catch {
+        alert(`Non-JSON response from server:\n${raw}`);
+      }
+
+      await loadIngredients();
+      if (editingId === ingredientId) cancelEditingRow();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      alert(`Something happened -> ${message}`);
+    }
+  };
+
+  // ---------- Add new ingredient ----------
+
+  const handleAddIngredient = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const targetName = newName.trim();
+    const targetPrice = newPrice.trim();
+    const targetSupply = newSupply.trim();
+    const targetVendor = newVendor.trim();
+    const targetExpirationDate =
+      newExpirationDate.trim() &&
+      newExpirationDate.trim() + " 00:00:00";
+    const targetCategoryId =
+      newCategoryId.trim() !== ""
+        ? Number(newCategoryId.trim())
         : null;
 
-    const submitter = (e?.nativeEvent as any).submitter;
-    const action = submitter?.value; // "add" | "update" | "delete"
-
-    // ---------- ADD: no ingredient_id needed ----------
-    if (action === "add") {
-      if (
-        !targetName ||
-        !targetPrice ||
-        !targetSupply ||
-        !targetVendor ||
-        !targetExpirationDate
-      ) {
-        alert("Verify all information is valid.");
-        return;
-      }
-
-      try {
-        const res = await fetch(`${API_URL}/inventorypage/ingredients`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ingredient_name: targetName,
-            supply_level: Number(targetSupply),
-            expiration_date: targetExpirationDate,
-            ingredient_cost: Number(targetPrice),
-            vendor: targetVendor,
-            category_id: targetCategoryId,
-          }),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          alert(
-            `Error ${res.status}\n${
-              data.error || "Failed to create ingredient"
-            }`
-          );
-          return;
-        }
-
-        alert(`Ingredient created! New ID: ${data.ingredient_id ?? "(unknown)"}`);
-        await loadIngredients();
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        alert(`Something happened -> ${message}`);
-      }
+    if (
+      !targetName ||
+      !targetPrice ||
+      !targetSupply ||
+      !targetVendor ||
+      !targetExpirationDate
+    ) {
+      alert("Verify all information is valid.");
+      return;
     }
 
-    // ---------- UPDATE ----------
-    if (action === "update") {
-        if (!targetName) {
-            alert("Verify all information is valid (Name required).");
-            return;
-        }
+    try {
+      const res = await fetch(`${API_URL}/inventorypage/ingredients`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ingredient_name: targetName,
+          supply_level: Number(targetSupply),
+          expiration_date: targetExpirationDate,
+          ingredient_cost: Number(targetPrice),
+          vendor: targetVendor,
+          category_id: targetCategoryId,
+        }),
+      });
 
-        try {
-            const res = await fetch(`${API_URL}/inventorypage/ingredient`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ingredient_name: targetName,
-                    supply_level: targetSupply ? Number(targetSupply) : null,
-                    expiration_date: targetExpirationDate || null,
-                    ingredient_cost: targetPrice ? Number(targetPrice) : null,
-                    vendor: targetVendor || null,
-                    category_id: targetCategoryId,
-                }),
-            });
+      const data = await res.json();
 
-            const raw = await res.text();
-
-            if (!res.ok) {
-                alert(`Error ${res.status}\n${raw}`);
-                return;
-            } 
-
-            alert("Ingredient updated!");
-            await loadIngredients();
-
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : String(err);
-            alert(`Something happened -> ${message}`);
-        }
-    }
-
-
-    // ---------- DELETE ----------
-    if (action === "delete") {
-      if (!targetID) {
-        alert("Verify all information is valid (ID required).");
-        return;
-      }
-
-      try {
-        const res = await fetch(
-          `${API_URL}/inventorypage/deleteingredient/${encodeURIComponent(
-            targetID
-          )}`
+      if (!res.ok) {
+        alert(
+          `Error ${res.status}\n${
+            data.error || "Failed to create ingredient"
+          }`
         );
-        const raw = await res.text();
-
-        if (!res.ok) {
-          alert(
-            `Error ${res.status}\n${
-              raw || "Failed to delete ingredient"
-            }`
-          );
-          return;
-        }
-
-        try {
-          const data = JSON.parse(raw);
-          const stringVersion = JSON.stringify(data, null, 2);
-          if (stringVersion === "[]") alert("Ingredient deleted!");
-          else alert(stringVersion);
-          await loadIngredients();
-        } catch {
-          alert(`Non-JSON response from server:\n${raw}`);
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        alert(`Something happened -> ${message}`);
+        return;
       }
+
+      alert(
+        `Ingredient created! New ID: ${data.ingredient_id ?? "(unknown)"}`
+      );
+      clearAddForm();
+      await loadIngredients();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      alert(`Something happened -> ${message}`);
     }
   };
 
-  const clearForm = () => {
-    setIngredientNewName("");
-    setIngredientNewID("");
-    setIngredientNewPrice("");
-    setIngredientSupply("");
-    setIngredientExpirationDate("");
-    setIngredientVendor("");
-    setIngredientCategoryId("");
+  const clearAddForm = () => {
+    setNewName("");
+    setNewPrice("");
+    setNewSupply("");
+    setNewExpirationDate("");
+    setNewVendor("");
+    setNewCategoryId("");
   };
 
   return (
@@ -289,7 +328,7 @@ export default function UpdateMenu() {
             <h2>Ingredient List</h2>
           </div>
 
-          <div className="update-table-wrapper">
+          <div className="ingredient-table-wrapper">
             <table className="update-table">
               <thead>
                 <tr>
@@ -312,47 +351,209 @@ export default function UpdateMenu() {
                     </td>
                   </tr>
                 ) : (
-                  ingredients.map((ing) => (
-                    <tr key={ing.ingredient_id}>
-                      <td>{ing.ingredient_id}</td>
-                      <td>{ing.ingredient_name}</td>
-                      <td>
-                        {ing.ingredient_category_name ??
-                          (ing.category_id
-                            ? `#${ing.category_id}`
-                            : "")}
-                      </td>
-                      <td>{ing.supply_level}</td>
-                      <td>
-                        {ing.expiration_date?.slice(0, 10) || ""}
-                      </td>
-                      <td>{ing.ingredient_cost}</td>
-                      <td>{ing.vendor}</td>
-                      <td>
-                        <button
-                          className="btn-update btn-update--outline"
-                          onClick={() => handleRowSelect(ing)}
-                        >
-                          Load
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                  ingredients.map((ing) => {
+                    const isEditing = editingId === ing.ingredient_id;
+
+                    return (
+                      <tr key={ing.ingredient_id}>
+                        <td>{ing.ingredient_id}</td>
+
+                        {/* Name */}
+                        <td>
+                          {isEditing && editingDraft ? (
+                            <input
+                              className="update-input"
+                              value={editingDraft.ingredient_name}
+                              onChange={(e) =>
+                                updateEditingField(
+                                  "ingredient_name",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          ) : (
+                            ing.ingredient_name
+                          )}
+                        </td>
+
+                        {/* Category */}
+                        <td>
+                          {isEditing && editingDraft ? (
+                            <select
+                              className="update-input"
+                              value={editingDraft.category_id}
+                              onChange={(e) =>
+                                updateEditingField(
+                                  "category_id",
+                                  e.target.value
+                                )
+                              }
+                            >
+                              <option value="">(None)</option>
+                              {categories.map((cat) => (
+                                <option
+                                  key={cat.ingredient_category_id}
+                                  value={cat.ingredient_category_id}
+                                >
+                                  {cat.ingredient_category_name}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            ing.ingredient_category_name ??
+                            (ing.category_id
+                              ? `#${ing.category_id}`
+                              : "")
+                          )}
+                        </td>
+
+                        {/* Supply */}
+                        <td>
+                          {isEditing && editingDraft ? (
+                            <input
+                              className="update-input"
+                              value={editingDraft.supply_level}
+                              onChange={(e) =>
+                                updateEditingField(
+                                  "supply_level",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          ) : (
+                            ing.supply_level
+                          )}
+                        </td>
+
+                        {/* Expiration */}
+                        <td>
+                          {isEditing && editingDraft ? (
+                            <input
+                              className="update-input"
+                              placeholder="YYYY-MM-DD"
+                              value={editingDraft.expiration_date}
+                              onChange={(e) =>
+                                updateEditingField(
+                                  "expiration_date",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          ) : (
+                            ing.expiration_date?.slice(0, 10) || ""
+                          )}
+                        </td>
+
+                        {/* Cost */}
+                        <td>
+                          {isEditing && editingDraft ? (
+                            <input
+                              className="update-input"
+                              value={editingDraft.ingredient_cost}
+                              onChange={(e) =>
+                                updateEditingField(
+                                  "ingredient_cost",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          ) : (
+                            ing.ingredient_cost
+                          )}
+                        </td>
+
+                        {/* Vendor */}
+                        <td>
+                          {isEditing && editingDraft ? (
+                            <input
+                              className="update-input"
+                              value={editingDraft.vendor}
+                              onChange={(e) =>
+                                updateEditingField(
+                                  "vendor",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          ) : (
+                            ing.vendor
+                          )}
+                        </td>
+
+                        {/* Actions */}
+                        <td>
+                          {isEditing ? (
+                            <div className="update-actions-row">
+                              <button
+                                type="button"
+                                className="btn-update"
+                                onClick={saveEditingRow}
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                className="btn-update btn-update--outline"
+                                onClick={cancelEditingRow}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                className="btn-update btn-update--danger"
+                                onClick={() =>
+                                  deleteIngredientInline(
+                                    ing.ingredient_id
+                                  )
+                                }
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="update-actions-row">
+                              <button
+                                type="button"
+                                className="btn-update btn-update--outline"
+                                onClick={() => startEditingRow(ing)}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="btn-update btn-update--danger"
+                                onClick={() =>
+                                  deleteIngredientInline(
+                                    ing.ingredient_id
+                                  )
+                                }
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
           </div>
 
+          {/* ---------- ADD NEW INGREDIENT FORM ---------- */}
+          <h2 style={{ marginTop: "1.2rem" }}>Add New Ingredient</h2>
 
-          <h2 style={{ marginTop: "1.2rem" }}>Add / Update / Delete</h2>
-
-          <form onSubmit={handleAddIngredient} className="update-form-grid">
+          <form
+            onSubmit={handleAddIngredient}
+            className="update-form-grid"
+          >
             <div className="update-field">
               <label className="update-label">Name</label>
               <input
                 className="update-input"
-                value={ingredientNewName}
-                onChange={(e) => setIngredientNewName(e.target.value)}
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
               />
             </div>
 
@@ -360,8 +561,8 @@ export default function UpdateMenu() {
               <label className="update-label">Supply</label>
               <input
                 className="update-input"
-                value={ingredientSupply}
-                onChange={(e) => setIngredientSupply(e.target.value)}
+                value={newSupply}
+                onChange={(e) => setNewSupply(e.target.value)}
               />
             </div>
 
@@ -370,9 +571,9 @@ export default function UpdateMenu() {
               <input
                 className="update-input"
                 placeholder="YYYY-MM-DD"
-                value={ingredientExpirationDate}
+                value={newExpirationDate}
                 onChange={(e) =>
-                  setIngredientExpirationDate(e.target.value)
+                  setNewExpirationDate(e.target.value)
                 }
               />
             </div>
@@ -381,8 +582,8 @@ export default function UpdateMenu() {
               <label className="update-label">Cost</label>
               <input
                 className="update-input"
-                value={ingredientNewPrice}
-                onChange={(e) => setIngredientNewPrice(e.target.value)}
+                value={newPrice}
+                onChange={(e) => setNewPrice(e.target.value)}
               />
             </div>
 
@@ -390,8 +591,8 @@ export default function UpdateMenu() {
               <label className="update-label">Vendor</label>
               <input
                 className="update-input"
-                value={ingredientVendor}
-                onChange={(e) => setIngredientVendor(e.target.value)}
+                value={newVendor}
+                onChange={(e) => setNewVendor(e.target.value)}
               />
             </div>
 
@@ -399,8 +600,8 @@ export default function UpdateMenu() {
               <label className="update-label">Category</label>
               <select
                 className="update-input"
-                value={ingredientCategoryId}
-                onChange={(e) => setIngredientCategoryId(e.target.value)}
+                value={newCategoryId}
+                onChange={(e) => setNewCategoryId(e.target.value)}
               >
                 <option value="">(None)</option>
                 {categories.map((cat) => (
@@ -415,28 +616,14 @@ export default function UpdateMenu() {
             </div>
 
             <div className="update-actions-row">
-              <button type="submit" value="add" className="btn-update">
+              <button type="submit" className="btn-update">
                 Add
-              </button>
-              <button
-                type="submit"
-                value="update"
-                className="btn-update btn-update"
-              >
-                Update
-              </button>
-              <button
-                type="submit"
-                value="delete"
-                className="btn-update btn-update"
-              >
-                Delete
               </button>
 
               <button
                 type="button"
-                onClick={clearForm}
-                className="btn-update btn-update"
+                onClick={clearAddForm}
+                className="btn-update btn-update--outline"
                 style={{ marginLeft: "auto" }}
               >
                 Clear
