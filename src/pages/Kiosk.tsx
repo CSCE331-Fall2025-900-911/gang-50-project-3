@@ -45,7 +45,7 @@ export default function Kiosk() {
     const load = async () => {
       try {
         const c = await fetch(`${API_URL}/categories`).then(r => r.json());
-        const i = await fetch(`${API_URL}/kiosk/items`).then(r => r.json());
+        const i = await fetch(`${API_URL}/admin/items`).then(r => r.json());
         const g = await fetch(`${API_URL}/ingredients`).then(r => r.json());
 
         setCategories(c);
@@ -422,6 +422,7 @@ export default function Kiosk() {
   // ---------- UI ----------
   return (
     <div className="orders-layout">
+      <KioskNavbar />
       {/* LEFT Sidebar */}
       <div className="sidebar sidebar-left">
         <div
@@ -451,7 +452,6 @@ export default function Kiosk() {
 
       {/* MAIN CONTENT */}
       <div className="content">
-        <KioskNavbar />
         <div
           className="section-header"
           style={{
@@ -497,23 +497,37 @@ export default function Kiosk() {
           <p className="empty muted">No items found.</p>
         ) : (
           <div className="item-grid">
-            {filteredItems.map((item: any) => (
-              <button
-                key={item.item_id}
-                onClick={() => addDrink(item)}
-                className="item-card"
-              >
-                <div className="thumb">
-                  {item.photo ? (
-                    <img src={item.photo} alt={item.item_name} className="thumb-img" />
-                  ) : (
-                    <span className="thumb-ph">No image</span>
+            {filteredItems.map((item: any) => {
+              const isOutOfStock = item.has_oos_ingredient; 
+
+              return (
+                <button
+                  key={item.item_id}
+                  onClick={() => {
+                    if (!isOutOfStock) addDrink(item);
+                  }}
+                  disabled={isOutOfStock}
+                  className={`item-card ${isOutOfStock ? 'item-card-disabled' : ''}`}
+                >
+                  <div className="thumb">
+                    {item.photo ? (
+                      <img src={item.photo} alt={item.item_name} className="thumb-img" />
+                    ) : (
+                      <span className="thumb-ph">No image</span>
+                    )}
+                  </div>
+
+                  <h3 className="item-name">{item.item_name}</h3>
+                  <p className="item-price">${item.item_cost.toFixed(2)}</p>
+
+                  {isOutOfStock && (
+                    <div className="item-badge item-badge-oos">
+                      Out of stock
+                    </div>
                   )}
-                </div>
-                <h3 className="item-name">{item.item_name}</h3>
-                <p className="item-price">${item.item_cost.toFixed(2)}</p>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
@@ -1065,7 +1079,7 @@ export default function Kiosk() {
             })()}
             <div style={{ textAlign: 'right' }}>
               <button
-                className="btn"
+                className="logout"
                 onClick={() => setInfoSection(null)}
               >
                 Got it

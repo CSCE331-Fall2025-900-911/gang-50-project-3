@@ -398,6 +398,7 @@ export default function Orders() {
 
   return (
     <div className="orders-layout">
+      <CashierNavbar />
       {/* LEFT SIDEBAR */}
       <div className="sidebar sidebar-left">
         <h2 style={{textAlign: 'left'}}>Item Categories</h2>
@@ -428,7 +429,6 @@ export default function Orders() {
 
       {/* MAIN CONTENT */}
       <div className="content">
-        <CashierNavbar />
         <div
           className="section-header"
           style={{
@@ -510,27 +510,37 @@ export default function Orders() {
           <p className="empty muted">No items found.</p>
         ) : (
           <div className="item-grid">
-            {filteredItems.map((item: any) => (
-              <button
-                key={item.item_id}
-                onClick={() => addDrink(item)}
-                className="item-card"
-              >
-                <div className="thumb">
-                  {item.photo ? (
-                    <img
-                      src={item.photo}
-                      alt={item.item_name}
-                      className="thumb-img"
-                    />
-                  ) : (
-                    <span className="thumb-ph">No image</span>
+            {filteredItems.map((item: any) => {
+              const isOutOfStock = item.has_oos_ingredient; 
+
+              return (
+                <button
+                  key={item.item_id}
+                  onClick={() => {
+                    if (!isOutOfStock) addDrink(item);
+                  }}
+                  disabled={isOutOfStock}
+                  className={`item-card ${isOutOfStock ? 'item-card-disabled' : ''}`}
+                >
+                  <div className="thumb">
+                    {item.photo ? (
+                      <img src={item.photo} alt={item.item_name} className="thumb-img" />
+                    ) : (
+                      <span className="thumb-ph">No image</span>
+                    )}
+                  </div>
+
+                  <h3 className="item-name">{item.item_name}</h3>
+                  <p className="item-price">${item.item_cost.toFixed(2)}</p>
+
+                  {isOutOfStock && (
+                    <div className="item-badge item-badge-oos">
+                      Out of stock
+                    </div>
                   )}
-                </div>
-                <h3 className="item-name">{item.item_name}</h3>
-                <p className="item-price">${item.item_cost.toFixed(2)}</p>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
