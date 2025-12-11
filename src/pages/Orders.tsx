@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import CashierNavbar from '../components/CashierNavbar';
 
-
 export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
@@ -17,26 +16,27 @@ export default function Orders() {
     'all' | 'dairy_free' | 'gluten_free' | 'both_free'
   >('all');
 
-
   const miscIngredientPhotos: Record<string, string> = {
     Bag: '/ingredient_36.png',
     Lid: '/ingredient_32.png',
     Straw: '/ingredient_33.png',
     Napkin: '/ingredient_34.png',
-    "To-go Box": '/ingredient_35.png',
+    'To-go Box': '/ingredient_35.png',
   };
-  
 
   const API_URL = '/api';
-  const singleSelectCategories = ['Sizes', 'Temperature', 'Milk', 'Ice Level', 'Sweetness Level'];
+  const singleSelectCategories = ['Sizes', 'Milk', 'Ice Level', 'Sweetness Level'];
+
   const multiSelectCategories = ['Toppings'];
+
+  const REQUIRED_CATEGORIES = ['Sizes', 'Milk', 'Ice Level', 'Sweetness Level'];
 
   useEffect(() => {
     const load = async () => {
       try {
-        const c = await fetch(`${API_URL}/categories`).then(r => r.json());
-        const i = await fetch(`${API_URL}/admin/items`).then(r => r.json());
-        const g = await fetch(`${API_URL}/ingredients`).then(r => r.json());
+        const c = await fetch(`${API_URL}/categories`).then((r) => r.json());
+        const i = await fetch(`${API_URL}/admin/items`).then((r) => r.json());
+        const g = await fetch(`${API_URL}/ingredients`).then((r) => r.json());
 
         setCategories(c);
         setItems(i);
@@ -57,7 +57,9 @@ export default function Orders() {
         <div className="error-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
           <h2>Something went wrong</h2>
           <p>{error}</p>
-          <button onClick={() => window.location.reload()} className="btn">Retry</button>
+          <button onClick={() => window.location.reload()} className="btn">
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -71,34 +73,34 @@ export default function Orders() {
     if (!groupedIngredients[catName]) groupedIngredients[catName] = [];
     groupedIngredients[catName].push(ing);
   }
-  Object.keys(groupedIngredients).forEach(catName => {
-    groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
+  Object.keys(groupedIngredients).forEach((catName) => {
+    groupedIngredients[catName].sort((a: any, b: any) =>
+      a.ingredient_name.localeCompare(b.ingredient_name),
+    );
   });
 
-
   // Filter normal items with dietary filter
-  const filteredItems = selectedCategory === 7
-    ? []
-    : items
-        .filter((item: any) => item.category_id === selectedCategory)
-        .filter((item: any) => {
-          const hasDairy = !!item.contains_dairy;
-          const hasGluten = !!item.contains_gluten;
+  const filteredItems =
+    selectedCategory === 7
+      ? []
+      : items
+          .filter((item: any) => item.category_id === selectedCategory)
+          .filter((item: any) => {
+            const hasDairy = !!item.contains_dairy;
+            const hasGluten = !!item.contains_gluten;
 
-          switch (dietaryFilter) {
-            case 'dairy_free':
-              return !hasDairy;
-            case 'gluten_free':
-              return !hasGluten;
-            case 'both_free':
-              return !hasDairy && !hasGluten;
-            case 'all':
-            default:
-              return true;
-          }
-        });
-
-
+            switch (dietaryFilter) {
+              case 'dairy_free':
+                return !hasDairy;
+              case 'gluten_free':
+                return !hasGluten;
+              case 'both_free':
+                return !hasDairy && !hasGluten;
+              case 'all':
+              default:
+                return true;
+            }
+          });
 
   // Add drink and open customization popup
   const addDrink = (item: any) => {
@@ -115,7 +117,7 @@ export default function Orders() {
       },
       extras: [] as any[],
     };
-    setCart(prev => [...prev, newDrink]);
+    setCart((prev) => [...prev, newDrink]);
     setCustomizingDrink(newDrink);
     setShowCustomizationPopup(true);
   };
@@ -128,28 +130,30 @@ export default function Orders() {
 
     const drinkId = lastDrink.cart_id;
 
-    setCart(prev => prev.map((d: any) => {
-      if (d.cart_id !== drinkId) return d;
+    setCart((prev) =>
+      prev.map((d: any) => {
+        if (d.cart_id !== drinkId) return d;
 
-      if (singleSelectCategories.includes(ing.ingredient_category_name)) {
+        if (singleSelectCategories.includes(ing.ingredient_category_name)) {
+          return {
+            ...d,
+            ingredients: {
+              ...d.ingredients,
+              [ing.ingredient_category_name]: ing,
+            },
+          };
+        }
+
         return {
           ...d,
-          ingredients: {
-            ...d.ingredients,
-            [ing.ingredient_category_name]: ing,
-          },
+          extras: [...d.extras, ing],
         };
-      }
-
-      return {
-        ...d,
-        extras: [...d.extras, ing],
-      };
-    }));
+      }),
+    );
   };
 
   const removeDrink = (drinkId: any) => {
-    setCart(prev => prev.filter((d: any) => d.cart_id !== drinkId));
+    setCart((prev) => prev.filter((d: any) => d.cart_id !== drinkId));
   };
 
   const subtotal = cart.reduce((sum: number, d: any) => {
@@ -161,13 +165,15 @@ export default function Orders() {
   const total = subtotal + tax;
 
   // Only Packaging in Misc
-  const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter((catName: string) => {
-    const list = groupedIngredients[catName];
-    return list[0] && list[0].ingredient_category_name === 'Packaging';
-  });
+  const allowedMiscCategoryNames = Object.keys(groupedIngredients).filter(
+    (catName: string) => {
+      const list = groupedIngredients[catName];
+      return list[0] && list[0].ingredient_category_name === 'Packaging';
+    },
+  );
 
   const changeQuantity = (drinkId: number, delta: number) => {
-    setCart(prev =>
+    setCart((prev) =>
       prev.map((d: any) => {
         if (d.cart_id !== drinkId) return d;
         const newQty = d.quantity + delta;
@@ -175,7 +181,7 @@ export default function Orders() {
           ...d,
           quantity: newQty < 1 ? 1 : newQty, // never go below 1
         };
-      })
+      }),
     );
   };
 
@@ -186,6 +192,15 @@ export default function Orders() {
     const current = customizingDrink.ingredients[category];
 
     const isSame = current && current.ingredient_id === ing.ingredient_id;
+
+    // If drink is Hot and this is an Ice Level that is NOT "No Ice", ignore
+    if (
+      category === 'Ice Level' &&
+      customizingDrink.temperature === 'Hot' &&
+      !/no ice/i.test(ing.ingredient_name)
+    ) {
+      return;
+    }
 
     setCustomizingDrink({
       ...customizingDrink,
@@ -198,7 +213,26 @@ export default function Orders() {
 
   const confirmCustomization = () => {
     if (!customizingDrink) return;
-    setCart(prev => prev.map(d => d.cart_id === customizingDrink.cart_id ? customizingDrink : d));
+
+    for (const cat of REQUIRED_CATEGORIES) {
+      if (!customizingDrink.ingredients[cat]) {
+        alert(`Please select a ${cat} option.`);
+        return;
+      }
+    }
+
+    if (
+      customizingDrink.temperature === 'Hot' &&
+      customizingDrink.ingredients['Ice Level'] &&
+      !/no ice/i.test(customizingDrink.ingredients['Ice Level'].ingredient_name)
+    ) {
+      alert('Hot drinks must use the "No Ice" option.');
+      return;
+    }
+
+    setCart((prev) =>
+      prev.map((d) => (d.cart_id === customizingDrink.cart_id ? customizingDrink : d)),
+    );
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
   };
@@ -224,13 +258,11 @@ export default function Orders() {
     if (!customizingDrink) return;
 
     const exists = customizingDrink.extras.some(
-      (e: any) => e.ingredient_id === ing.ingredient_id
+      (e: any) => e.ingredient_id === ing.ingredient_id,
     );
 
     const newExtras = exists
-      ? customizingDrink.extras.filter(
-          (e: any) => e.ingredient_id !== ing.ingredient_id
-        )
+      ? customizingDrink.extras.filter((e: any) => e.ingredient_id !== ing.ingredient_id)
       : [...customizingDrink.extras, ing];
 
     setCustomizingDrink({
@@ -239,17 +271,49 @@ export default function Orders() {
     });
   };
 
+  // UPDATED: when Hot is selected, auto-set Ice Level to "No Ice"
   const setTemperature = (temp: 'Hot' | 'Iced') => {
     if (!customizingDrink) return;
+
+    let updatedIngredients = { ...customizingDrink.ingredients };
+
+    if (temp === 'Hot') {
+      const iceOptions = groupedIngredients['Ice Level'] || [];
+      const noIceOption = iceOptions.find((ing: any) =>
+        /no ice/i.test(ing.ingredient_name),
+      );
+      if (noIceOption) {
+        updatedIngredients['Ice Level'] = noIceOption;
+      }
+    }
 
     setCustomizingDrink({
       ...customizingDrink,
       temperature: temp,
+      ingredients: updatedIngredients,
     });
   };
 
   const submitOrder = async () => {
     if (cart.length === 0) return;
+
+    // NEW: validate required options for every drink before sending to backend
+    for (const d of cart) {
+      for (const cat of REQUIRED_CATEGORIES) {
+        if (!d.ingredients[cat]) {
+          alert(`Please select a ${cat} option for "${d.item.item_name}".`);
+          return;
+        }
+      }
+      if (
+        d.temperature === 'Hot' &&
+        d.ingredients['Ice Level'] &&
+        !/no ice/i.test(d.ingredients['Ice Level'].ingredient_name)
+      ) {
+        alert(`Hot drinks must use the "No Ice" option for "${d.item.item_name}".`);
+        return;
+      }
+    }
 
     // Helper to collect all ingredient IDs for a drink
     const collectIngredientIds = (drink: any) => {
@@ -275,7 +339,7 @@ export default function Orders() {
     const itemsPayload = cart.map((d: any) => {
       const extrasCost = d.extras.reduce(
         (s: number, e: any) => s + e.ingredient_cost,
-        0
+        0,
       );
       const perDrink = d.item.item_cost + extrasCost;
       const lineTotal = perDrink * d.quantity;
@@ -290,12 +354,12 @@ export default function Orders() {
     });
 
     const body = {
-      customerId: null,
-      employeeId: null,
+      customerId: null, // or real id if you have it
+      employeeId: null, // or real id
       items: itemsPayload,
       totalCost: itemsPayload.reduce((sum, x) => sum + x.subtotal, 0),
-      tax: 0,
-      tip: 0,
+      tax: 0, // or your tax calc
+      tip: 0, // or tip value
     };
 
     try {
@@ -322,26 +386,29 @@ export default function Orders() {
     }
   };
 
-
   return (
     <div className="orders-layout">
-      {/* LEFT SidEBAR */}
+      {/* LEFT SIDEBAR */}
       <div className="sidebar sidebar-left">
-        <h2 className="section-title">Item Categories</h2>
+        <h2 style={{textAlign: 'left'}}>Item Categories</h2>
         <div className="category-list">
           {categories.map((c: any) => (
             <button
               key={c.category_id}
               onClick={() => setSelectedCategory(c.category_id)}
-              className={`category-btn ${selectedCategory === c.category_id ? 'active' : ''}`}
+              className={`cashier-category-btn ${
+                selectedCategory === c.category_id ? 'active' : ''
+              }`}
             >
               {c.name}
             </button>
           ))}
-          {!categories.some(c => c.category_id === 7) && (
+          {!categories.some((c) => c.category_id === 7) && (
             <button
               onClick={() => setSelectedCategory(7)}
-              className={`category-btn ${selectedCategory === 7 ? 'active' : ''}`}
+              className={`cashier-category-btn ${
+                selectedCategory === 7 ? 'active' : ''
+              }`}
             >
               Misc
             </button>
@@ -352,24 +419,43 @@ export default function Orders() {
       {/* MAIN CONTENT */}
       <div className="content">
         <CashierNavbar />
-        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
-          <h2 className="section-title">
-            {categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items'}
+        <div
+          className="section-header"
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '1rem',
+          }}
+        >
+          <h2>
+            {categories.find((c: any) => c.category_id === selectedCategory)?.name ||
+              'Items'}
           </h2>
 
-          <div className="dietary-filter" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {/* Dietary filter */}
+          <div
+            className="dietary-filter"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          >
             <span>Dietary:</span>
             <select
               value={dietaryFilter}
               onChange={(e) =>
-                setDietaryFilter(e.target.value as 'all' | 'dairy_free' | 'gluten_free' | 'both_free')
+                setDietaryFilter(
+                  e.target.value as
+                    | 'all'
+                    | 'dairy_free'
+                    | 'gluten_free'
+                    | 'both_free',
+                )
               }
               className="dietary-select"
             >
               <option value="all">All Items</option>
               <option value="dairy_free">Dairy-Free</option>
               <option value="gluten_free">Gluten-Free</option>
-              <option value="both_free">Dairy & Gluten Free</option>
+              <option value="both_free">Dairy &amp; Gluten Free</option>
             </select>
           </div>
         </div>
@@ -383,11 +469,23 @@ export default function Orders() {
                   <button
                     key={item.ingredient_id}
                     onClick={() => addIngredient(item)}
-                    className={`item-card ${cart.some((d: any) => d.extras.some((ex: any) => ex.ingredient_id === item.ingredient_id)) ? 'selected' : ''}`}
+                    className={`item-card ${
+                      cart.some((d: any) =>
+                        d.extras.some(
+                          (ex: any) => ex.ingredient_id === item.ingredient_id,
+                        ),
+                      )
+                        ? 'selected'
+                        : ''
+                    }`}
                   >
                     <div className="thumb">
                       {miscIngredientPhotos[item.ingredient_name] ? (
-                        <img src={miscIngredientPhotos[item.ingredient_name]} alt={item.ingredient_name} className="thumb-img" />
+                        <img
+                          src={miscIngredientPhotos[item.ingredient_name]}
+                          alt={item.ingredient_name}
+                          className="thumb-img"
+                        />
                       ) : (
                         <span className="thumb-ph">No image</span>
                       )}
@@ -398,65 +496,78 @@ export default function Orders() {
               </div>
             </div>
           ))
+        ) : filteredItems.length === 0 ? (
+          <p className="empty muted">No items found.</p>
         ) : (
-          filteredItems.length === 0 ? (
-            <p className="empty muted">No items found.</p>
-          ) : (
-            <div className="item-grid">
-              {filteredItems.map((item: any) => (
-                <button key={item.item_id} onClick={() => addDrink(item)} className="item-card">
-                  <div className="thumb">
-                    {item.photo ? (
-                      <img src={item.photo} alt={item.item_name} className="thumb-img" />
-                    ) : (
-                      <span className="thumb-ph">No image</span>
-                    )}
-                  </div>
-                  <h3 className="item-name">{item.item_name}</h3>
-                  <p className="item-price">${item.item_cost.toFixed(2)}</p>
-                </button>
-              ))}
-            </div>
-          )
+          <div className="item-grid">
+            {filteredItems.map((item: any) => (
+              <button
+                key={item.item_id}
+                onClick={() => addDrink(item)}
+                className="item-card"
+              >
+                <div className="thumb">
+                  {item.photo ? (
+                    <img
+                      src={item.photo}
+                      alt={item.item_name}
+                      className="thumb-img"
+                    />
+                  ) : (
+                    <span className="thumb-ph">No image</span>
+                  )}
+                </div>
+                <h3 className="item-name">{item.item_name}</h3>
+                <p className="item-price">${item.item_cost.toFixed(2)}</p>
+              </button>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* RIGHT SidEBAR / CART */}
+      {/* RIGHT SIDEBAR / CART */}
       <div className="sidebar sidebar-right">
         <h2 className="order-title">Current Order</h2>
 
-      <div className="order-lines" >
-        {cart.length === 0 ? (
-          <p className="empty muted">No items in cart</p>
-        ) : (
-          cart.map((d: any) => (
-            <div key={d.cart_id} className="order-line" onClick={() => openCustomizationForDrink(d)} style={{ cursor: 'pointer' }}>
+        <div className="order-lines">
+          {cart.length === 0 ? (
+            <p className="empty muted">No items in cart</p>
+          ) : (
+            cart.map((d: any) => (
+              <div
+                key={d.cart_id}
+                className="order-line"
+                onClick={() => openCustomizationForDrink(d)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div>
-                  <div className="order-line-title">
-                    {d.item.item_name}
-                  </div>
+                  <div className="order-line-title">{d.item.item_name}</div>
                   <div className="order-line-sub">
-                    {Object.entries(d.ingredients).map(([cat, ing]: [string, any]) => (
-                      ing ? (
-                        <div key={cat}>
-                          <span>{ing.ingredient_name}</span>
-                        </div>
-                      ) : null
-                    ))}
+                    {Object.entries(d.ingredients).map(
+                      ([cat, ing]: [string, any]) =>
+                        ing ? (
+                          <div key={cat}>
+                            <span>{ing.ingredient_name}</span>
+                          </div>
+                        ) : null,
+                    )}
                     {d.extras.map((e: any) => (
                       <div key={e.ingredient_id}>
-                        {e.ingredient_name} {e.ingredient_cost > 0 ? `(+$${e.ingredient_cost.toFixed(2)})` : ''}
+                        {e.ingredient_name}{' '}
+                        {e.ingredient_cost > 0
+                          ? `(+$${e.ingredient_cost.toFixed(2)})`
+                          : ''}
                       </div>
                     ))}
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', }}> 
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <div className="order-line-amt">
                     <span className="order-line-total">
                       {(() => {
                         const extrasCost = d.extras.reduce(
                           (s: number, e: any) => s + e.ingredient_cost,
-                          0
+                          0,
                         );
                         const perDrink = d.item.item_cost + extrasCost;
                         return `$${(perDrink * d.quantity).toFixed(2)}`;
@@ -498,18 +609,32 @@ export default function Orders() {
                   </div>
                 </div>
               </div>
-          ))
-          
-        )}
-      </div>
-
-        <div className="totals-card">
-          <div className="totals-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-          <div className="totals-row"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
-          <div className="totals-row totals-row-total"><span>Total</span><span>${total.toFixed(2)}</span></div>
+            ))
+          )}
         </div>
 
-        <button disabled={cart.length === 0} className="btn btn-checkout" onClick={() => setShowCheckoutPopup(true)}>Checkout</button>
+        <div className="totals-card">
+          <div className="totals-row">
+            <span>Subtotal</span>
+            <span>${subtotal.toFixed(2)}</span>
+          </div>
+          <div className="totals-row">
+            <span>Tax</span>
+            <span>${tax.toFixed(2)}</span>
+          </div>
+          <div className="totals-row totals-row-total">
+            <span>Total</span>
+            <span>${total.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <button
+          disabled={cart.length === 0}
+          className="btn btn-checkout"
+          onClick={() => setShowCheckoutPopup(true)}
+        >
+          Checkout
+        </button>
       </div>
 
       {/* --- Checkout Popup --- */}
@@ -522,7 +647,7 @@ export default function Orders() {
               {cart.map((d: any) => {
                 const extrasCost = d.extras.reduce(
                   (s: number, e: any) => s + e.ingredient_cost,
-                  0
+                  0,
                 );
                 const perDrink = d.item.item_cost + extrasCost;
                 const lineTotal = perDrink * d.quantity;
@@ -548,19 +673,17 @@ export default function Orders() {
                         {d.item.item_name}
                       </span>
 
-
                       <div className="checkout-line-ingredients">
                         {Object.entries(d.ingredients).map(
                           ([cat, ing]: [string, any]) =>
-                            ing && (
-                              <div key={cat}>
-                                {ing.ingredient_name}
-                              </div>
-                            )
+                            ing && <div key={cat}>{ing.ingredient_name}</div>,
                         )}
                         {d.extras.map((e: any) => (
                           <div key={e.ingredient_id}>
-                            {e.ingredient_name} {e.ingredient_cost > 0 ? `(+$${e.ingredient_cost.toFixed(2)})` : ''}
+                            {e.ingredient_name}{' '}
+                            {e.ingredient_cost > 0
+                              ? `(+$${e.ingredient_cost.toFixed(2)})`
+                              : ''}
                           </div>
                         ))}
                       </div>
@@ -598,10 +721,7 @@ export default function Orders() {
 
             {/* Actions */}
             <div className="checkout-actions">
-              <button
-                className="btn btn-primary"
-                onClick={submitOrder}
-              >
+              <button className="btn btn-primary" onClick={submitOrder}>
                 Confirm
               </button>
 
@@ -615,7 +735,6 @@ export default function Orders() {
           </div>
         </div>
       )}
-
 
       {/* --- Customization Popup --- */}
       {showCustomizationPopup && customizingDrink && (
@@ -631,7 +750,7 @@ export default function Orders() {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 1000,
+            zIndex: 1500,
           }}
         >
           <div
@@ -646,14 +765,32 @@ export default function Orders() {
           >
             <h3
               className="section-title"
-              style={{ textAlign: 'center', marginBottom: '1rem' }}
+              style={{ textAlign: 'center'}}
             >
               Customize {customizingDrink.item.item_name}
             </h3>
+            <h5
+              style={{
+                marginTop: 0,
+                marginBottom: '1rem',
+                fontSize: '0.85rem',
+                color: '#666',
+                textAlign: 'center',
+              }}
+            >
+              Fields marked <span style={{ color: 'red' }}>*</span> are required.
+            </h5>
 
-            <div>
-              <h4>Temperature</h4>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            {/* Temperature */}
+            <div style={{ marginBottom: '1rem' }}>
+              <h4>Temperature <span style={{ color: 'red' }}>*</span></h4>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '0.5rem',
+                  flexWrap: 'wrap',
+                }}
+              >
                 <button
                   className={`btn ${
                     customizingDrink.temperature === 'Hot' ? 'active' : ''
@@ -673,31 +810,49 @@ export default function Orders() {
               </div>
             </div>
 
-            {/* Single-select options */}
+            {/* Single-select ingredient groups */}
             {singleSelectCategories.map((cat) => (
               <div key={cat} style={{ marginBottom: '1rem' }}>
-                <h4>{cat}</h4>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {groupedIngredients[cat]?.map((ing: any) => (
-                    <button
-                      key={ing.ingredient_id}
-                      onClick={() => setCustomizationOption(cat, ing)}
-                      className={`btn ${
-                        customizingDrink.ingredients[cat]?.ingredient_id ===
-                        ing.ingredient_id
-                          ? 'active'
-                          : ''
-                      }`}
-                    >
-                      {ing.ingredient_name}
-                    </button>
-                  ))}
+                <h4>{cat} <span style={{ color: 'red' }}>*</span></h4>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '0.5rem',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  {groupedIngredients[cat]?.map((ing: any) => {
+                    const isSelected =
+                      customizingDrink.ingredients[cat]?.ingredient_id ===
+                      ing.ingredient_id;
+
+                    const isHot = customizingDrink.temperature === 'Hot';
+                    const isIceCat = cat === 'Ice Level';
+                    const isNotNoIce =
+                      isIceCat && !/no ice/i.test(ing.ingredient_name);
+                    const disabled = isHot && isIceCat && isNotNoIce;
+
+                    return (
+                      <button
+                        key={ing.ingredient_id}
+                        onClick={() => {
+                          if (!disabled) setCustomizationOption(cat, ing);
+                        }}
+                        disabled={disabled}
+                        className={`btn ${isSelected ? 'active' : ''} ${
+                          disabled ? 'disabled' : ''
+                        }`}
+                      >
+                        {ing.ingredient_name}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             ))}
 
-           {/* Multi-select categories */}
-            {multiSelectCategories.map((cat) => (
+            {/* Multi-select categories */}
+            {multiSelectCategories.map((cat) =>
               groupedIngredients[cat] ? (
                 <div key={cat} style={{ marginBottom: '1rem' }}>
                   <h4>{cat}</h4>
@@ -718,14 +873,17 @@ export default function Orders() {
                           onClick={() => toggleTopping(ing)}
                           className={`btn ${isSelected ? 'active' : ''}`}
                         >
-                          {ing.ingredient_name} {ing.ingredient_cost ? `(+${ing.ingredient_cost.toFixed(2)})` : ''}
+                          {ing.ingredient_name}{' '}
+                          {ing.ingredient_cost
+                            ? `(+${ing.ingredient_cost.toFixed(2)})`
+                            : ''}
                         </button>
                       );
                     })}
                   </div>
                 </div>
               ) : null
-            ))}
+            )}
 
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
               <button
@@ -742,7 +900,6 @@ export default function Orders() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
