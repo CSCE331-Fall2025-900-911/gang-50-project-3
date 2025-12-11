@@ -288,11 +288,17 @@ export default function Orders() {
     // validate required options for every drink before sending to backend
     for (const d of cart) {
       for (const cat of REQUIRED_CATEGORIES) {
+        // NEW: skip Milk requirement for dairy-free drinks
+        if (cat === 'Milk' && d.item.contains_dairy === false) {
+          continue;
+        }
+
         if (!d.ingredients[cat]) {
           alert(`Please select a ${cat} option for "${d.item.item_name}".`);
           return;
         }
       }
+
       if (
         d.temperature === 'Hot' &&
         d.ingredients['Ice Level'] &&

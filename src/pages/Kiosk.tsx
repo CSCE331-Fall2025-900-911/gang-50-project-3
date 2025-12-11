@@ -306,8 +306,13 @@ export default function Kiosk() {
     if (cart.length === 0) return;
 
     // NEW: validate every drink before submitting
-    for (const d of cart) {
+        for (const d of cart) {
       for (const cat of REQUIRED_CATEGORIES) {
+        // NEW: skip Milk requirement for dairy-free drinks
+        if (cat === 'Milk' && d.item.contains_dairy === false) {
+          continue;
+        }
+
         if (!d.ingredients[cat]) {
           alert(`Please select a ${cat} option for "${d.item.item_name}".`);
           return;
