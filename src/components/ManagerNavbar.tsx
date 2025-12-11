@@ -25,18 +25,23 @@ export default function ManagerNavbar() {
   };
 
   const applyContrastMode = (enabled: boolean) => {
-    const currentFilter = document.documentElement.style.filter;
-    const desiredFilter = enabled ? "invert(1) hue-rotate(180deg)" : "";
-    if (currentFilter !== desiredFilter) {
-      document.documentElement.style.filter = desiredFilter;
-      localStorage.setItem("highContrast", enabled.toString());
+    const body = document.body;
+    if (!body) return;
+
+    if (enabled) {
+      body.classList.add("high-contrast");
+    } else {
+      body.classList.remove("high-contrast");
     }
+
+    localStorage.setItem("highContrast", enabled.toString());
   };
 
-  // Apply saved settings
+  // Apply saved settings on first mount
   useLayoutEffect(() => {
     applyFontSize(fontSize);
     applyContrastMode(highContrast);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // --- GOOGLE TRANSLATE LOADING LOGIC ---
@@ -151,50 +156,56 @@ export default function ManagerNavbar() {
             zIndex: 9999
           }}
         >
-          <div
-            className="popup-content"
-            style={{
-              backgroundColor: "white",
-              padding: "2rem",
-              borderRadius: "8px",
-              width: "400px",
-              maxHeight: "80vh",
-              overflowY: "auto",
-              textAlign: "center"
-            }}
-          >
-            <h2>Accessibility Settings</h2>
-
-            <p style={{ marginBottom: "1rem" }}>Adjust Display Font Size</p>
-            <div style={{ display: "flex", justifyContent: "center", gap: "1rem" }}>
-              <button className="btn" onClick={handleDecreaseFont}>A-</button>
-              <button className="btn" onClick={handleIncreaseFont}>A+</button>
+          <div className="weather-modal">
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <h2>Accessibility Settings</h2>
+              <button
+                className="logout"
+                onClick={() => setShowAccessibilityPopup(false)}
+                style={{ width: 40, height: 40, padding: 10, marginTop: 15 }}
+              >
+                X
+              </button>
+            </div>
+            <h3 style={{ marginBottom: "1rem" }}>Adjust Display Font Size</h3>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "1rem",
+              }}
+            >
+              <button className="btn" onClick={handleDecreaseFont}>
+                A-
+              </button>
+              <button className="btn" onClick={handleIncreaseFont}>
+                A+
+              </button>
             </div>
             <p style={{ marginTop: "0.5rem" }}>Current Size: {fontSize}px</p>
-            <button className="btn" onClick={handleResetFont} style={{ marginTop: "0.5rem" }}>
+            <button
+              className="logout"
+              onClick={handleResetFont}
+              style={{ marginTop: "0.5rem" }}
+            >
               Reset to Default
             </button>
 
             <hr style={{ margin: "1rem 0" }} />
 
-            {/* Google Translate */}
             <div style={{ margin: "1rem 0" }}>
               <h3 style={{ marginBottom: "0.5rem" }}>Translate</h3>
-              <div id="google_translate_element"></div>
+              <div id="google_translate_element" />
             </div>
 
             <hr style={{ margin: "1rem 0" }} />
 
-            <p style={{ marginBottom: "0.5rem" }}>High Contrast Mode</p>
-            <button className="btn" onClick={toggleContrastMode}>
+            <h3 style={{ marginBottom: "0.5rem" }}>High Contrast Mode</h3>
+            <button className="logout" onClick={toggleContrastMode}>
               {highContrast ? "Disable" : "Enable"}
             </button>
 
-            <div style={{ marginTop: "1.5rem" }}>
-              <button className="logout" onClick={() => setShowAccessibilityPopup(false)}>
-                Close
-              </button>
-            </div>
+            
           </div>
         </div>
       )}

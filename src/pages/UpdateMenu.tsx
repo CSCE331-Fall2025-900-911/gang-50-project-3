@@ -538,7 +538,7 @@ export default function UpdateMenu() {
 
 
                 <div className="menu-field">
-                  <h3 className="menu-ingredients-label">Ingredients</h3>
+                  <h3>Ingredients</h3>
                   <div className="menu-ingredients-list">
                     {allIngredients.map((ing) => (
                       <label

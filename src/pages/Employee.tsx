@@ -297,7 +297,7 @@ export default function EmployeePage() {
             <h2>Add Employee</h2>
             <div className="employee-add-fields">
               <div className="employee-field">
-                <label className="label-Employee">First Name</label>
+                <label>First Name</label>
                 <input
                   className="employee-input"
                   value={newFirst}
@@ -306,7 +306,7 @@ export default function EmployeePage() {
                 />
               </div>
               <div className="employee-field">
-                <label className="label-Employee">Last Name</label>
+                <label>Last Name</label>
                 <input
                   className="employee-input"
                   value={newLast}
