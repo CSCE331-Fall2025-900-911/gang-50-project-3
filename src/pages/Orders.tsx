@@ -5,7 +5,6 @@ export default function Orders() {
   const [categories, setCategories] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
   const [ingredients, setIngredients] = useState<any[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showCheckoutPopup, setShowCheckoutPopup] = useState(false);
@@ -41,7 +40,6 @@ export default function Orders() {
         setCategories(c);
         setItems(i);
         setIngredients(g);
-        if (c.length) setSelectedCategory(c[0].category_id);
       } catch (err: any) {
         console.error(err);
         setError('Failed to load data');
@@ -79,30 +77,6 @@ export default function Orders() {
     );
   });
 
-  // Filter normal items with dietary filter
-  const filteredItems =
-    selectedCategory === 7
-      ? []
-      : items
-          .filter((item: any) => item.category_id === selectedCategory)
-          .filter((item: any) => {
-            const hasDairy = !!item.contains_dairy;
-            const hasGluten = !!item.contains_gluten;
-
-            switch (dietaryFilter) {
-              case 'dairy_free':
-                return !hasDairy;
-              case 'gluten_free':
-                return !hasGluten;
-              case 'both_free':
-                return !hasDairy && !hasGluten;
-              case 'all':
-              default:
-                return true;
-            }
-          });
-
-  // Add drink and open customization popup
   const addDrink = (item: any) => {
     const newDrink = {
       item,
@@ -228,20 +202,20 @@ export default function Orders() {
       return;
     }
 
-    setCart(prev => {
-    if (customizingDrink.cart_id != null) {
-      return prev.map(d =>
-        d.cart_id === customizingDrink.cart_id ? customizingDrink : d
-      );
-    }
+    setCart((prev) => {
+      if (customizingDrink.cart_id != null) {
+        return prev.map((d) =>
+          d.cart_id === customizingDrink.cart_id ? customizingDrink : d,
+        );
+      }
 
-    const newDrinkWithId = {
-      ...customizingDrink,
-      cart_id: Date.now() + Math.random(),
-    };
+      const newDrinkWithId = {
+        ...customizingDrink,
+        cart_id: Date.now() + Math.random(),
+      };
 
-    return [...prev, newDrinkWithId];
-  });
+      return [...prev, newDrinkWithId];
+    });
 
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
@@ -307,7 +281,7 @@ export default function Orders() {
   const submitOrder = async () => {
     if (cart.length === 0) return;
 
-    // NEW: validate required options for every drink before sending to backend
+    // validate required options for every drink before sending to backend
     for (const d of cart) {
       for (const cat of REQUIRED_CATEGORIES) {
         if (!d.ingredients[cat]) {
@@ -397,156 +371,164 @@ export default function Orders() {
   };
 
   return (
-    <div className="orders-layout">
-      <CashierNavbar />
-      {/* LEFT SIDEBAR */}
-      <div className="sidebar sidebar-left">
-        <h2 style={{textAlign: 'left'}}>Item Categories</h2>
-        <div className="category-list">
-          {categories.map((c: any) => (
-            <button
-              key={c.category_id}
-              onClick={() => setSelectedCategory(c.category_id)}
-              className={`cashier-category-btn ${
-                selectedCategory === c.category_id ? 'active' : ''
-              }`}
-            >
-              {c.name}
-            </button>
-          ))}
-          {!categories.some((c) => c.category_id === 7) && (
-            <button
-              onClick={() => setSelectedCategory(7)}
-              className={`cashier-category-btn ${
-                selectedCategory === 7 ? 'active' : ''
-              }`}
-            >
-              Misc
-            </button>
-          )}
-        </div>
-      </div>
+    <div className="orders-layout" style={{ display: 'flex', gap: '1rem' }}>
+      <div
+        className="items-container"
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          maxHeight: '90vh',
+          padding: '1rem',
+        }}
+      >
+        <CashierNavbar />
 
-      {/* MAIN CONTENT */}
-      <div className="content">
+        {/* Dietary Filter */}
         <div
-          className="section-header"
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '1rem',
-          }}
+          className="dietary-filter"
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}
         >
-          <h2>
-            {categories.find((c: any) => c.category_id === selectedCategory)?.name ||
-              'Items'}
-          </h2>
-
-          {/* Dietary filter */}
-          <div
-            className="dietary-filter"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          <span>Dietary:</span>
+          <select
+            value={dietaryFilter}
+            onChange={(e) =>
+              setDietaryFilter(
+                e.target.value as
+                  | 'all'
+                  | 'dairy_free'
+                  | 'gluten_free'
+                  | 'both_free'
+              )
+            }
+            className="dietary-select"
           >
-            <span>Dietary:</span>
-            <select
-              value={dietaryFilter}
-              onChange={(e) =>
-                setDietaryFilter(
-                  e.target.value as
-                    | 'all'
-                    | 'dairy_free'
-                    | 'gluten_free'
-                    | 'both_free',
-                )
-              }
-              className="dietary-select"
-            >
-              <option value="all">All Items</option>
-              <option value="dairy_free">Dairy-Free</option>
-              <option value="gluten_free">Gluten-Free</option>
-              <option value="both_free">Dairy &amp; Gluten Free</option>
-            </select>
-          </div>
+            <option value="all">All Items</option>
+            <option value="dairy_free">Dairy-Free</option>
+            <option value="gluten_free">Gluten-Free</option>
+            <option value="both_free">Dairy &amp; Gluten Free</option>
+          </select>
         </div>
 
-        {selectedCategory === 7 ? (
-          allowedMiscCategoryNames.map((catName: string) => (
-            <div key={catName} className="ingredient-group">
-              <h3 className="ingredient-category-title">{catName}</h3>
-              <div className="item-grid">
-                {groupedIngredients[catName].map((item: any) => (
-                  <button
-                    key={item.ingredient_id}
-                    onClick={() => addIngredient(item)}
-                    className={`item-card ${
-                      cart.some((d: any) =>
-                        d.extras.some(
-                          (ex: any) => ex.ingredient_id === item.ingredient_id,
-                        ),
-                      )
-                        ? 'selected'
-                        : ''
-                    }`}
-                  >
-                    <div className="thumb">
-                      {miscIngredientPhotos[item.ingredient_name] ? (
-                        <img
-                          src={miscIngredientPhotos[item.ingredient_name]}
-                          alt={item.ingredient_name}
-                          className="thumb-img"
-                        />
-                      ) : (
-                        <span className="thumb-ph">No image</span>
+        {/* Items grouped by category */}
+        {categories.map((cat) => {
+          let catItems;
+
+          if (cat.category_id === 7) {
+            // Misc items (Packaging ingredients)
+            catItems = allowedMiscCategoryNames.flatMap(
+              (catName) => groupedIngredients[catName] || []
+            );
+          } else {
+            catItems = items
+              .filter((i: any) => i.category_id === cat.category_id)
+              .filter((item: any) => {
+                const hasDairy = !!item.contains_dairy;
+                const hasGluten = !!item.contains_gluten;
+
+                switch (dietaryFilter) {
+                  case 'dairy_free':
+                    return !hasDairy;
+                  case 'gluten_free':
+                    return !hasGluten;
+                  case 'both_free':
+                    return !hasDairy && !hasGluten;
+                  case 'all':
+                  default:
+                    return true;
+                }
+              });
+          }
+
+          if (!catItems.length) return null;
+
+          return (
+            <div key={cat.category_id} className="category-section" style={{ marginBottom: '2rem' }}>
+              <h2>{cat.name}</h2>
+              <div className="items-row" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                {catItems.map((item: any) => {
+                  const isMisc = cat.category_id === 7;
+
+                  // NEW: determine if this item/ingredient is out of stock
+                  const isOutOfStock = isMisc
+                    ? item.supply_level !== undefined && item.supply_level <= 0
+                    : !!item.has_oos_ingredient; // from /api/admin/items
+
+                  // selection highlight for misc packaging already in cart
+                  const isSelectedMisc =
+                    isMisc &&
+                    cart.some((d: any) =>
+                      d.extras.some((ex: any) => ex.ingredient_id === item.ingredient_id)
+                    );
+
+                  return (
+                    <button
+                      key={item.item_id || item.ingredient_id}
+                      onClick={() => {
+                        if (isOutOfStock) return;
+                        if (isMisc) {
+                          addIngredient(item);
+                        } else {
+                          addDrink(item);
+                        }
+                      }}
+                      disabled={isOutOfStock}
+                      className={`item-card ${
+                        isOutOfStock ? 'item-card-disabled' : ''
+                      } ${
+                        isSelectedMisc ? 'selected' : ''
+                      }`}
+                      style={{ width: '150px', textAlign: 'center' }}
+                    >
+                      <div className="thumb">
+                        {item.photo || miscIngredientPhotos[item.ingredient_name] ? (
+                          <img
+                            src={item.photo || miscIngredientPhotos[item.ingredient_name]}
+                            alt={item.item_name || item.ingredient_name}
+                            style={{ width: '100%' }}
+                          />
+                        ) : (
+                          <span className="thumb-ph">No image</span>
+                        )}
+                      </div>
+                      <h3 className="item-name">{item.item_name || item.ingredient_name}</h3>
+                      {item.item_cost != null && <p>${item.item_cost.toFixed(2)}</p>}
+
+                      {/* NEW: Out of stock badge */}
+                      {isOutOfStock && (
+                        <div className="item-badge item-badge-oos" style={{
+                          marginTop: '0.25rem',
+                          fontSize: '0.75rem',
+                          padding: '0.2rem 0.5rem',
+                          borderRadius: '999px',
+                          backgroundColor: '#f97373',
+                          color: 'white',
+                          display: 'inline-block',
+                        }}>
+                          Out of stock
+                        </div>
                       )}
-                    </div>
-                    <h3 className="item-name">{item.ingredient_name}</h3>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </div>
-          ))
-        ) : filteredItems.length === 0 ? (
-          <p className="empty muted">No items found.</p>
-        ) : (
-          <div className="item-grid">
-            {filteredItems.map((item: any) => {
-              const isOutOfStock = item.has_oos_ingredient; 
-
-              return (
-                <button
-                  key={item.item_id}
-                  onClick={() => {
-                    if (!isOutOfStock) addDrink(item);
-                  }}
-                  disabled={isOutOfStock}
-                  className={`item-card ${isOutOfStock ? 'item-card-disabled' : ''}`}
-                >
-                  <div className="thumb">
-                    {item.photo ? (
-                      <img src={item.photo} alt={item.item_name} className="thumb-img" />
-                    ) : (
-                      <span className="thumb-ph">No image</span>
-                    )}
-                  </div>
-
-                  <h3 className="item-name">{item.item_name}</h3>
-                  <p className="item-price">${item.item_cost.toFixed(2)}</p>
-
-                  {isOutOfStock && (
-                    <div className="item-badge item-badge-oos">
-                      Out of stock
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
+          );
+        })}
       </div>
 
       {/* RIGHT SIDEBAR / CART */}
-      <div className="sidebar sidebar-right">
+      <div 
+        className="sidebar sidebar-right"
+          style={{
+          width: '350px',
+          minWidth: '300px',
+          flexShrink: 0,
+          padding: '1rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+        }}
+      >
         <h2 className="order-title">Current Order</h2>
 
         <div className="order-lines">
