@@ -1,9 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import './MenuBoard.css';
 import { useNavigate } from 'react-router-dom';
 
-const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level'];
+const singleSelectCategories = ['Milk', 'Ice Level', 'Sizes', 'Sweetness Level', 'Temperature'];
+const multiSelectCategories = ['Toppings'];
 
 // Gluten detection
 const isGluten = (itemName: string) => {
@@ -11,7 +11,7 @@ const isGluten = (itemName: string) => {
   return keywords.some((kw) => itemName.includes(kw));
 };
 
-// Milk detection based on category + exceptions
+// Milk detection
 const requiresMilk = (item: any) => {
   const milkCategories = ['Milk Tea', 'Matcha Series', 'Special Items', 'Ice Blended'];
   const category = item.category_name || '';
@@ -25,16 +25,15 @@ export default function MenuBoard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const navigate = useNavigate();
+
   const handleLogout = () => {
     document.documentElement.style.fontSize = '16px';
-    document.documentElement.style.filter = "";
+    document.documentElement.style.filter = '';
     localStorage.clear();
     sessionStorage.clear();
-    console.log("User logged out.");
-    navigate("/");
+    navigate('/');
   };
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadData = async () => {
@@ -44,11 +43,11 @@ export default function MenuBoard() {
         if (!itemsRes.ok) throw new Error(`Failed to fetch items: ${itemsRes.status}`);
         const itemsJson = await itemsRes.json();
 
-        // Group items by category and filter out 'Uncategorized'
+        // Group items by category
         const groupedItems: Record<string, any[]> = {};
         itemsJson.forEach((item: any) => {
           const cat = item.category_name || 'Uncategorized';
-          if (cat === 'Uncategorized') return; // skip uncategorized
+          if (cat === 'Uncategorized') return;
           if (!groupedItems[cat]) groupedItems[cat] = [];
           groupedItems[cat].push(item);
         });
@@ -58,11 +57,16 @@ export default function MenuBoard() {
         if (!ingRes.ok) throw new Error(`Failed to fetch ingredients: ${ingRes.status}`);
         const ingJson = await ingRes.json();
 
-        // Group ingredients for single-select customization categories
+        // Group ingredients by category (for customization bar)
         const groupedIngredients: Record<string, any[]> = {};
         ingJson.forEach((ing: any) => {
           const cat = ing.ingredient_category_name || 'Other';
-          if (singleSelectCategories.map(c => c.toLowerCase()).includes(cat.toLowerCase())) {
+          // Only include API ingredients for customization bar except Temperature
+          if (
+            cat.toLowerCase() !== 'temperature' &&
+            (singleSelectCategories.map(c => c.toLowerCase()).includes(cat.toLowerCase()) ||
+              multiSelectCategories.map(c => c.toLowerCase()).includes(cat.toLowerCase()))
+          ) {
             if (!groupedIngredients[cat]) groupedIngredients[cat] = [];
             groupedIngredients[cat].push(ing);
           }
@@ -99,9 +103,9 @@ export default function MenuBoard() {
       </div>
 
       <div className="menu-content" style={{ flex: 2, overflowY: 'auto' }}>
-        <h1 className="menu-title">Menu Board</h1> 
+        <h1 className="menu-title">Menu Board</h1>
 
-        {/* --- ICON LEGEND --- */}
+        {/* ICON LEGEND */}
         <div className="icon-legend" style={{ display: 'flex', gap: '1em', marginBottom: '1%' }}>
           <div className="legend-item" style={{ display: 'flex', alignItems: 'center', gap: '0.3em' }}>
             <span className="dietary-icon milk">🥛</span>
@@ -113,7 +117,7 @@ export default function MenuBoard() {
           </div>
         </div>
 
-        {/* --- MENU COLUMNS --- */}
+        {/* MENU COLUMNS */}
         <div className="menu-sections" style={{ display: 'flex', gap: '1%' }}>
           {[menuColumns.col1, menuColumns.col2, menuColumns.col3].map((col, idx) => (
             <div key={idx} className={`menu-column col-${idx + 1}`} style={{ flex: 1 }}>
@@ -124,26 +128,36 @@ export default function MenuBoard() {
           ))}
         </div>
 
-        {/* --- CUSTOMIZATION BAR --- */}
-        {Object.keys(ingredients).length > 0 && (
-          <div className="customization-bar">
-            {Object.entries(ingredients).map(([cat, items]) => (
+        {/* CUSTOMIZATION BAR (visual-only) */}
+        <div className="customization-bar">
+          {[...singleSelectCategories, ...multiSelectCategories].map((cat) => {
+            // Temperature is static Hot/Iced
+            let options: string[] = [];
+            if (cat === 'Temperature') {
+              options = ['Hot', 'Iced'];
+            } else {
+              options = ingredients[cat]?.map((i: any) => i.ingredient_name) || [];
+            }
+
+            return (
               <div key={cat} className="customization-group">
                 <span className="customization-label">{cat}</span>
                 <div className="options-row">
-                  {items.map((ing: any) => (
-                    <span key={ing.ingredient_ID} className="option-item">
-                      <span className="option-label">{ing.ingredient_name}</span>
+                  {options.map((name) => (
+                    <span key={name} className="option-item">
+                      <span className="option-label">{name}</span>
                     </span>
                   ))}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-        <button className="logout" onClick={handleLogout}>Back to Login</button>
+            );
+          })}
+        </div>
+
+        <button className="logout" onClick={handleLogout}>
+          Back to Login
+        </button>
       </div>
-      
     </div>
   );
 }
@@ -162,14 +176,29 @@ const MenuSection: React.FC<{ title: string; items: any[] }> = ({ title, items }
           {/* Dietary Icons */}
           <span className="dietary-icons">
             {requiresMilk(item) && (
-              <span className="dietary-icon milk" title="Contains Milk">🥛</span>
+              <span className="dietary-icon milk" title="Contains Milk">
+                🥛
+              </span>
             )}
             {isGluten(item.item_name) && (
-              <span className="dietary-icon gluten" title="Contains Gluten">🌾</span>
+              <span className="dietary-icon gluten" title="Contains Gluten">
+                🌾
+              </span>
             )}
           </span>
+
+          {/* Visual-only per-item customization */}
+          {item.customization?.temperature && (
+            <div className="menu-customization">Temperature: {item.customization.temperature}</div>
+          )}
+          {item.customization?.extras?.length > 0 && (
+            <div className="menu-customization">
+              Toppings: {item.customization.extras.map((e: any) => e.ingredient_name).join(', ')}
+            </div>
+          )}
         </li>
       ))}
     </ul>
   </div>
 );
+
