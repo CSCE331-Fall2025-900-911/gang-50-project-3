@@ -109,7 +109,6 @@ app.get('/api/kiosk/items', async (_req, res) => {
 });
 
 
-// example: GET /api/admin/items
 app.get('/api/admin/items', async (_req, res) => {
   try {
     const result = await pool.query(`
@@ -126,7 +125,17 @@ app.get('/api/admin/items', async (_req, res) => {
         i.category_id,
         c.name AS category_name,
         i.contains_dairy,
-        i.contains_gluten
+        i.contains_gluten,
+
+        /* 👇 true if ANY ingredient for this item has supply_level <= 0 */
+        EXISTS (
+          SELECT 1
+          FROM item_ingredient ii
+          JOIN ingredient ing ON ing.ingredient_id = ii.ingredient_id
+          WHERE ii.item_id = i.item_id
+            AND ing.supply_level <= 0
+        ) AS has_oos_ingredient
+
       FROM Item i
       LEFT JOIN Item_Category c ON i.category_id = c.category_id
       ORDER BY i.item_id;
@@ -138,6 +147,7 @@ app.get('/api/admin/items', async (_req, res) => {
     res.status(500).json({ error: 'Failed to load items' });
   }
 });
+
 
 
 
@@ -219,6 +229,35 @@ app.post('/api/orders', async (req, res) => {
 
     // Calculate total usage per ingredient
     const usageByIngredient = new Map();
+
+
+    for (const [ingredientId, totalUsed] of usageByIngredient.entries()) {
+      const { rows } = await client.query(
+        'SELECT supply_level, ingredient_name FROM ingredient WHERE ingredient_id = $1',
+        [ingredientId]
+      );
+
+      if (!rows.length) {
+        console.error('Ingredient missing in DB:', ingredientId);
+        throw new Error(`Ingredient ID ${ingredientId} not found`);
+      }
+
+      const { supply_level, ingredient_name } = rows[0];
+
+      console.log(
+        'Checking stock for ingredient:',
+        { ingredientId, ingredient_name, supply_level, totalUsed }
+      );
+
+      if (supply_level < totalUsed) {
+        console.warn(
+          `Out of stock: ${ingredient_name} (have ${supply_level}, need ${totalUsed})`
+        );
+        return res.status(400).json({
+          error: `Not enough stock for ingredient: ${ingredient_name}`,
+        });
+      }
+    }
 
     for (const item of items) {
       const qty = Number(item.quantity) || 0;
