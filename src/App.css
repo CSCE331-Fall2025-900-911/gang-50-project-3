@@ -117,6 +117,9 @@ nav {
   align-items: center;
   gap: 8px;
   transition: transform 0.2s;
+  height: 20px; 
+  width: auto; 
+  background-color: white; 
 }
 
 .navItem:hover {
@@ -2020,6 +2023,7 @@ body.high-contrast .pageItem a,
 body.high-contrast .navItem,
 body.high-contrast .orDivider {
   color: #ffffff;
+  background-color: black; 
 }
 
 /* Category sidebar + main panels */

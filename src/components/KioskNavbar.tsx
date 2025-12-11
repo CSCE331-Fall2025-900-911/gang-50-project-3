@@ -188,24 +188,28 @@ export default function KioskNavbar() {
       <div className="pages">
         <div
           className="navItem"
+          role="button"
           onClick={() => setShowWeatherPopup(true)}
           style={{ cursor: "pointer" }}
-        >
+        ><button className="navItem">
           <img className="navIcon" src="/Sun.svg" alt="Weather" />
           <p>Weather</p>
+          </button>
         </div>
 
         <div
           className="navItem"
+          role="button" 
           onClick={() => setShowAccessibilityPopup(true)}
           style={{ cursor: "pointer" }}
-        >
+        ><button className="navItem">
           <img
             className="navIcon"
             src="/Accessibility.svg"
             alt="Accessibility Icon"
           />
           <p>Accessibility</p>
+          </button> 
         </div>
 
         <div className="navItem">

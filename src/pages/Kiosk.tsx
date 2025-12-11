@@ -422,6 +422,7 @@ export default function Kiosk() {
   // ---------- UI ----------
   return (
     <div className="orders-layout">
+      <KioskNavbar />
       {/* LEFT Sidebar */}
       <div className="sidebar sidebar-left">
         <div
@@ -451,7 +452,6 @@ export default function Kiosk() {
 
       {/* MAIN CONTENT */}
       <div className="content">
-        <KioskNavbar />
         <div
           className="section-header"
           style={{
@@ -1079,7 +1079,7 @@ export default function Kiosk() {
             })()}
             <div style={{ textAlign: 'right' }}>
               <button
-                className="btn"
+                className="logout"
                 onClick={() => setInfoSection(null)}
               >
                 Got it

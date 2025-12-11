@@ -398,6 +398,7 @@ export default function Orders() {
 
   return (
     <div className="orders-layout">
+      <CashierNavbar />
       {/* LEFT SIDEBAR */}
       <div className="sidebar sidebar-left">
         <h2 style={{textAlign: 'left'}}>Item Categories</h2>
@@ -428,7 +429,6 @@ export default function Orders() {
 
       {/* MAIN CONTENT */}
       <div className="content">
-        <CashierNavbar />
         <div
           className="section-header"
           style={{

@@ -117,24 +117,28 @@ export default function ManagerNavbar() {
           <img className="navLogo" src="/FifteaLogo.png" alt="FifTea Logo"/>
         </div>
         <div className="pageItem">
-          <a href="/Analytics">Analytics</a>
-          <a href="/UpdateMenu">Items</a>
-          <a href="/Employee">Employees</a>
-          <a href="/inventorymenu">Inventory</a>
+          <button className="navItem"><a href="/Analytics">Analytics</a></button>
+          <button className="navItem"><a href="/UpdateMenu">Items</a></button>
+          <button className="navItem"><a href="/Employee">Employees</a></button>
+          <button className="navItem"><a href="/inventorymenu">Inventory</a></button>
         </div>
       </div>
 
       <div className="pages">
-
-        <div 
-          className="navItem" 
+        <div
+          className="navItem"
+          role="button" 
           onClick={() => setShowAccessibilityPopup(true)}
           style={{ cursor: "pointer" }}
-        >
-          <img className="navIcon" src="/Accessibility.svg" alt="Accessibility Icon" />
+        ><button className="navItem">
+          <img
+            className="navIcon"
+            src="/Accessibility.svg"
+            alt="Accessibility Icon"
+          />
           <p>Accessibility</p>
+          </button> 
         </div>
-
         <div className="navItem">
           <button className="logout" onClick={handleLogout}>Logout</button>
         </div>
