@@ -213,6 +213,10 @@ export default function Orders() {
     if (!customizingDrink) return;
 
     for (const cat of REQUIRED_CATEGORIES) {
+
+        if (cat === 'Milk' && customizingDrink.item.contains_dairy === false) {
+        continue; // skip Milk for dairy-free drinks
+      }
       if (!customizingDrink.ingredients[cat]) {
         alert(`Please select a ${cat} option.`);
         return;
@@ -553,6 +557,11 @@ export default function Orders() {
                 <div>
                   <div className="order-line-title">{d.item.item_name}</div>
                   <div className="order-line-sub">
+                     {d.temperature && (
+                      <div>
+                        <span>{d.temperature}</span>
+                      </div>
+                    )}
                     {Object.entries(d.ingredients).map(
                       ([cat, ing]: [string, any]) =>
                         ing ? (
@@ -821,45 +830,43 @@ export default function Orders() {
             </div>
 
             {/* Single-select ingredient groups */}
-            {singleSelectCategories.map((cat) => (
-              <div key={cat} style={{ marginBottom: '1rem' }}>
-                <h4>{cat} <span style={{ color: 'red' }}>*</span></h4>
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: '0.5rem',
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  {groupedIngredients[cat]?.map((ing: any) => {
-                    const isSelected =
-                      customizingDrink.ingredients[cat]?.ingredient_id ===
-                      ing.ingredient_id;
+            {singleSelectCategories.map((cat) => {
+              // Hide Milk if the drink is dairy-free
+              if (cat === 'Milk' && customizingDrink.item.contains_dairy === false) {
+                return null;
+              }
 
-                    const isHot = customizingDrink.temperature === 'Hot';
-                    const isIceCat = cat === 'Ice Level';
-                    const isNotNoIce =
-                      isIceCat && !/no ice/i.test(ing.ingredient_name);
-                    const disabled = isHot && isIceCat && isNotNoIce;
+              return (
+                <div key={cat} style={{ marginBottom: '1rem' }}>
+                  <h4>{cat} <span style={{ color: 'red' }}>*</span></h4>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    {groupedIngredients[cat]?.map((ing: any) => {
+                      const isSelected =
+                        customizingDrink.ingredients[cat]?.ingredient_id === ing.ingredient_id;
 
-                    return (
-                      <button
-                        key={ing.ingredient_id}
-                        onClick={() => {
-                          if (!disabled) setCustomizationOption(cat, ing);
-                        }}
-                        disabled={disabled}
-                        className={`btn ${isSelected ? 'active' : ''} ${
-                          disabled ? 'disabled' : ''
-                        }`}
-                      >
-                        {ing.ingredient_name}
-                      </button>
-                    );
-                  })}
+                      const isHot = customizingDrink.temperature === 'Hot';
+                      const isIceCat = cat === 'Ice Level';
+                      const isNotNoIce = isIceCat && !/no ice/i.test(ing.ingredient_name);
+                      const disabled = isHot && isIceCat && isNotNoIce;
+
+                      return (
+                        <button
+                          key={ing.ingredient_id}
+                          onClick={() => {
+                            if (!disabled) setCustomizationOption(cat, ing);
+                          }}
+                          disabled={disabled}
+                          className={`btn ${isSelected ? 'active' : ''} ${disabled ? 'disabled' : ''}`}
+                        >
+                          {ing.ingredient_name}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+
 
             {/* Multi-select categories */}
             {multiSelectCategories.map((cat) =>
