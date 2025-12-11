@@ -105,7 +105,6 @@ export default function Orders() {
   // Add drink and open customization popup
   const addDrink = (item: any) => {
     const newDrink = {
-      cart_id: Date.now(),
       item,
       quantity: 1,
       temperature: 'Iced',
@@ -117,7 +116,6 @@ export default function Orders() {
       },
       extras: [] as any[],
     };
-    setCart((prev) => [...prev, newDrink]);
     setCustomizingDrink(newDrink);
     setShowCustomizationPopup(true);
   };
@@ -230,9 +228,21 @@ export default function Orders() {
       return;
     }
 
-    setCart((prev) =>
-      prev.map((d) => (d.cart_id === customizingDrink.cart_id ? customizingDrink : d)),
-    );
+    setCart(prev => {
+    if (customizingDrink.cart_id != null) {
+      return prev.map(d =>
+        d.cart_id === customizingDrink.cart_id ? customizingDrink : d
+      );
+    }
+
+    const newDrinkWithId = {
+      ...customizingDrink,
+      cart_id: Date.now() + Math.random(),
+    };
+
+    return [...prev, newDrinkWithId];
+  });
+
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
   };

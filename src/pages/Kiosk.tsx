@@ -119,7 +119,6 @@ export default function Kiosk() {
   // Add drink and immediately open customization
   const addDrink = (item: any) => {
     const newDrink = {
-      cart_id: Date.now() + Math.random(),
       item,
       quantity: 1,
       temperature: 'Iced', // default temperature
@@ -132,7 +131,6 @@ export default function Kiosk() {
       extras: [] as any[], // toppings + other add-ons
     };
 
-    setCart(prev => [...prev, newDrink]);
     setCustomizingDrink(newDrink);
     setShowCustomizationPopup(true);
   };
@@ -265,11 +263,20 @@ export default function Kiosk() {
     // If everything is valid:
     setCustomizationError(null);
 
-    setCart(prev =>
-      prev.map(d =>
-        d.cart_id === customizingDrink.cart_id ? customizingDrink : d
-      )
-    );
+    setCart(prev => {
+      if (customizingDrink.cart_id != null) {
+        return prev.map(d =>
+          d.cart_id === customizingDrink.cart_id ? customizingDrink : d
+        );
+      }
+
+      const newDrinkWithId = {
+        ...customizingDrink,
+        cart_id: Date.now() + Math.random(),
+      };
+
+      return [...prev, newDrinkWithId];
+    });
 
     setCustomizingDrink(null);
     setShowCustomizationPopup(false);
