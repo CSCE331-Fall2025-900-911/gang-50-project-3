@@ -160,7 +160,7 @@ export default function CashierNavbar() {
 
         <div className="navItem">
           <button className="logout" onClick={handleCancelOrder}>
-            Cancel Order
+            Logout
           </button>
         </div>
       </div>
