@@ -31,11 +31,13 @@ export default function Login() {
 }
 
   return (
+    <main>
     <div className="background">
       <div className="backgroundBox">
         <div>
-          <img src="/FifteaLogo.png" className="logo" alt="FifTea logo" />
-
+          <header>
+            <img src="/FifteaLogo.png" className="logo" alt="FifTea logo" />
+          </header>
           <div className="roleButtonsContainer">
             <button className="roleButton" onClick={() => handleRoleSelect("kiosk")}>
               Kiosk
@@ -54,15 +56,18 @@ export default function Login() {
             </button>
           </div>
 
-          <h2 className="orDivider">
-            ────── OR ──────
-          </h2>
+          <footer>
+            <h2>
+              ────── OR ──────
+            </h2>
 
-          <div className="googleButton">
-            <GoogleLogin onSuccess={handleLoginSuccess} onError={handleLoginError} />
-          </div>
+            <div className="googleButton">
+              <GoogleLogin onSuccess={handleLoginSuccess} onError={handleLoginError} />
+            </div>
+          </footer> 
         </div>
       </div>
     </div>
+    </main>
   )
 }
