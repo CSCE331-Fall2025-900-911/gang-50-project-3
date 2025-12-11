@@ -2272,3 +2272,18 @@ body.high-contrast .btn-ghost:hover {
 .high-contrast .analytics-input-label {
   color: #f9fafb;
 }
+
+.item-card-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.item-badge-oos {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background-color: #f97373; 
+  color: white;
+  display: inline-block;
+}
