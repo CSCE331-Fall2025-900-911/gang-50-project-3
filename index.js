@@ -211,15 +211,57 @@ app.post('/api/orders', async (req, res) => {
   const client = await pool.connect();
 
   try {
-    await client.query('BEGIN');
-
     const { customerId, employeeId, items, totalCost, tax, tip } = req.body;
 
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: 'items array is required' });
     }
 
-    // 1) Insert order
+    // Calculate total usage per ingredient
+    const usageByIngredient = new Map();
+
+    for (const item of items) {
+      const qty = Number(item.quantity) || 0;
+      if (!qty) continue;
+
+      // Base ingredients
+      const { rows: baseIngredients } = await client.query(
+        'SELECT ingredient_id FROM item_ingredient WHERE item_id = $1',
+        [item.item_id]
+      );
+      baseIngredients.forEach(({ ingredient_id }) => {
+        usageByIngredient.set(ingredient_id, (usageByIngredient.get(ingredient_id) || 0) + qty);
+      });
+
+      // Extras
+      if (Array.isArray(item.extras)) {
+        item.extras.forEach(extra => {
+          const ingId = typeof extra === 'number' ? extra : extra?.ingredient_id;
+          if (!ingId) return;
+          const extraQty = Number(extra.quantity) || 1;
+          usageByIngredient.set(ingId, (usageByIngredient.get(ingId) || 0) + qty * extraQty);
+        });
+      }
+    }
+
+    // Check stock before inserting anything
+    for (const [ingredientId, totalUsed] of usageByIngredient.entries()) {
+      const { rows } = await client.query(
+        'SELECT supply_level, ingredient_name FROM ingredient WHERE ingredient_id = $1',
+        [ingredientId]
+      );
+
+      if (!rows.length) throw new Error(`Ingredient ID ${ingredientId} not found`);
+      if (rows[0].supply_level < totalUsed) {
+        return res.status(400).json({
+          error: `Not enough stock for ingredient: ${rows[0].ingredient_name}`,
+        });
+      }
+    }
+
+    // Insert order and items
+    await client.query('BEGIN');
+
     const orderResult = await client.query(
       `
       INSERT INTO customer_order (time_ordered, total_cost, tax, tip, customer_id, employee_id)
@@ -231,7 +273,6 @@ app.post('/api/orders', async (req, res) => {
 
     const orderId = orderResult.rows[0].order_id;
 
-    // 2) Insert order items
     for (const item of items) {
       await client.query(
         `
@@ -242,53 +283,12 @@ app.post('/api/orders', async (req, res) => {
       );
     }
 
-
-    const baseUsageResult = await client.query(
-      `
-      SELECT ii.ingredient_id, SUM(oi.quantity) AS total_used
-      FROM order_items oi
-      JOIN item_ingredient ii
-        ON oi.item_id = ii.item_id
-      WHERE oi.order_id = $1
-      GROUP BY ii.ingredient_id;
-      `,
-      [orderId]
-    );
-
-
-    const usageByIngredient = new Map(); 
-
-
-    for (const row of baseUsageResult.rows) {
-      const ingId = Number(row.ingredient_id);
-      const used = Number(row.total_used) || 0;
-      const prev = usageByIngredient.get(ingId) || 0;
-      usageByIngredient.set(ingId, prev + used);
-    }
-
-
-    for (const item of items) {
-      const qty = Number(item.quantity) || 0;
-      if (!Array.isArray(item.extras) || qty <= 0) continue;
-
-      for (const extra of item.extras) {
-        const ingId =
-          typeof extra === 'number'
-            ? extra
-            : extra && extra.ingredient_id;
-
-        if (!ingId) continue;
-
-        const prev = usageByIngredient.get(ingId) || 0;
-        usageByIngredient.set(ingId, prev + qty);
-      }
-    }
-
+    // Deduct ingredient stock
     for (const [ingredientId, totalUsed] of usageByIngredient.entries()) {
       await client.query(
         `
         UPDATE ingredient
-        SET supply_level = GREATEST(supply_level - $1, 0)
+        SET supply_level = supply_level - $1
         WHERE ingredient_id = $2;
         `,
         [totalUsed, ingredientId]
@@ -300,11 +300,12 @@ app.post('/api/orders', async (req, res) => {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error creating order:', err);
-    res.status(500).json({ error: 'Failed to create order' });
+    res.status(500).json({ error: err.message });
   } finally {
     client.release();
   }
 });
+
 
 
 
