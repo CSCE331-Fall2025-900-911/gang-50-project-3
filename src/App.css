@@ -1366,7 +1366,7 @@ body {
   border: 1px solid #e5e7eb;
   background-color: #f9fafb;
 
-  max-height: 700px; /* make table taller or shorter */
+  max-height: 320px; /* make table taller or shorter */
   overflow-y: auto;
 }
 
@@ -1878,4 +1878,23 @@ body {
   .analytics-stat-value {
     font-size: 1.1rem;
   }
+}
+
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dietary-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dietary-select {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
 }

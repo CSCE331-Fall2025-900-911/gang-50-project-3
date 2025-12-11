@@ -13,6 +13,11 @@ export default function Orders() {
   const [showCustomizationPopup, setShowCustomizationPopup] = useState(false);
   const [customizingDrink, setCustomizingDrink] = useState<any | null>(null);
 
+  const [dietaryFilter, setDietaryFilter] = useState<
+    'all' | 'dairy_free' | 'gluten_free' | 'both_free'
+  >('all');
+
+
   const miscIngredientPhotos: Record<string, string> = {
     Bag: '/ingredient_36.png',
     Lid: '/ingredient_32.png',
@@ -70,10 +75,30 @@ export default function Orders() {
     groupedIngredients[catName].sort((a: any, b: any) => a.ingredient_name.localeCompare(b.ingredient_name));
   });
 
-  // Filter normal items  
+
+  // Filter normal items with dietary filter
   const filteredItems = selectedCategory === 7
     ? []
-    : items.filter((item: any) => item.category_id === selectedCategory);
+    : items
+        .filter((item: any) => item.category_id === selectedCategory)
+        .filter((item: any) => {
+          const hasDairy = !!item.contains_dairy;
+          const hasGluten = !!item.contains_gluten;
+
+          switch (dietaryFilter) {
+            case 'dairy_free':
+              return !hasDairy;
+            case 'gluten_free':
+              return !hasGluten;
+            case 'both_free':
+              return !hasDairy && !hasGluten;
+            case 'all':
+            default:
+              return true;
+          }
+        });
+
+
 
   // Add drink and open customization popup
   const addDrink = (item: any) => {
@@ -265,12 +290,12 @@ export default function Orders() {
     });
 
     const body = {
-      customerId: null,        // or real id if you have it
-      employeeId: null,        // or real id
+      customerId: null,
+      employeeId: null,
       items: itemsPayload,
       totalCost: itemsPayload.reduce((sum, x) => sum + x.subtotal, 0),
-      tax: 0,                  // or your tax calc
-      tip: 0,                  // or tip value
+      tax: 0,
+      tip: 0,
     };
 
     try {
@@ -327,7 +352,27 @@ export default function Orders() {
       {/* MAIN CONTENT */}
       <div className="content">
         <CashierNavbar />
-        <h2 className="section-title">{categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items'}</h2>
+        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+          <h2 className="section-title">
+            {categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items'}
+          </h2>
+
+          <div className="dietary-filter" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>Dietary:</span>
+            <select
+              value={dietaryFilter}
+              onChange={(e) =>
+                setDietaryFilter(e.target.value as 'all' | 'dairy_free' | 'gluten_free' | 'both_free')
+              }
+              className="dietary-select"
+            >
+              <option value="all">All Items</option>
+              <option value="dairy_free">Dairy-Free</option>
+              <option value="gluten_free">Gluten-Free</option>
+              <option value="both_free">Dairy & Gluten Free</option>
+            </select>
+          </div>
+        </div>
 
         {selectedCategory === 7 ? (
           allowedMiscCategoryNames.map((catName: string) => (

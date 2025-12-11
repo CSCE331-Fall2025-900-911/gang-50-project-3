@@ -249,7 +249,7 @@ export default function KioskNavbar() {
             </button>
 
             <div style={{ marginTop: "1.5rem" }}>
-              <button className="btn" onClick={() => setShowAccessibilityPopup(false)}>
+              <button className="logout" onClick={() => setShowAccessibilityPopup(false)}>
                 Close
               </button>
             </div>

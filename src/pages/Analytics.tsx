@@ -369,7 +369,7 @@ export default function Analytics() {
 
           <section>
               <div>
-                <h2>Recent Orders</h2>
+                <h3>Recent Orders</h3>
               </div>
 
               <div className="update-table-wrapper">

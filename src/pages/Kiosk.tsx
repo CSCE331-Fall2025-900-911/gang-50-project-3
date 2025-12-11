@@ -26,6 +26,14 @@ export default function Kiosk() {
   const [showCustomizationPopup, setShowCustomizationPopup] = useState(false);
   const [customizingDrink, setCustomizingDrink] = useState<any | null>(null);
 
+  // Dietary restrictions
+  const [dietaryFilter, setDietaryFilter] = useState<
+    'all' | 'dairy_free' | 'gluten_free' | 'both_free'
+  >('all');
+
+  // NEW: which section's info popup is open
+  const [infoSection, setInfoSection] = useState<null | 'left' | 'center' | 'right'>(null);
+
   // ---------- Load categories, items, ingredients ----------
   useEffect(() => {
     const load = async () => {
@@ -76,9 +84,29 @@ export default function Kiosk() {
   });
 
   // ---------- Helpers ----------
-  const filteredItems = selectedCategory
-    ? items.filter((item: any) => item.category_id === selectedCategory)
-    : [];
+
+  // Filter normal items with dietary filter
+  const filteredItems = selectedCategory === 7
+    ? []
+    : items
+      .filter((item: any) => item.category_id === selectedCategory)
+      .filter((item: any) => {
+        const hasDairy = !!item.contains_dairy;
+        const hasGluten = !!item.contains_gluten;
+
+        switch (dietaryFilter) {
+          case 'dairy_free':
+            return !hasDairy;
+          case 'gluten_free':
+            return !hasGluten;
+          case 'both_free':
+            return !hasDairy && !hasGluten;
+          case 'all':
+          default:
+            return true;
+        }
+      });
+
 
   const selectedCategoryName =
     categories.find((c: any) => c.category_id === selectedCategory)?.name || 'Items';
@@ -89,7 +117,7 @@ export default function Kiosk() {
       cart_id: Date.now() + Math.random(),
       item,
       quantity: 1,
-      temperature: 'Iced', // NEW: default temperature
+      temperature: 'Iced', // default temperature
       ingredients: {
         Milk: null,
         'Ice Level': null,
@@ -205,90 +233,124 @@ export default function Kiosk() {
     setShowCustomizationPopup(true);
   };
 
-    const submitOrder = async () => {
-  if (cart.length === 0) return;
+  const submitOrder = async () => {
+    if (cart.length === 0) return;
 
-  // Helper to collect all ingredient IDs for a drink
-  const collectIngredientIds = (drink: any) => {
-    const ids: number[] = [];
+    // Helper to collect all ingredient IDs for a drink
+    const collectIngredientIds = (drink: any) => {
+      const ids: number[] = [];
 
-    // Single-select categories (Milk, Ice, Size, Sweetness)
-    Object.values(drink.ingredients).forEach((ing: any) => {
-      if (ing && ing.ingredient_id) {
-        ids.push(ing.ingredient_id);
-      }
-    });
+      // Single-select categories (Milk, Ice, Size, Sweetness)
+      Object.values(drink.ingredients).forEach((ing: any) => {
+        if (ing && ing.ingredient_id) {
+          ids.push(ing.ingredient_id);
+        }
+      });
 
-    // Multi-select toppings/extras
-    drink.extras.forEach((e: any) => {
-      if (e && e.ingredient_id) {
-        ids.push(e.ingredient_id);
-      }
-    });
+      // Multi-select toppings/extras
+      drink.extras.forEach((e: any) => {
+        if (e && e.ingredient_id) {
+          ids.push(e.ingredient_id);
+        }
+      });
 
-    return ids;
-  };
-
-  const itemsPayload = cart.map((d: any) => {
-    const extrasCost = d.extras.reduce(
-      (s: number, e: any) => s + e.ingredient_cost,
-      0
-    );
-    const perDrink = d.item.item_cost + extrasCost;
-    const lineTotal = perDrink * d.quantity;
-
-    return {
-      item_id: d.item.item_id,
-      quantity: d.quantity,
-      subtotal: lineTotal,
-      // send all ingredient IDs (milk, ice, toppings, etc.)
-      extras: collectIngredientIds(d),
+      return ids;
     };
-  });
 
-  const body = {
-    customerId: null,        // or real id if you have it
-    employeeId: null,        // or real id
-    items: itemsPayload,
-    totalCost: itemsPayload.reduce((sum, x) => sum + x.subtotal, 0),
-    tax: 0,                  // or your tax calc
-    tip: 0,                  // or tip value
-  };
+    const itemsPayload = cart.map((d: any) => {
+      const extrasCost = d.extras.reduce(
+        (s: number, e: any) => s + e.ingredient_cost,
+        0
+      );
+      const perDrink = d.item.item_cost + extrasCost;
+      const lineTotal = perDrink * d.quantity;
 
-  try {
-    const res = await fetch('/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      return {
+        item_id: d.item.item_id,
+        quantity: d.quantity,
+        subtotal: lineTotal,
+        // send all ingredient IDs (milk, ice, toppings, etc.)
+        extras: collectIngredientIds(d),
+      };
     });
 
-    const data = await res.json();
-    if (!res.ok) {
-      console.error(data);
-      alert(data.error || 'Failed to place order');
-      return;
+    const body = {
+      customerId: null,        // or real id if you have it
+      employeeId: null,        // or real id
+      items: itemsPayload,
+      totalCost: itemsPayload.reduce((sum, x) => sum + x.subtotal, 0),
+      tax: 0,                  // or your tax calc
+      tip: 0,                  // or tip value
+    };
+
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.error(data);
+        alert(data.error || 'Failed to place order');
+        return;
+      }
+
+      console.log('Order created:', data);
+      alert('Order confirmed! Thank you.');
+      setCart([]);
+      setAppliedDiscount?.(0);
+      setShowCheckoutPopup(false);
+    } catch (err: any) {
+      console.error(err);
+      alert('Network error while creating order');
     }
+  };
 
-    console.log('Order created:', data);
-    alert('Order confirmed! Thank you.');
-    setCart([]);
-    setAppliedDiscount?.(0);
-    setShowCheckoutPopup(false);
-  } catch (err: any) {
-    console.error(err);
-    alert('Network error while creating order');
-  }
-};
-
-
-
+  // ---------- Info modal content ----------
+  const getInfoContent = () => {
+    switch (infoSection) {
+      case 'left':
+        return {
+          title: 'Item Categories',
+          body:
+            'Use this panel to browse our drink categories. Tap a category, like Fresh Brew or Milk Tea, to see those items in the middle section.',
+        };
+      case 'center':
+        return {
+          title: 'Drink Selection',
+          body:
+            'This section shows drinks for the selected category. Tap a drink to customize options like size, milk, sweetness, and toppings before adding it to your order. You can also filter items by dietary needs.',
+        };
+      case 'right':
+        return {
+          title: 'Current Order',
+          body:
+            'This is your shopping cart. Each line shows a drink, its customizations, and price. Tap a drink to edit it, use +/− to change quantity, or the × button to remove it. Totals update automatically, including discounts and tax.',
+        };
+      default:
+        return { title: '', body: '' };
+    }
+  };
 
   // ---------- UI ----------
   return (
     <div className="orders-layout">
-      {/* LEFT SidEBAR */}
+      {/* LEFT Sidebar */}
       <div className="sidebar sidebar-left">
-        <h2>Item Categories</h2>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.5rem',
+          }}
+        >
+          <h2>Item Categories</h2>
+          <img onClick={() => setInfoSection('left')} src="/Info.svg" alt="Info Icon" style={{ width: 25, height: 25 }} />
+        </div>
+
         <div className="category-list">
           {categories.map((c: any) => (
             <button
@@ -305,10 +367,42 @@ export default function Kiosk() {
       {/* MAIN CONTENT */}
       <div className="content">
         <KioskNavbar />
-        <div style={{justifyContent: 'center' }}> 
-          <h2>{selectedCategoryName}</h2>
-          <p>Select your drink below</p>
-        </div> 
+        <div
+          className="section-header"
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '1rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h2>{selectedCategoryName}</h2>
+            <img onClick={() => setInfoSection('center')} src="/Info.svg" alt="Info Icon" style={{ width: 25, height: 25 }} />
+          </div>
+
+          <div
+            className="dietary-filter"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <span style={{ fontSize: '0.9rem' }}>Dietary:</span>
+            <select
+              value={dietaryFilter}
+              onChange={(e) =>
+                setDietaryFilter(
+                  e.target.value as 'all' | 'dairy_free' | 'gluten_free' | 'both_free'
+                )
+              }
+              className="dietary-select"
+            >
+              <option value="all">All Items</option>
+              <option value="dairy_free">Dairy-Free</option>
+              <option value="gluten_free">Gluten-Free</option>
+              <option value="both_free">Dairy & Gluten Free</option>
+            </select>
+          </div>
+        </div>
+
         {filteredItems.length === 0 ? (
           <p className="empty muted">No items found.</p>
         ) : (
@@ -334,9 +428,19 @@ export default function Kiosk() {
         )}
       </div>
 
-      {/* RIGHT SidEBAR / CART */}
+      {/* RIGHT Sidebar / CART */}
       <div className="sidebar sidebar-right">
-        <h2 className="order-title">Current Order</h2>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.5rem',
+          }}
+        >
+          <h2 className="order-title">Current Order</h2>
+          <img onClick={() => setInfoSection('right')} src="/Info.svg" alt="Info Icon" style={{ width: 25, height: 25 }} />
+        </div>
 
         <div className="order-lines">
           {cart.length === 0 ? (
@@ -369,7 +473,7 @@ export default function Kiosk() {
                       <div>
                         {d.extras.map((e: any) => (
                           <span key={e.ingredient_id}>
-                            {e.ingredient_name} (+${e.ingredient_cost.toFixed(2)}), {' '}
+                            {e.ingredient_name} (+${e.ingredient_cost.toFixed(2)}),{' '}
                           </span>
                         ))}
                       </div>
@@ -746,8 +850,8 @@ export default function Kiosk() {
               </div>
             ))}
 
-           {/* Multi-select categories */}
-            {multiSelectCategories.map((cat) => (
+            {/* Multi-select categories */}
+            {multiSelectCategories.map((cat) =>
               groupedIngredients[cat] ? (
                 <div key={cat} style={{ marginBottom: '1rem' }}>
                   <h4>{cat}</h4>
@@ -768,14 +872,17 @@ export default function Kiosk() {
                           onClick={() => toggleTopping(ing)}
                           className={`btn ${isSelected ? 'active' : ''}`}
                         >
-                          {ing.ingredient_name} {ing.ingredient_cost ? `(+${ing.ingredient_cost.toFixed(2)})` : ''}
+                          {ing.ingredient_name}{' '}
+                          {ing.ingredient_cost
+                            ? `(+${ing.ingredient_cost.toFixed(2)})`
+                            : ''}
                         </button>
                       );
                     })}
                   </div>
                 </div>
               ) : null
-            ))}
+            )}
 
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
               <button
@@ -787,6 +894,57 @@ export default function Kiosk() {
               </button>
               <button className="btn" onClick={cancelCustomization}>
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* INFO POPUP (for left/center/right sections) */}
+      {infoSection && (
+        <div
+          className="info-backdrop"
+          onClick={() => setInfoSection(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 2500,
+          }}
+        >
+          <div
+            className="info-modal"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: '#fff',
+              padding: '1.5rem 2rem',
+              borderRadius: '8px',
+              maxWidth: '420px',
+              width: '90%',
+              boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
+            }}
+          >
+            {(() => {
+              const { title, body } = getInfoContent();
+              return (
+                <>
+                  <h3 style={{ marginBottom: '0.75rem' }}>{title}</h3>
+                  <p style={{ marginBottom: '1.5rem', lineHeight: 1.5 }}>{body}</p>
+                </>
+              );
+            })()}
+            <div style={{ textAlign: 'right' }}>
+              <button
+                className="btn"
+                onClick={() => setInfoSection(null)}
+              >
+                Got it
               </button>
             </div>
           </div>
