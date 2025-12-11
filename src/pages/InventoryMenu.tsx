@@ -549,7 +549,7 @@ export default function UpdateMenu() {
             className="update-form-grid"
           >
             <div className="update-field">
-              <label className="update-label">Name</label>
+              <label>Name</label>
               <input
                 className="update-input"
                 value={newName}
@@ -558,7 +558,7 @@ export default function UpdateMenu() {
             </div>
 
             <div className="update-field">
-              <label className="update-label">Supply</label>
+              <label>Supply</label>
               <input
                 className="update-input"
                 value={newSupply}
@@ -567,7 +567,7 @@ export default function UpdateMenu() {
             </div>
 
             <div className="update-field">
-              <label className="update-label">Expiration Date</label>
+              <label>Expiration Date</label>
               <input
                 className="update-input"
                 placeholder="YYYY-MM-DD"
@@ -579,7 +579,7 @@ export default function UpdateMenu() {
             </div>
 
             <div className="update-field">
-              <label className="update-label">Cost</label>
+              <label>Cost</label>
               <input
                 className="update-input"
                 value={newPrice}
@@ -588,7 +588,7 @@ export default function UpdateMenu() {
             </div>
 
             <div className="update-field">
-              <label className="update-label">Vendor</label>
+              <label>Vendor</label>
               <input
                 className="update-input"
                 value={newVendor}
@@ -597,7 +597,7 @@ export default function UpdateMenu() {
             </div>
 
             <div className="update-field">
-              <label className="update-label">Category</label>
+              <label>Category</label>
               <select
                 className="update-input"
                 value={newCategoryId}

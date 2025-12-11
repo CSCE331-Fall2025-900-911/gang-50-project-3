@@ -13,32 +13,49 @@ export default function CashierNavbar() {
   const [showAccessibilityPopup, setShowAccessibilityPopup] = useState(false);
 
   // Initialize from localStorage only once
-  const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem("fontSize")) || 16);
-  const [highContrast, setHighContrast] = useState(() => localStorage.getItem("highContrast") === "true");
+  const [fontSize, setFontSize] = useState(
+    () => Number(localStorage.getItem("fontSize")) || 16
+  );
+  const [highContrast, setHighContrast] = useState(
+    () => localStorage.getItem("highContrast") === "true"
+  );
+
+  /* ---------- FONT SIZE ---------- */
 
   const applyFontSize = (size: number) => {
-    const currentSize = parseInt(getComputedStyle(document.documentElement).fontSize, 10);
+    const currentSize = parseInt(
+      getComputedStyle(document.documentElement).fontSize,
+      10
+    );
     if (currentSize !== size) {
       document.documentElement.style.fontSize = `${size}px`;
       localStorage.setItem("fontSize", size.toString());
     }
   };
 
+  /* ---------- HIGH CONTRAST (class on <body>) ---------- */
+
   const applyContrastMode = (enabled: boolean) => {
-    const desiredFilter = enabled ? "invert(1) hue-rotate(180deg)" : "";
-    if (document.documentElement.style.filter !== desiredFilter) {
-      document.documentElement.style.filter = desiredFilter;
-      localStorage.setItem("highContrast", enabled.toString());
+    const body = document.body;
+    if (!body) return;
+
+    if (enabled) {
+      body.classList.add("high-contrast");
+    } else {
+      body.classList.remove("high-contrast");
     }
+
+    localStorage.setItem("highContrast", enabled.toString());
   };
 
-  // Apply saved settings
+  // Apply saved settings on first mount
   useLayoutEffect(() => {
     applyFontSize(fontSize);
     applyContrastMode(highContrast);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // --- GOOGLE TRANSLATE LOADING LOGIC ---
+
   useEffect(() => {
     if (!showAccessibilityPopup) return;
 
@@ -69,60 +86,86 @@ export default function CashierNavbar() {
     }
   }, [showAccessibilityPopup]);
 
-  const handleLogout = () => {
+  useEffect(() => {
+    const navbar = document.querySelector("nav");
+
+    const observer = new MutationObserver(() => {
+      const bannerIframe = document.querySelector(".goog-te-banner-frame");
+      if (navbar) {
+        (navbar as HTMLElement).style.top = bannerIframe ? "40px" : "0px";
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+
+  const handleCancelOrder = () => {
     localStorage.clear();
     sessionStorage.clear();
-    document.documentElement.style.fontSize = '16px';
-    document.documentElement.style.filter = '';
-    console.log("User logged out.");
+    document.documentElement.style.fontSize = "16px";
+    document.body.classList.remove("high-contrast");
+    console.log("User canceled order.");
     navigate("/");
   };
 
-  // Font Size Handlers
   const handleIncreaseFont = () => {
     const newSize = fontSize + 2;
     setFontSize(newSize);
     applyFontSize(newSize);
   };
+
   const handleDecreaseFont = () => {
     const newSize = fontSize - 2 >= 10 ? fontSize - 2 : 10;
     setFontSize(newSize);
     applyFontSize(newSize);
   };
+
   const handleResetFont = () => {
     setFontSize(16);
     applyFontSize(16);
   };
 
-  // Contrast Mode Handler
+  /* ---------- CONTRAST TOGGLE ---------- */
+
   const toggleContrastMode = () => {
-    const newMode = !highContrast;
-    setHighContrast(newMode);
-    applyContrastMode(newMode);
+    setHighContrast(prev => {
+      const next = !prev;
+      applyContrastMode(next);
+      return next;
+    });
   };
 
   return (
     <nav>
       <div className="FifTeaLogo">
-        <img className="navLogo" src="/FifteaLogo.png" alt="FifTea Logo"/>
+        <img className="navLogo" src="/FifteaLogo.png" alt="FifTea Logo" />
       </div>
 
       <div className="pages">
-
-        <div 
-          className="navItem" 
+        <div
+          className="navItem"
           onClick={() => setShowAccessibilityPopup(true)}
           style={{ cursor: "pointer" }}
         >
-          <img className="navIcon" src="/Accessibility.svg" alt="Accessibility Icon" />
+          <img
+            className="navIcon"
+            src="/Accessibility.svg"
+            alt="Accessibility Icon"
+          />
           <p>Accessibility</p>
         </div>
 
         <div className="navItem">
-          <button className="logout" onClick={handleLogout}>Logout</button>
+          <button className="logout" onClick={handleCancelOrder}>
+            Cancel Order
+          </button>
         </div>
       </div>
 
+      {/* ACCESSIBILITY POPUP */}
       {showAccessibilityPopup && (
         <div
           className="popup-overlay"
@@ -139,53 +182,60 @@ export default function CashierNavbar() {
             zIndex: 9999
           }}
         >
-          <div
-            className="popup-content"
-            style={{
-              backgroundColor: "white",
-              padding: "2rem",
-              borderRadius: "8px",
-              width: "400px",
-              maxHeight: "80vh",
-              overflowY: "auto",
-              textAlign: "center"
-            }}
-          >
-            <h2>Accessibility Settings</h2>
-
-            <p style={{ marginBottom: "1rem" }}>Adjust Display Font Size</p>
-            <div style={{ display: "flex", justifyContent: "center", gap: "1rem" }}>
-              <button className="btn" onClick={handleDecreaseFont}>A-</button>
-              <button className="btn" onClick={handleIncreaseFont}>A+</button>
+          <div className="weather-modal">
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <h2>Accessibility Settings</h2>
+              <button
+                className="logout"
+                onClick={() => setShowAccessibilityPopup(false)}
+                style={{ width: 40, height: 40, padding: 10, marginTop: 15 }}
+              >
+                X
+              </button>
+            </div>
+            <h3 style={{ marginBottom: "1rem" }}>Adjust Display Font Size</h3>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "1rem",
+              }}
+            >
+              <button className="btn" onClick={handleDecreaseFont}>
+                A-
+              </button>
+              <button className="btn" onClick={handleIncreaseFont}>
+                A+
+              </button>
             </div>
             <p style={{ marginTop: "0.5rem" }}>Current Size: {fontSize}px</p>
-            <button className="btn" onClick={handleResetFont} style={{ marginTop: "0.5rem" }}>
+            <button
+              className="logout"
+              onClick={handleResetFont}
+              style={{ marginTop: "0.5rem" }}
+            >
               Reset to Default
             </button>
 
             <hr style={{ margin: "1rem 0" }} />
 
-            {/* Google Translate */}
             <div style={{ margin: "1rem 0" }}>
               <h3 style={{ marginBottom: "0.5rem" }}>Translate</h3>
-              <div id="google_translate_element"></div>
+              <div id="google_translate_element" />
             </div>
 
             <hr style={{ margin: "1rem 0" }} />
 
-            <p style={{ marginBottom: "0.5rem" }}>High Contrast Mode</p>
-            <button className="btn" onClick={toggleContrastMode}>
+            <h3 style={{ marginBottom: "0.5rem" }}>High Contrast Mode</h3>
+            <button className="logout" onClick={toggleContrastMode}>
               {highContrast ? "Disable" : "Enable"}
             </button>
 
-            <div style={{ marginTop: "1.5rem" }}>
-              <button className="logout" onClick={() => setShowAccessibilityPopup(false)}>
-                Close
-              </button>
-            </div>
+            
           </div>
         </div>
       )}
+
     </nav>
   );
 }

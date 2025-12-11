@@ -894,11 +894,6 @@ body {
   cursor: not-allowed;
 }
 
-.employee-page {
-  background-color: #f3f4f6;
-  color: #111827;
-}
-
 .employee-main {
   max-width: 1200px;
   margin: 0 auto;
@@ -1143,12 +1138,6 @@ body {
   .employee-actions-col {
     width: auto;
   }
-}
-
-
-.update-page {
-  background-color: #f3f4f6;
-  color: #111827;
 }
 
 .update-main {
@@ -1498,11 +1487,6 @@ body {
   color: #374151;
   max-height: 200px;
   overflow-y: auto;
-}
-
-.menu-update-page {
-  background-color: #f3f4f6;
-  color: #111827;
 }
 
 .menu-update-main {
@@ -1911,4 +1895,380 @@ body {
   justify-content: center;  /* or flex-start */
   gap: 0.5rem;
   margin: 0;                /* reset any margin that might push them right */
+}
+
+/* Weather popup */
+
+.weather-backdrop {
+  z-index: 1100; /* above nav & other content */
+}
+
+.weather-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+  width: 380px;
+  max-width: 90vw;
+  max-height: 80vh;
+  padding: 20px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.weather-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.weather-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.weather-close-icon {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+.weather-close-icon:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.weather-main-temp {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0.4rem 0 0.1rem;
+}
+
+.weather-description {
+  margin: 0 0 0.9rem;
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.weather-stat-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.weather-stat-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.weather-footer {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* small screens */
+@media (max-width: 480px) {
+  .weather-modal {
+    width: 90vw;
+    padding: 16px 18px;
+  }
+
+  .weather-main-temp {
+    font-size: 1.9rem;
+  }
+}
+
+/* =========================
+   HIGH CONTRAST THEME
+   ========================= */
+
+body.high-contrast {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Navbar */
+body.high-contrast nav {
+  background: #000000;
+  box-shadow: none;
+  border-bottom: 2px solid #ffffff;
+}
+
+body.high-contrast .navLogo {
+  filter: none; /* keep logo as-is; remove if you were inverting it */
+}
+
+body.high-contrast .pageItem p,
+body.high-contrast .pageItem a,
+body.high-contrast .navItem,
+body.high-contrast .orDivider {
+  color: #ffffff;
+}
+
+/* Category sidebar + main panels */
+body.high-contrast .orders-layout {
+  background: #000000;
+}
+
+body.high-contrast .sidebar,
+body.high-contrast .sidebar-left,
+body.high-contrast .sidebar-right,
+body.high-contrast .employee-table-card,
+body.high-contrast .update-card,
+body.high-contrast .update-card-big,
+body.high-contrast .update-table-card,
+body.high-contrast .menu-admin-card,
+body.high-contrast .analytics-section,
+body.high-contrast .analytics-small-card,
+body.high-contrast .analytics-product-card {
+  background-color: #000000;
+  border-color: #ffffff;
+  box-shadow: none;
+}
+
+/* Text inside cards */
+body.high-contrast .section-title,
+body.high-contrast .order-title,
+body.high-contrast .analytics-section-title,
+body.high-contrast .update-title,
+body.high-contrast .update-subtitle,
+body.high-contrast .employee-subtitle,
+body.high-contrast .update-card-title,
+body.high-contrast .update-card-subtitle,
+body.high-contrast .analytics-stat-label,
+body.high-contrast .analytics-stat-value {
+  color: #ffffff;
+}
+
+/* Category + item cards */
+body.high-contrast .category-btn,
+body.high-contrast .cashier-category-btn,
+body.high-contrast .item-card {
+  background: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+body.high-contrast .category-btn.active,
+body.high-contrast .cashier-category-btn.active {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  font-weight: 700;
+}
+
+body.high-contrast .item-name {
+  color: #ffffff;
+}
+
+body.high-contrast .item-price {
+  color: #ff0000; /* bright yellow for price */
+}
+
+/* Order panel + rows */
+body.high-contrast .order-line {
+  background: #000000;
+  border-color: #ffffff;
+  box-shadow: none;
+}
+
+body.high-contrast .order-line-sub {
+  color: #e5e7eb;
+}
+
+body.high-contrast .totals-card {
+  background: #000000;
+  border: 1px solid #ffffff;
+}
+
+body.high-contrast .totals-row,
+body.high-contrast .totals-row-total {
+  color: #ffffff;
+}
+
+/* Tables (update / employee / menu / ingredient) */
+body.high-contrast .update-table-wrapper,
+body.high-contrast .employee-table-wrapper,
+body.high-contrast .ingredient-table-wrapper {
+  background-color: #000000;
+  border-color: #ffffff;
+}
+
+body.high-contrast .update-table,
+body.high-contrast .employee-table,
+body.high-contrast .menu-table {
+  color: #ffffff;
+}
+
+body.high-contrast .update-table thead,
+body.high-contrast .employee-table thead,
+body.high-contrast .menu-table thead {
+  background-color: #111827;
+}
+
+body.high-contrast .update-table tbody tr:nth-child(odd),
+body.high-contrast .employee-table tbody tr:nth-child(odd),
+body.high-contrast .menu-table tbody tr:nth-child(odd) {
+  background-color: #111827;
+}
+
+body.high-contrast .update-table tbody tr:nth-child(even),
+body.high-contrast .employee-table tbody tr:nth-child(even),
+body.high-contrast .menu-table tbody tr:nth-child(even) {
+  background-color: #020617;
+}
+
+/* Inputs */
+body.high-contrast .input,
+body.high-contrast .employee-input,
+body.high-contrast .update-input,
+body.high-contrast .menu-input,
+body.high-contrast .analytics-date-input {
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+body.high-contrast .input::placeholder,
+body.high-contrast .employee-input::placeholder,
+body.high-contrast .update-input::placeholder,
+body.high-contrast .menu-input::placeholder {
+  color: #9ca3af;
+}
+
+/* Generic buttons */
+body.high-contrast .button,
+body.high-contrast .btn,
+body.high-contrast .btn-checkout,
+body.high-contrast .reportButton,
+body.high-contrast .btn-Employee,
+body.high-contrast .btn-update,
+body.high-contrast .btn-updateMenu,
+body.high-contrast .btn-menu-primary,
+body.high-contrast .logout {
+  background-color: #ff0000;   /* bright yellow */
+  color: #000000;
+  border-color: #ffffff;
+}
+
+body.high-contrast .button:hover,
+body.high-contrast .btn:hover,
+body.high-contrast .btn-checkout:hover,
+body.high-contrast .reportButton:hover,
+body.high-contrast .btn-Employee:hover,
+body.high-contrast .btn-update:hover,
+body.high-contrast .btn-updateMenu:hover,
+body.high-contrast .btn-menu-primary:hover,
+body.high-contrast .logout:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* Ghost / outline variants */
+body.high-contrast .btn-Employee--outline,
+body.high-contrast .btn-Employee--ghost,
+body.high-contrast .btn-update--outline,
+body.high-contrast .btn-menu-secondary,
+body.high-contrast .btn-table--outline {
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+/* Weather modal & checkout modal in high contrast */
+body.high-contrast .checkout-backdrop {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+body.high-contrast .checkout-modal,
+body.high-contrast .weather-modal {
+  background: #000000;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+body.high-contrast .weather-title,
+body.high-contrast .weather-main-temp,
+body.high-contrast .weather-description,
+body.high-contrast .weather-stat-label,
+body.high-contrast .weather-stat-value {
+  color: #ffffff;
+}
+
+body.high-contrast .btn-primary,
+body.high-contrast .btn-ghost {
+  background-color: #ff0000;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+body.high-contrast .btn-ghost:hover {
+  background-color: #ffffff;
+}
+
+.high-contrast .menu-ingredients-list {
+  background-color: #000000;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+/* rows + labels inside the ingredient list */
+.high-contrast .menu-ingredient-row,
+.high-contrast .menu-ingredients-row { /* in case your class is plural somewhere */
+  color: #ffffff;
+}
+
+.high-contrast .menu-ingredients-label {
+  color: #f9fafb;
+}
+
+/* checkboxes inside ingredient list */
+.high-contrast .menu-ingredient-row input[type="checkbox"],
+.high-contrast .menu-ingredients-row input[type="checkbox"] {
+  accent-color: #ff4b4b; /* your red */
+  border-color: #ffffff;
+}
+
+/* ========================= */
+/* High Contrast – Analytics */
+/* ========================= */
+
+.high-contrast .analytics-product-card {
+  background-color: #000000;
+  border-color: #ffffff;
+}
+
+.high-contrast .analytics-product-grid {
+  background-color: #000000;
+}
+
+.high-contrast .analytics-product-chart {
+  background-color: #000000;
+  border-color: #ffffff;
+}
+
+/* right side controls in that card */
+.high-contrast .analytics-product-controls {
+  background-color: #000000;
+}
+
+.high-contrast .analytics-input-label {
+  color: #f9fafb;
 }
