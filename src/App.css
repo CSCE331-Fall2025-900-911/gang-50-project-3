@@ -2272,3 +2272,21 @@ body.high-contrast .btn-ghost:hover {
 .high-contrast .analytics-input-label {
   color: #f9fafb;
 }
+
+
+
+/* Item cards inside Orders.tsx */
+.orders-page .item-card {
+  flex: 0 0 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: box-shadow .15s ease, transform .05s ease;
+}
